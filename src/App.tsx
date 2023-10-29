@@ -1,11 +1,10 @@
 import './index.scss';
+import Routes from './routes/index.routes';
 
 function App() {
   return (
     <>
-      <p className="text-3xl text-primary">
-        Hello world!
-      </p>
+     <Routes />
     </>
   )
 }
