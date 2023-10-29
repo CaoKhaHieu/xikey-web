@@ -1,10 +1,11 @@
+import './index.scss';
 
 function App() {
   return (
     <>
-      <h1 className="">
+      <p className="text-3xl text-primary">
         Hello world!
-      </h1>
+      </p>
     </>
   )
 }
