@@ -17,7 +17,7 @@ const menu: IMenuData[] = [
     active: true,
   },
   {
-    id: 1,
+    id: 2,
     tooltip: "",
     icon: <CheckIcon />,
     active: false,
@@ -49,6 +49,7 @@ const Sidebar = () => {
             <>
               {menu.map((item: IMenuData) => (
                 <MenuItem
+                  key={item.id}
                   className={classNames(
                     "text-white text-3xl w-full h-16 flex justify-center items-center",
                     {
@@ -65,6 +66,7 @@ const Sidebar = () => {
             <>
               {menuBottom.map((item: IMenuData) => (
                 <MenuItem
+                  key={item.id}
                   className={classNames(
                     "text-white text-3xl w-full h-16 flex justify-center items-center",
                     {

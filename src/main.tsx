@@ -3,6 +3,8 @@ import ReactDOM from "react-dom";
 import App from './App.tsx';
 import { BrowserRouter } from 'react-router-dom';
 
+import './shared/utils/i18n.js';
+
 ReactDOM.render(
   <React.StrictMode>
     <BrowserRouter>
