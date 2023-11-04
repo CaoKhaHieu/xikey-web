@@ -10,6 +10,10 @@ body {
   @apply overflow-hidden;
 }
 
+img {
+  @apply h-full w-full;
+}
+
 /* Track Scroll */
 ::-webkit-scrollbar {
   @apply w-1.5 h-1.5;

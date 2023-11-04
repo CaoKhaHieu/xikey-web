@@ -19,7 +19,7 @@
       "pages/*": ["src/pages/*"],
       "components/*": ["src/shared/components/*"],
     },
-
+    "types": ["vite-plugin-svgr/client"],
     /* Linting */
     "strict": true,
     "noUnusedLocals": true,
