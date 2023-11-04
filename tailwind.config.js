@@ -10,6 +10,10 @@ export default {
         primary: '#f9b6b5',
         black1: '#122643',
         gray1: '#A6A6A6',
+        gray2: '#dfdfe5',
+      },
+      width: {
+        87.5: '350px'
       }
     },
   },
