@@ -1,3 +1,4 @@
+import classNames from "classnames";
 import React, { ReactElement, useEffect, useRef, useState } from "react";
 
 interface ITabs {
@@ -83,10 +84,12 @@ const TabList = (props: ITabList) => {
   });
 
   return (
-    <div className="tab-list">
+    <div className="tab-list flex space-x-1 items-center border-b border-gray2 relative">
       {tabs}
       <div
-        className="under-line"
+        className={classNames(
+          "under-line absolute bottom-0 h-0.5 bg-black1 transition-all duration-300"
+        )}
         style={{
           left: `${stylesUnderLine?.left}px`,
           width: `${stylesUnderLine?.width}px`,
@@ -114,7 +117,12 @@ const Tab = (props: ITab) => {
   return (
     <div
       ref={tabRef}
-      className={`tab ${isActive ? "active-tab" : ""}`}
+      className={classNames(
+        "text-base font-semibold p-2 text-gray1 cursor-pointer",
+        {
+          "!text-black1": isActive,
+        }
+      )}
       onClick={onClick}
     >
       {children}
@@ -138,7 +146,11 @@ const TabPanels = (props: ITabPanels) => {
 const TabPanel = (props: ITabPanel) => {
   const { children, isActive } = props;
   return (
-    <div className={`tab-panel ${isActive ? "active-panel" : ""}`}>
+    <div
+      className={classNames("hidden", {
+        "!block": isActive,
+      })}
+    >
       {children}
     </div>
   );
