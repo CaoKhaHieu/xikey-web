@@ -1,8 +1,11 @@
 import React from 'react';
+import NoData from './components/no-data';
 
 const Home = () => {
   return (
-    <div></div>
+    <div className='h-screen w-full'>
+      <NoData />
+    </div>
   );
 };
 

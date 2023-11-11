@@ -6,9 +6,9 @@ const Home = lazy(() => import('./home'));
 
 const FeatureRoutes = () => {
   return (
-    <div>
+    <div className='flex'>
       <Sidebar />
-      <div>
+      <div className='flex-1'>
         <Suspense fallback={null}>
           <Switch>
             <Route
