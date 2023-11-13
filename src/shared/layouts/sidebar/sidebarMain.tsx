@@ -27,7 +27,7 @@ const SidebarMain = () => {
         <div className="px-1">
           <div className="flex justify-center items-center w-full border border-gray2 rounded-lg mt-2 mb-4 overflow-hidden">
             <Input
-              className=""
+              variant="search"
               placeholder={t("search")}
               onChange={handleChangeInput}
               value={valueInput}

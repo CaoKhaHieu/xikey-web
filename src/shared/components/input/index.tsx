@@ -1,20 +1,29 @@
 import React from "react";
 import classNames from "classnames";
 
-type InputProps = React.HTMLProps<HTMLInputElement>;
+import './style.module.scss';
+
+interface InputOptions {
+  variant?: 'search' | 'auth';
+  label?: string;
+}
+
+type InputProps = React.HTMLProps<HTMLInputElement> & InputOptions;
 
 const Input = (props: InputProps) => {
-  const { className, ...rest } = props;
+  const { className, variant, label, ...rest } = props;
   return (
-    <>
+    <div className="input-wrapper">
+      <label className="input-label">{label}</label>
       <input
         className={classNames(
-          "border-none outline-none w-full py-1.5 px-3 text-black flex",
-          className
+          "input",
+          className,
+          variant
         )}
         {...rest}
       ></input>
-    </>
+    </div>
   );
 };
 

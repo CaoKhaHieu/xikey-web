@@ -1,0 +1,12 @@
+:global {
+  .button {
+    @apply duration-300;
+    &.contained {
+      @apply w-full text-xl bg-primary py-3 rounded-lg font-semibold text-black1;
+
+      &:hover {
+        @apply hover:bg-primaryHover;
+      }
+    }
+  }
+}

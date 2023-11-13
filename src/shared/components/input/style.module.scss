@@ -1,0 +1,18 @@
+:global {
+  .input-wrapper {
+    @apply flex flex-col w-full;
+  }
+  .input-label {
+    @apply text-white;
+  }
+  .input {
+    @apply w-full outline-none decoration-transparent;
+    &.search {
+      @apply border-none py-1.5 px-3 text-black flex;
+    }
+
+    &.auth {
+      @apply border-b border-gray2 py-1.5 text-white flex bg-transparent;
+    }
+  }  
+}
