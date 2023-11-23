@@ -1,0 +1,11 @@
+:global {
+  .icon {
+    @apply p-1.5 duration-300;
+    &:hover {
+      @apply text-white bg-primary rounded;
+    }
+    &.active {
+      @apply text-white bg-primary rounded;
+    }
+  }
+}
