@@ -1,4 +1,4 @@
-import React from "react";
+import React, { forwardRef } from "react";
 import classNames from "classnames";
 
 import './style.module.scss';
@@ -10,12 +10,13 @@ interface InputOptions {
 
 type InputProps = React.HTMLProps<HTMLInputElement> & InputOptions;
 
-const Input = (props: InputProps) => {
+const Input = forwardRef((props: InputProps, ref: React.Ref<HTMLInputElement>) => {
   const { className, variant, label, ...rest } = props;
   return (
     <div className="input-wrapper">
       <label className="input-label">{label}</label>
       <input
+        ref={ref}
         className={classNames(
           "input",
           className,
@@ -25,6 +26,6 @@ const Input = (props: InputProps) => {
       ></input>
     </div>
   );
-};
+});
 
 export default Input;
