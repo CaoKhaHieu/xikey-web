@@ -10,11 +10,11 @@ interface ButtonOptions {
 type InputProps = React.HTMLProps<HTMLButtonElement> & ButtonOptions;
 
 const Button = (props: InputProps) => {
-  const { className, variant } = props;
+  const { className, variant, ...otherProps } = props;
 
   return (
     <>
-      <button className={classNames("button", className, variant)}>
+      <button className={classNames("button", className, variant)} {...otherProps}>
         {props.children}
       </button>
     </>

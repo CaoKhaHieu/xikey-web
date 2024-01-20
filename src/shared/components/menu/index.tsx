@@ -1,5 +1,5 @@
+import { ReactElement } from "react";
 import classNames from "classnames";
-import React, { ReactElement } from "react";
 
 interface IMenu {
   className?: string;

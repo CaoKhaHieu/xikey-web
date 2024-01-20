@@ -1,4 +1,3 @@
-import React from "react";
 import { IUser } from "@/shared/models/User";
 import ChatItem from "../chat-item";
 

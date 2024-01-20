@@ -2,5 +2,25 @@
   "search": "Search ...",
   "all": "All",
   "unread": "Unread",
-  "type_message": "Type message ..."
+  "type_message": "Type message ...",
+  "register": "Register",
+  "ok": "OK",
+  "account_created": "You have successfully created an account",
+  "error": {
+    "name_length": "The name must be between 6 to 30 characters",
+    "confirm_password": "Please enter your confirm password",
+    "match_password": "Password and confirm password do not match",
+    "email_invalid": "Please enter a valid email",
+    "email_required": "Please enter your email",
+    "name_required": "Please enter your name",
+    "password_invalid": "Only letters and numbers are allowed",
+    "password_1_number": "Contain at least 1 number",
+    "password_length": "Password must be 6-32 characters",
+    "password_required": "Please enter your password",
+    "confirm_password_required": "Please enter your confirm password",
+    "confirm_password_match": "Password and confirm password do not match",
+    "S0001": "This email is already in use",
+    "0": "No internet connection. \nPlease check the connection status and try again.",
+    "400": "Something went wrong. \nPlease try again."
+  }
 }

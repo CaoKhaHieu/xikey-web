@@ -1,5 +1,3 @@
-import React from 'react';
-
 import Button from '@/shared/components/button';
 import Input from '@/shared/components/input';
 

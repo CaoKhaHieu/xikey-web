@@ -1,5 +1,3 @@
-import React from "react";
-
 import Message from "@/shared/components/message";
 import { IMessage } from "@/shared/models/Message";
 import { TYPE_MESSAGE } from "@/shared/enums";

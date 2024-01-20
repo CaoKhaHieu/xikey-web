@@ -1,4 +1,3 @@
-import React from "react";
 import Avatar from "@/shared/components/avatar";
 
 import SearchIcon from "@/assets/icons/search.svg?react";

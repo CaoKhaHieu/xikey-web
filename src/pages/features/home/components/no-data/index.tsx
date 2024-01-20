@@ -1,4 +1,3 @@
-import React from "react";
 import WelcomeIcon from "@/assets/icons/welcome.svg?react";
 
 const NoData = () => {
