@@ -8,6 +8,9 @@
   "login": "Login",
   "account_created": "You have successfully created an account",
   "no_account": "Don't have an account?",
+  "account_settings": "Account Settings",
+  "introduce": "Introduce",
+  "logout": "Logout",
   "error": {
     "name_length": "The name must be between 6 to 30 characters",
     "confirm_password": "Please enter your confirm password",

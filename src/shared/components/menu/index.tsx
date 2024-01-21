@@ -11,6 +11,7 @@ export interface IMenuData {
   tooltip: string;
   icon: any;
   active: boolean;
+  onClick?: () => void
 }
 
 interface IMenuItem {

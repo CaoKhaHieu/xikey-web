@@ -30,9 +30,20 @@ function* register({ payload, resolve, reject }: AnyAction): any {
   }
 }
 
+function* logout({ payload, resolve, reject }: AnyAction): any {
+  try {
+    const res = yield post(['v1', 'auth', 'logout'], { data: payload });
+    resolve(res);
+  } catch (error: any) {
+    reject(error);
+    yield put(handleApiResponseError(error));
+  }
+}
+
 export function* watchAuth() {
   yield all([
     takeLatest(types.LOGIN, login),
     takeLatest(types.REGISTER, register),
+    takeLatest(types.LOGOUT, logout),
   ]);
 };
