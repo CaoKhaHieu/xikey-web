@@ -4,13 +4,16 @@ import { post } from '../saga';
 
 import { all, put, takeLatest } from 'redux-saga/effects';
 import { handleApiResponseError } from '../common/actions';
+import { setRefreshToken, setToken } from '@/shared/utils/utils';
 
 function* login({ payload, resolve, reject }: AnyAction): any {
-  const endPoint: string = payload.endPoint || 'login';
   try {
-    const res = yield post(['v1', 'auth', endPoint], { data: payload.body });
+    const res = yield post(['v1', 'auth', 'login'], { data: payload });
+    const { tokens } = res;
+    setToken(tokens.access.token);
+    setRefreshToken(tokens.refresh.token);
 
-    resolve(res.data);
+    resolve(res);
   } catch (error: any) {
     reject(error);
     yield put(handleApiResponseError(error));
@@ -19,12 +22,8 @@ function* login({ payload, resolve, reject }: AnyAction): any {
 
 function* register({ payload, resolve, reject }: AnyAction): any {
   try {
-    const res = yield post(
-      ['v1', 'auth', 'register'],
-      { data: payload },
-      {}
-    );
-    resolve(res.data);
+    const res = yield post(['v1', 'auth', 'register'], { data: payload });
+    resolve(res);
   } catch (error: any) {
     reject(error);
     yield put(handleApiResponseError(error));

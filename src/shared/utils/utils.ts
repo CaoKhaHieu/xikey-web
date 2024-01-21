@@ -38,6 +38,7 @@ export const formValidateResolver = (arrFields: string[]) => {
     confirmPassword: yup.string().trim()
       .required('error.confirm_password_required')
       .oneOf([yup.ref('password'), null], 'error.confirm_password_match'),
+    passwordLogin: yup.string().required('error.password_required'),
   };
 
   // Convert string array to key and get value from fieldsValidate
@@ -49,3 +50,20 @@ export const formValidateResolver = (arrFields: string[]) => {
 };
 
 export const showToast = (message: string) => toast(message);
+
+// Auth 
+export const setToken = (token: string) => {
+  localStorage.setItem('ACCESS-TOKEN', token);
+};
+
+export const setRefreshToken = (token: string) => {
+  localStorage.setItem('REFRESH-TOKEN', token);
+};
+
+export const removeToken = () => {
+  localStorage.removeItem('ACCESS-TOKEN');
+};
+
+export const getToken = () => localStorage.getItem('ACCESS-TOKEN');
+
+export const getRefreshToken = () => localStorage.getItem('REFRESH-TOKEN') || '';
