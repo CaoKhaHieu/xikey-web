@@ -26,7 +26,7 @@ const Menu = (props: IMenu) => {
 
 const MenuItem = (props: IMenuItem) => {
   const { menu, className } = props;
-  const { id, tooltip, icon, active } = menu;
+  const { icon } = menu;
   return <div className={classNames("cursor-pointer", className)}>{icon}</div>;
 };
 

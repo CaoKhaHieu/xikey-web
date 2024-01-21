@@ -9,7 +9,7 @@ interface ILoadingProps {
 
 const LoadingContext = createContext({
   loading: false,
-  setLoading: (loading: boolean) => {}
+  setLoading: (_loading: boolean) => {}
 });
 
 export const useLoading = () => useContext(LoadingContext);

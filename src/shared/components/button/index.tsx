@@ -14,7 +14,7 @@ const Button = (props: InputProps) => {
 
   return (
     <>
-      <button className={classNames("button", className, variant)} {...otherProps}>
+      <button className={classNames("button", className, variant)} {...otherProps as any}>
         {props.children}
       </button>
     </>
