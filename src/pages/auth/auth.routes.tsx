@@ -1,11 +1,17 @@
 import { Suspense } from 'react'
-import { Route, Switch, useRouteMatch } from 'react-router-dom';
+import { Redirect, Route, Switch, useRouteMatch } from 'react-router-dom';
 
 import Login from './login';
 import Register from './register';
 
+import { getToken } from '@/shared/utils/utils';
+
 const AuthRoutes = () => {
   const { path } = useRouteMatch();
+
+  if (getToken()) {
+    return <Redirect to="/" />;
+  }
 
   return (
     <div className=''>

@@ -1,7 +1,7 @@
 import { SubmitHandler, useForm } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import { useDispatch } from 'react-redux';
-import { useHistory } from 'react-router-dom';
+import { Link, useHistory } from 'react-router-dom';
 import { yupResolver } from '@hookform/resolvers/yup';
 
 import Button from '@/shared/components/button';
@@ -59,6 +59,10 @@ const Login = () => {
         <Button variant='contained'>
           {t('login')}
         </Button>
+        <p className='text-base text-white flex items-center mx-auto'>
+          {t('no_account')}
+          <Link className='text-primary ml-1' to='/auth/register'>{t('register')}</Link>
+        </p>
       </div>
     </form>
   );

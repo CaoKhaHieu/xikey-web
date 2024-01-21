@@ -1,6 +1,8 @@
 import { Suspense, lazy } from 'react';
+import { Switch } from 'react-router-dom';
+
 import Sidebar from '../../shared/layouts/sidebar';
-import { Route, Switch } from 'react-router-dom';
+import AuthRoute from '@/routes/AuthRoute';
 
 const Home = lazy(() => import('./home'));
 
@@ -11,7 +13,7 @@ const FeatureRoutes = () => {
       <div className='flex-1'>
         <Suspense fallback={null}>
           <Switch>
-            <Route
+            <AuthRoute
               path='/'
               component={Home}
             />
