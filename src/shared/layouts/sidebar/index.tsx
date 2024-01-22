@@ -1,6 +1,6 @@
 import { useRef } from "react";
 import classNames from "classnames";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { useTranslation } from "react-i18next";
 
 import SidebarMain from "./sidebarMain";
@@ -13,6 +13,7 @@ import SettingIcon from "@/assets/icons/setting.svg?react";
 import DynamicPopover from "@/shared/components/popover";
 import { logout } from "@/stores/auth/actions";
 import { getRefreshToken, removeToken } from "@/shared/utils/utils";
+import { User } from "@/shared/models/User";
 
 const menu: IMenuData[] = [
   {
@@ -31,7 +32,8 @@ const menu: IMenuData[] = [
 
 const Sidebar = () => {
   const popoverRef: any = useRef();
-;
+  const { user }: { user: User } = useSelector((state: any) => state.authReducer);
+
   const dispatch = useDispatch();
   const { t } = useTranslation();
 
@@ -62,7 +64,7 @@ const Sidebar = () => {
         <div className="mt-8 mb-4">
           <Avatar
             className="mx-auto"
-            url="https://picsum.photos/200/200"
+            url={user?.avatar}
           />
         </div>
 

@@ -1,8 +1,9 @@
 import { combineReducers } from 'redux';
 import { createReducer } from '../redux';
+import { User } from '@/shared/models/User';
 
-const userInitialState = null;
-const setUser = (state: any, payload: any) => {
+const userInitialState: User = new User({});
+const setUser = (state: any, payload: User) => {
   return {
     ...state,
     ...payload

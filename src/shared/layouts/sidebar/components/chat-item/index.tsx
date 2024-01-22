@@ -1,8 +1,8 @@
 import Avatar from "@/shared/components/avatar";
-import { IUser } from "@/shared/models/User";
+import { User } from "@/shared/models/User";
 
 interface IUserSidebar {
-  user: IUser;
+  user: User;
 }
 
 const ChatItem = (props: IUserSidebar) => {
@@ -17,7 +17,7 @@ const ChatItem = (props: IUserSidebar) => {
         {/* top */}
         <div className="flex justify-between items-center">
           <div className="text-black1 text-base line-clamp-1">
-            {user.displayName}
+            {user.name}
           </div>
           <p className="whitespace-nowrap text-sm text-gray3">1h ago</p>
         </div>

@@ -1,15 +1,17 @@
-export interface IUser {
+export interface User {
   id: string;
   email: string;
-  firstName: string;
-  lastName: string;
-  displayName: string;
-  role: string;
+  name: string;
   avatar: string;
   online: boolean;
-  gender: 'male' | 'female';
-  dob: string;
-  phone: string;
-  password?: string;
-  refreshToken?: string;
+}
+
+export class User {
+  constructor (user: any) {
+    this.id = user.id;
+    this.email = user.email;
+    this.avatar = user.avatar;
+    this.name = user.name;
+    this.online = user.online || false;
+  }
 }

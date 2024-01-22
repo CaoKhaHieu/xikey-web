@@ -27,6 +27,8 @@
     "S0001": "This email is already in use",
     "S0002": "Incorrect email or password",
     "0": "No internet connection. \nPlease check the connection status and try again.",
-    "400": "Something went wrong. \nPlease try again."
+    "400": "Something went wrong. \nPlease try again.",
+    "500": "Server error.\nPlease try again.",
+    "401": "Session token has expired.\nPlease log in again."
   }
 }

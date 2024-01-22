@@ -1,4 +1,6 @@
 import axios, { Method } from 'axios';
+import { getToken } from '../utils/utils';
+
 const API_DOMAIN = 'http://localhost:4000';
 const REQUEST_TIMEOUT = 10000;
 
@@ -38,10 +40,10 @@ export class ApiService {
       },
     });
     this.axiosInstance.interceptors.request.use((_config: any) => {
-      // const token = getToken();
-      // if (token) {
-      //   _config.headers.Authorization = `Bearer ${token}`;
-      // }
+      const token = getToken();
+      if (token) {
+        _config.headers.Authorization = `Bearer ${token}`;
+      }
       return _config;
     });
     this.axiosInstance.interceptors.response.use(
