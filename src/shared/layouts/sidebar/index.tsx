@@ -32,7 +32,7 @@ const menu: IMenuData[] = [
 
 const Sidebar = () => {
   const popoverRef: any = useRef();
-  const { user }: { user: User } = useSelector((state: any) => state.authReducer);
+  const { user }: { user: User } = useSelector((state: any) => state.userReducer);
 
   const dispatch = useDispatch();
   const { t } = useTranslation();
@@ -91,6 +91,7 @@ const Sidebar = () => {
             <>
               {menuBottom.map((item: IMenuData) => (
                 <DynamicPopover
+                  key={item.id}
                   ref={ popoverRef }
                   positions={['right', 'top']}
                   triggerElm={

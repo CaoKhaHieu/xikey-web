@@ -1,24 +1,45 @@
+import { useEffect } from 'react';
+import { useDispatch } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 
 import { Dialog } from '..';
 import Button from '../../button';
+import { logout } from '@/stores/auth/actions';
+import { getRefreshToken, removeToken } from '@/shared/utils/utils';
 
 interface ErrorDialogOptions {
   title: string;
   content: string;
   actionText?: string;
+  statusCode?: number;
   close?: () => void;
   afterClose?: () => void;
 }
 
 const ErrorDialog = (props: ErrorDialogOptions) => {
-  const { title, content, close, actionText, afterClose, ...otherProps } = props;
+  const { title, content, close, actionText, afterClose, statusCode, ...otherProps } = props;
   const { t } = useTranslation();
+  const dispatch = useDispatch();
 
   const handleClose = () => {
     close && close();
     afterClose && afterClose();
   };
+
+  useEffect(() => {
+    return () => {
+      if (statusCode === 401) {
+        const refreshToken = {
+          refreshToken: getRefreshToken()
+        };
+        dispatch(logout(refreshToken, () => {
+          removeToken();
+          window.location.reload();
+        }, () => {
+        }));
+      }
+    };
+  }, [statusCode]);
 
   return (
     <Dialog {...otherProps} className='p-5 rounded-lg' closeRight close={handleClose}>

@@ -1,8 +1,9 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import { useTranslation } from "react-i18next";
+
 import ListChat from "./components/list-chat";
 import Input from "@/shared/components/input";
-
 import SearchIcon from "@/assets/icons/search.svg?react";
 import {
   Tab,
@@ -11,14 +12,33 @@ import {
   TabPanels,
   Tabs,
 } from "@/shared/components/tabs";
+import { getAllUsers } from "@/stores/user/action";
+import { User } from "@/shared/models/User";
 
 const SidebarMain = () => {
   const [valueInput, setValueInput] = useState<string>("");
+
+  const { user }: { user: User } = useSelector((state: any) => state.userReducer);
+
   const { t } = useTranslation();
+  const dispatch = useDispatch();
+
+  useEffect(() => {
+    if (!user.id) {
+      return;
+    }
+    handleGetAllUsers();
+  }, [user]);
 
   const handleChangeInput = (event: React.FormEvent<HTMLInputElement>) => {
     const value = event.currentTarget.value;
     setValueInput(value);
+  };
+
+  const handleGetAllUsers = () => {
+    dispatch(getAllUsers(null, () => {
+    }, () => {
+    }));
   };
 
   return (

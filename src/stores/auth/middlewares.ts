@@ -5,8 +5,8 @@ import { get, post } from '../saga';
 import { all, put, takeLatest } from 'redux-saga/effects';
 import { handleApiResponseError } from '../common/actions';
 import { setRefreshToken, setToken } from '@/shared/utils/utils';
-import { setUser } from './actions';
 import { User } from '@/shared/models/User';
+import { setUser } from '../user/action';
 
 function* login({ payload, resolve, reject }: AnyAction): any {
   try {

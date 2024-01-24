@@ -48,7 +48,7 @@ const data: IMessage[] = [
     timestamp: "1700250564066",
   },
   {
-    id: "4",
+    id: "5",
     fromId: "8",
     toId: "1997",
     type: TYPE_MESSAGE.IMAGE,
@@ -59,7 +59,7 @@ const data: IMessage[] = [
     timestamp: "1700250564066",
   },
   {
-    id: "4",
+    id: "6",
     fromId: "1997",
     toId: "8",
     type: TYPE_MESSAGE.IMAGE,
@@ -70,7 +70,7 @@ const data: IMessage[] = [
     timestamp: "1700250564066",
   },
   {
-    id: "4",
+    id: "7",
     fromId: "1997",
     toId: "8",
     type: TYPE_MESSAGE.TEXT,

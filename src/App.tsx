@@ -8,13 +8,11 @@ import './index.scss';
 import Routes from './routes/index.routes';
 import { useDialog } from './shared/components/dialog';
 import ErrorDialog from './shared/components/dialog/templates/ErrorDialog';
-import { getUser } from './stores/auth/actions';
 import { getToken } from './shared/utils/utils';
-import { User } from './shared/models/User';
+import { getUser } from './stores/user/action';
 
 function App() {
   const { apiController } = useSelector((state: any) => state.commonReducer);
-  const { user }: { user: User } = useSelector((state: any) => state.authReducer);
 
   const { appendDialog } = useDialog();
   const { t } = useTranslation();
@@ -33,7 +31,7 @@ function App() {
   useEffect(() => {
     if (apiController.statusCode) {
       const message = apiController.code ? t(`error.${apiController.code}`) : apiController.message;
-      appendDialog(<ErrorDialog title='ERROR' content={message} />);
+      appendDialog(<ErrorDialog title='ERROR' statusCode={apiController.statusCode} content={message} />);
     }
   }, [apiController]);
 
