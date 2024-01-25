@@ -1,15 +1,9 @@
-// import NoData from './components/no-data';
-import ChatHeader from './components/chat-header';
-import ChatMain from './components/chat-main';
-import TypeMessage from './components/type-message';
+import NoData from './components/no-data';
 
 const Home = () => {
   return (
     <div className='h-screen w-full flex flex-col'>
-      {/* <NoData /> */}
-      <ChatHeader />
-      <ChatMain />
-      <TypeMessage />
+      <NoData />
     </div>
   );
 };

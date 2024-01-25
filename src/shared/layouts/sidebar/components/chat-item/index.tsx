@@ -1,3 +1,4 @@
+import { Link } from "react-router-dom";
 import Avatar from "@/shared/components/avatar";
 import { User } from "@/shared/models/User";
 
@@ -9,7 +10,7 @@ const ChatItem = (props: IUserSidebar) => {
   const { user } = props;
 
   return (
-    <div className="flex p-2 cursor-pointer hover:bg-gray2 duration-300">
+    <Link to={`/chat/${user.id}`} className="flex p-2 cursor-pointer hover:bg-gray2 duration-300">
       <div>
         <Avatar className="" url={user.avatar} />
       </div>
@@ -29,7 +30,7 @@ const ChatItem = (props: IUserSidebar) => {
           </p>
         </div>
       </div>
-    </div>
+    </Link>
   );
 };
 
