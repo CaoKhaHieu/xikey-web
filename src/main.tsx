@@ -9,6 +9,7 @@ import App from './App.tsx';
 import store from './stores/index.ts';
 import LoadingProvider from './shared/components/loading/index.tsx';
 import { DialogProvider } from './shared/components/dialog/index.tsx';
+import ChatProvider from './shared/contexts/chat-context/index.tsx';
 
 ReactDOM.render(
   <React.StrictMode>
@@ -16,7 +17,9 @@ ReactDOM.render(
       <BrowserRouter>
         <DialogProvider>
           <LoadingProvider>
-            <App />
+            <ChatProvider>
+              <App />
+            </ChatProvider>
           </LoadingProvider>
         </DialogProvider>
       </BrowserRouter>

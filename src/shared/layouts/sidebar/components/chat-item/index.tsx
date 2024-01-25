@@ -4,13 +4,14 @@ import { User } from "@/shared/models/User";
 
 interface IUserSidebar {
   user: User;
+  onClick: () => void;
 }
 
 const ChatItem = (props: IUserSidebar) => {
-  const { user } = props;
+  const { user, onClick } = props;
 
   return (
-    <Link to={`/chat/${user.id}`} className="flex p-2 cursor-pointer hover:bg-gray2 duration-300">
+    <Link onClick={onClick} to={`/chat/${user.id}`} className="flex p-2 cursor-pointer hover:bg-gray2 duration-300">
       <div>
         <Avatar className="" url={user.avatar} />
       </div>
