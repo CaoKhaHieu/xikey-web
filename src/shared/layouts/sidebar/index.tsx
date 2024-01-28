@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import classNames from "classnames";
 import { useDispatch, useSelector } from "react-redux";
 import { useTranslation } from "react-i18next";
@@ -41,6 +41,12 @@ const Sidebar = () => {
 
   const dispatch = useDispatch();
   const { t } = useTranslation();
+
+  useEffect(() => {
+    if (user?.avatar) {
+      setAvatarLocal(user?.avatar);
+    }
+  }, [user?.id]);
 
   const handleLogout = () => {
     const refreshToken = {
