@@ -1,7 +1,7 @@
 import qs from 'qs';
 import { ApiService, ErrorMessage } from '@/shared/services/api';
 
-function createURL(uri: string[], query: any) {
+export function createURL(uri: string[], query: any) {
   const queryParams = qs.stringify(query, { skipNulls: true });
   let paramsUrl: any;
   let url: string;

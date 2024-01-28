@@ -1,6 +1,6 @@
 import { AnyAction } from 'redux';
 import { types } from '../types';
-import { get } from '../saga';
+import { get, post } from '../saga';
 
 import { all, put, takeLatest } from 'redux-saga/effects';
 import { handleApiResponseError } from '../common/actions';
@@ -20,8 +20,19 @@ function* getAllUser({ resolve, reject }: AnyAction): any {
   }
 }
 
+function* updateAvatar({ payload, resolve, reject }: AnyAction): any {
+  try {
+    const res = yield post(['v1', 'user', 'update-avatar'], { data: payload });
+    resolve(res);
+  } catch (error: any) {
+    reject(error);
+    yield put(handleApiResponseError(error));
+  }
+}
+
 export function* watchUser() {
   yield all([
     takeLatest(types.GET_ALL_USER, getAllUser),
+    takeLatest(types.UPDATE_AVATAR, updateAvatar),
   ]);
 };

@@ -1,3 +1,4 @@
+import { generateAPIAction } from "../redux";
 import { types } from "../types";
 
 export const saveApiResponseError = (error: any) => ({
@@ -13,3 +14,5 @@ export const handleApiResponseError = (error: any) => ({
 export const clearApiResponseError = () => ({
   type: types.CLEAR_API_RESPONSE_ERROR,
 });
+
+export const upload = generateAPIAction(types.UPLOAD);
