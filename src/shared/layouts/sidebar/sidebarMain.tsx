@@ -12,8 +12,8 @@ import {
   TabPanels,
   Tabs,
 } from "@/shared/components/tabs";
-import { getAllUsers } from "@/stores/user/action";
 import { User } from "@/shared/models/User";
+import { getAllConversation } from "@/stores/conversation/action";
 
 const SidebarMain = () => {
   const [valueInput, setValueInput] = useState<string>("");
@@ -27,7 +27,7 @@ const SidebarMain = () => {
     if (!user.id) {
       return;
     }
-    handleGetAllUsers();
+    handleGetAllConversation();
   }, [user]);
 
   const handleChangeInput = (event: React.FormEvent<HTMLInputElement>) => {
@@ -35,10 +35,8 @@ const SidebarMain = () => {
     setValueInput(value);
   };
 
-  const handleGetAllUsers = () => {
-    dispatch(getAllUsers(null, () => {
-    }, () => {
-    }));
+  const handleGetAllConversation = () => {
+    dispatch(getAllConversation());
   };
 
   return (
