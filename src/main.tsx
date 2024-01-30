@@ -10,18 +10,21 @@ import store from './stores/index.ts';
 import LoadingProvider from './shared/components/loading/index.tsx';
 import { DialogProvider } from './shared/components/dialog/index.tsx';
 import ChatProvider from './shared/contexts/chat-context/index.tsx';
+import SocketProvider from './shared/contexts/socket-context/index.tsx';
 
 ReactDOM.render(
   <React.StrictMode>
     <Provider store={store}>
       <BrowserRouter>
-        <DialogProvider>
-          <LoadingProvider>
-            <ChatProvider>
-              <App />
-            </ChatProvider>
-          </LoadingProvider>
-        </DialogProvider>
+        <SocketProvider>
+          <DialogProvider>
+            <LoadingProvider>
+              <ChatProvider>
+                <App />
+              </ChatProvider>
+            </LoadingProvider>
+          </DialogProvider>
+        </SocketProvider>
       </BrowserRouter>
     </Provider>
   </React.StrictMode>,
