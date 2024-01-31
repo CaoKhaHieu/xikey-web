@@ -1,4 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
+import { useParams } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
 import EmojiPicker from 'emoji-picker-react';
 
 import Input from "@/shared/components/input";
@@ -8,20 +10,25 @@ import UploadFileIcon from "@/assets/icons/upload-file.svg?react";
 import LikeIcon from "@/assets/icons/like.svg?react";
 import Smile from "@/assets/icons/smile.svg?react";
 import { useTranslation } from "react-i18next";
+import { createMessage } from "@/stores/message/action";
+import { User } from "@/shared/models/User";
 
 const previewConfig = {
   showPreview: false,
 };
 
 const TypeMessage = () => {
-  const [isOpenModalIcon, setIsOpenModalIcon] = useState<boolean>(false);
   const [valueInput, setValueInput] = useState('');
+  const [isOpenModalIcon, setIsOpenModalIcon] = useState<boolean>(false);
+  const { user }: { user: User } = useSelector((state: any) => state.userReducer);
   
   const inputRef = useRef<HTMLInputElement>(null);
   const emojiRef = useRef<any>();
   const valueInputRef = useRef<string>('');
 
+  const { id }: { id: string } = useParams();
   const { t } = useTranslation();
+  const dispatch = useDispatch();
 
   useEffect(() => {
     const handleClickOutside = (e: any) => {
@@ -56,6 +63,24 @@ const TypeMessage = () => {
     valueInputRef.current = value;
   };
 
+  const handleKeyPress = (e: React.KeyboardEvent) => {
+    if(e.key == 'Enter' && !e.shiftKey){
+      e.preventDefault();
+      handleSendMessage();
+    }
+  };
+
+  const handleSendMessage = () => {
+    const body = {
+      conversationId: id,
+      sender: user.id,
+      content: valueInput,
+    };
+  dispatch(createMessage(body, () => {
+      setValueInput('');
+    }, () => {}));
+  };
+
   return (
     <div className="flex flex-col">
       <div className="flex items-center space-x-6 px-4 py-2 border-b border-gray2">
@@ -63,7 +88,7 @@ const TypeMessage = () => {
         <UploadFileIcon />
       </div>
       <div className="flex items-center space-x-4 px-4">
-        <Input ref={inputRef} className="p-4 pl-0" placeholder={t('type_message')} value={valueInput} onChange={handleChange} />
+        <Input ref={inputRef} className="p-4 pl-0" placeholder={t('type_message')} value={valueInput} onChange={handleChange} onKeyPress={handleKeyPress} />
         <div className="flex items-center relative">
           <button onClick={() => toggleOpenModalIcon(!isOpenModalIcon)}>
             <Smile />

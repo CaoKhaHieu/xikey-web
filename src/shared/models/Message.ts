@@ -1,13 +1,17 @@
-import { TYPE_MESSAGE } from "../enums";
-
-export interface IMessage {
+export interface Message {
   id: string;
-  fromId: string;
-  toId: string;
-  type: TYPE_MESSAGE
+  conversationId: string;
+  sender: string;
   content: string;
-  isLatest: boolean;
-  isSeen: boolean;
-  createdAt: string;
-  timestamp: string;
+  isDeleted: boolean;
+}
+
+export class Message {
+  constructor (message: any) {
+    this.id = message.id;
+    this.conversationId = message.conversationId;
+    this.sender = message.sender;
+    this.content = message.content;
+    this.isDeleted = message.isDeleted || false;
+  }
 }

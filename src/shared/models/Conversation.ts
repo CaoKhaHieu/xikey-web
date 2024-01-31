@@ -1,3 +1,4 @@
+import { Message } from "./Message";
 import { User } from "./User";
 
 export interface Conversation {
@@ -5,6 +6,7 @@ export interface Conversation {
   name: string;
   avatar: string;
   members: User[];
+  lastMessage: Message;
 }
 
 export class Conversation {
@@ -12,6 +14,7 @@ export class Conversation {
     this.id = conversation.id;
     this.avatar = conversation.avatar;
     this.name = conversation.name;
-    this.members = conversation.members
+    this.members = conversation.members;
+    this.lastMessage = conversation.lastMessage;
   }
 }

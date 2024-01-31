@@ -3,6 +3,7 @@ import { watchAuth } from './auth/middlewares';
 import { watchCommon } from './common/middlewares';
 import { watchUser } from './user/middleware';
 import { watchConversation } from './conversation/middleware';
+import { watchMessage } from './message/middleware';
 
 export default function* appMiddleware() {
   yield all([
@@ -10,5 +11,6 @@ export default function* appMiddleware() {
     watchCommon(),
     watchUser(),
     watchConversation(),
+    watchMessage(),
   ]);
 }
