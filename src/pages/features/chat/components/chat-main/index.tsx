@@ -3,8 +3,10 @@ import { useParams } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import Message from "@/shared/components/message";
 import { TYPE_MESSAGE } from "@/shared/enums";
-import { getListMessage } from "@/stores/message/action";
+import { getListMessage, saveNewMessage } from "@/stores/message/action";
 import { Message as MessageModel } from "@/shared/models/Message";
+import { useSocket } from "@/shared/contexts/socket-context";
+import { updateLastMessageConversation } from "@/stores/conversation/action";
 
 
 const ChatMain = () => {
@@ -13,6 +15,7 @@ const ChatMain = () => {
   const listMessage: MessageModel[] = Object.values(messageManagement.messages);
 
   const { id }: { id: string } = useParams();
+  const { socket } = useSocket();
   const dispatch = useDispatch();
 
   useEffect(() => {
@@ -20,6 +23,15 @@ const ChatMain = () => {
       handleGetMessage();
     }
   }, [id]);
+
+  useEffect(() => {
+    if (socket && id) {
+      socket.on('new_message', (newMessage: MessageModel) => {
+        dispatch(saveNewMessage(newMessage));
+        dispatch(updateLastMessageConversation(newMessage));
+      });
+    }
+  }, [socket, id]);
 
   useEffect(() => {
     endSectionRef.current?.scrollIntoView();

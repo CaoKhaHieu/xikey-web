@@ -9,3 +9,8 @@ export const saveListMessage = (payload: Message[]) => ({
   type: types.SAVE_LIST_MESSAGE,
   payload,
 });
+
+export const saveNewMessage = (payload: Message) => ({
+  type: types.SAVE_NEW_MESSAGE,
+  payload,
+});

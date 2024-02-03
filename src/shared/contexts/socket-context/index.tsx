@@ -6,7 +6,7 @@ interface SocketProps {
 }
 
 const SocketContext = createContext({
-  socket: {},
+  socket: io(),
 });
 
 const ENDPOINT = 'http://localhost:4000';

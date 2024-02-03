@@ -7,10 +7,18 @@ const messageInitialState = {
   messages: {},
 };
 const saveListMessageByIdConversation = (state: any, payload: Message[]) => {
-  const data: any = { ...message };
-  payload.forEach(message => {
+  const data: any = {};
+  payload.forEach((message: Message) => {
     data[message.id] = { ...message };
   });
+  return {
+    ...state,
+    messages: data,
+  };
+};
+const saveNewMessageByIdConversation = (state: any, payload: Message) => {
+  const data: any = { ...state.messages };
+  data[payload.id] = payload;
   return {
     ...state,
     messages: data,
@@ -19,6 +27,7 @@ const saveListMessageByIdConversation = (state: any, payload: Message[]) => {
 
 const messageStrategies = {
   SAVE_LIST_MESSAGE: saveListMessageByIdConversation,
+  SAVE_NEW_MESSAGE: saveNewMessageByIdConversation,
   __default__: (state: any) => state,
 };
 

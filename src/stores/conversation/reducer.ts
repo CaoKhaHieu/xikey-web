@@ -1,20 +1,34 @@
 import { combineReducers } from 'redux';
 import { createReducer } from '../redux';
 import { Conversation } from '@/shared/models/Conversation';
+import { Message } from '@/shared/models/Message';
 
 // conversation
 const conversationInitialState = {
-  allConversations: [],
+  allConversations: {},
 };
 const saveAllConversations = (state: any, payload: Conversation[]) => {
+  const data: any = {};
+  payload.forEach((conversation: Conversation) => {
+    data[conversation.id] = conversation;
+  });
   return {
     ...state,
-    allConversations: [...payload],
+    allConversations: data,
+  };
+};
+const updateLastMessageConversation = (state: any, payload: Message) => {
+  const data: any = { ...state.allConversations };
+  data[payload.conversationId].lastMessage = payload;
+  return {
+    ...state,
+    allConversations: data,
   };
 };
 
 const conversationStrategies = {
   SAVE_ALL_CONVERSATION: saveAllConversations,
+  UPDATE_LAST_MESSAGE_CONVERSATION: updateLastMessageConversation,
   __default__: (state: any) => state,
 };
 

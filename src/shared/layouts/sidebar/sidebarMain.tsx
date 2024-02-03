@@ -71,7 +71,8 @@ const SidebarMain = () => {
               <ListChat />
             </TabPanel>
             <TabPanel>
-              <ListChat />
+              {/* <ListChat /> */}
+              <></>
             </TabPanel>
           </TabPanels>
         </Tabs>
