@@ -1,5 +1,6 @@
 import * as yup from 'yup';
 import toast from 'react-hot-toast';
+import i18n from './i18n.ts';
 
 import { PASSWORD_PATTERN, VALIDATE_LENGTH } from '../constants';
 
@@ -67,3 +68,45 @@ export const removeToken = () => {
 export const getToken = () => localStorage.getItem('ACCESS-TOKEN');
 
 export const getRefreshToken = () => localStorage.getItem('REFRESH-TOKEN') || '';
+
+// time
+export const timeSince = (date: string) => {
+  const { t } = i18n;
+  const seconds = Math.floor((Date.now() - new Date(date).getTime()) / 1000);
+
+  let interval = seconds / 31536000;
+  interval = seconds / 2592000;
+  if (interval > 1) {
+    const datetime = new Date(date);
+    const day = datetime.getDate();
+    const month = datetime.getMonth() + 1; // Tháng trong JavaScript đếm từ 0
+    const year = datetime.getFullYear();
+    return `${day}/${month}/${year}`;
+  }
+  interval = seconds / 86400;
+  if (interval > 1) {
+    const time = Math.floor(interval);
+    return t(`format_time.day${time > 1 ? 's' : ''}`, { day: time });
+  }
+  interval = seconds / 3600;
+  if (interval > 1) {
+    const time = Math.floor(interval);
+    return t(`format_time.hour${time > 1 ? 's' : ''}`, { hour: time });
+  }
+  interval = seconds / 60;
+  if (interval > 1) {
+    const time = Math.floor(interval);
+    return t(`format_time.minute${time > 1 ? 's' : ''}`, { minute: time });
+  }
+  return t('format_time.now');
+};
+
+export const formatTimeToHHMM = (dateTime: string) => {
+  const date = new Date(dateTime);
+  // Get hours and minutes from the Date object
+  const hours = date.getHours().toString().padStart(2, '0');
+  const minutes = date.getMinutes().toString().padStart(2, '0');
+
+  const formattedTime = `${hours}:${minutes}`;
+  return formattedTime;
+};

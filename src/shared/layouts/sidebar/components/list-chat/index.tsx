@@ -20,7 +20,7 @@ const ListChat = () => {
   return (
     <div className="flex flex-col overflow-y-scroll h-[calc(100vh-103px)]">
       {
-        listConversations?.length && listConversations.map(conversation => (
+        listConversations?.length > 0 && listConversations.map(conversation => (
           <ChatItem key={conversation.id} conversation={conversation} />
         ))
       }

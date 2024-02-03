@@ -4,6 +4,7 @@ import Avatar from "@/shared/components/avatar";
 import { User } from "@/shared/models/User";
 import { Conversation } from "@/shared/models/Conversation";
 import { useChat } from "@/shared/contexts/chat-context";
+import { timeSince } from "@/shared/utils/utils";
 
 interface IUserSidebar {
   conversation: Conversation;
@@ -35,7 +36,9 @@ const ChatItem = (props: IUserSidebar) => {
           <div className="text-black1 text-base line-clamp-1">
             {userChat.name}
           </div>
-          <p className="whitespace-nowrap text-sm text-gray3">1h ago</p>
+          <p className="whitespace-nowrap text-sm text-gray3">
+            {timeSince(conversation.updatedAt)}
+          </p>
         </div>
 
         {/* bottom */}

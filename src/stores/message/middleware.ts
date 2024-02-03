@@ -9,7 +9,7 @@ import { saveListMessage } from './action';
 function* createMessage({ payload, resolve, reject }: AnyAction): any {
   try {
     const res = yield post(['v1', 'message', 'create'], { data: payload });
-    resolve();
+    resolve(res);
   } catch (error: any) {
     reject(error);
     yield put(handleApiResponseError(error));

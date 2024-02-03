@@ -20,9 +20,10 @@ const saveAllConversations = (state: any, payload: Conversation[]) => {
 const updateLastMessageConversation = (state: any, payload: Message) => {
   const data: any = { ...state.allConversations };
   data[payload.conversationId].lastMessage = payload;
+  data[payload.conversationId].updatedAt = payload.createdAt;
   return {
     ...state,
-    allConversations: data,
+    allConversations: { ...data },
   };
 };
 

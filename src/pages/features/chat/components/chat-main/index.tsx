@@ -2,7 +2,6 @@ import { useEffect, useRef } from "react";
 import { useParams } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import Message from "@/shared/components/message";
-import { TYPE_MESSAGE } from "@/shared/enums";
 import { getListMessage, saveNewMessage } from "@/stores/message/action";
 import { Message as MessageModel } from "@/shared/models/Message";
 import { useSocket } from "@/shared/contexts/socket-context";
@@ -50,8 +49,12 @@ const ChatMain = () => {
     <div className="h-full p-4 bg-black1 overflow-y-scroll">
       <div className="flex flex-col space-y-4">
         {listMessage.length > 0 &&
-          listMessage.map((message: MessageModel) => (
-            <Message key={message.id} message={message} />
+          listMessage.map((message: MessageModel, index: number) => (
+            <Message
+              key={message.id}
+              message={message}
+              showAvatar={listMessage[index - 1]?.sender !== listMessage[index].sender}
+            />
           ))}
       </div>
       <div ref={endSectionRef}></div>

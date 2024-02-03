@@ -7,6 +7,7 @@ export interface Conversation {
   avatar: string;
   members: User[];
   lastMessage: Message;
+  updatedAt: string;
 }
 
 export class Conversation {
@@ -16,5 +17,6 @@ export class Conversation {
     this.name = conversation.name;
     this.members = conversation.members;
     this.lastMessage = conversation.lastMessage;
+    this.updatedAt = conversation.updatedAt;
   }
 }

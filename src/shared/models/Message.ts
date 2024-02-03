@@ -4,6 +4,8 @@ export interface Message {
   sender: string;
   content: string;
   isDeleted: boolean;
+  createdAt: string;
+  updatedAt: string;
 }
 
 export class Message {
@@ -13,5 +15,7 @@ export class Message {
     this.sender = message.sender;
     this.content = message.content;
     this.isDeleted = message.isDeleted || false;
+    this.createdAt = message.createdAt;
+    this.updatedAt = message.updatedAt;
   }
 }

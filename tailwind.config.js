@@ -25,6 +25,9 @@ export default {
       },
       maxWidth: {
         '7/10': '70%'
+      },
+      minWidth: {
+        '20': '5rem'
       }
     },
   },
