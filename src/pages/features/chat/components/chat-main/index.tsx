@@ -5,7 +5,9 @@ import Message from "@/shared/components/message";
 import { getListMessage, saveNewMessage } from "@/stores/message/action";
 import { Message as MessageModel } from "@/shared/models/Message";
 import { useSocket } from "@/shared/contexts/socket-context";
-import { updateLastMessageConversation } from "@/stores/conversation/action";
+import { getUserOfConversation, updateLastMessageConversation } from "@/stores/conversation/action";
+import { useChat } from "@/shared/contexts/chat-context";
+import { User } from "@/shared/models/User";
 
 
 const ChatMain = () => {
@@ -14,11 +16,13 @@ const ChatMain = () => {
   const listMessage: MessageModel[] = Object.values(messageManagement.messages);
 
   const { id }: { id: string } = useParams();
+  const { handleSelectChat } = useChat();
   const { socket } = useSocket();
   const dispatch = useDispatch();
 
   useEffect(() => {
     if (id) {
+      handleGetUserChat();
       handleGetMessage();
     }
   }, [id]);
@@ -35,6 +39,13 @@ const ChatMain = () => {
   useEffect(() => {
     endSectionRef.current?.scrollIntoView();
   }, [listMessage]);
+
+  const handleGetUserChat = () => {
+    dispatch(getUserOfConversation(id, (user: User) => {
+      handleSelectChat(user);
+    }, () => {
+    }));
+  };
   
   const handleGetMessage = () => {
     const body = {

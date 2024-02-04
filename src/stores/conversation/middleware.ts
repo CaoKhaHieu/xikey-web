@@ -27,8 +27,23 @@ function* getAllConversation({ resolve, reject }: AnyAction): any {
   }
 }
 
+function* getUserOfConversation({ payload, resolve, reject }: AnyAction): any {
+  const query = {
+    conversationId: payload,
+  };
+  try {
+    const res = yield get(['v1', 'conversation', 'get-user'], { ...query });
+    const user = new User(res.data);
+    resolve(user);
+  } catch (error: any) {
+    reject(error);
+    yield put(handleApiResponseError(error));
+  }
+}
+
 export function* watchConversation() {
   yield all([
     takeLatest(types.GET_ALL_CONVERSATION, getAllConversation),
+    takeLatest(types.GET_USER_OF_CONVERSATION, getUserOfConversation),
   ]);
 };
