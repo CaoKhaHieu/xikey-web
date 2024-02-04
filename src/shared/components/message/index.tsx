@@ -4,7 +4,7 @@ import classNames from "classnames";
 import Avatar from "../avatar";
 import { User } from "@/shared/models/User";
 import { useChat } from "@/shared/contexts/chat-context";
-import { formatTimeToHHMM, urlify } from "@/shared/utils/utils";
+import { formatTimeToHHMM, isOnlyEmoji, urlify } from "@/shared/utils/utils";
 import { Message as MessageModel } from "@/shared/models/Message";
 
 interface MessageOptions {
@@ -18,6 +18,7 @@ const Message = (props: MessageOptions) => {
   
   const { selectedChat } = useChat();
   const isCurrentUser = user.id === message.sender;
+  const isOnlyEmojiMessage = isOnlyEmoji(message.content);
 
   return (
     <div className="flex space-x-2">
@@ -33,7 +34,9 @@ const Message = (props: MessageOptions) => {
           // "!bg-transparent !p-0": message.type === TYPE_MESSAGE.IMAGE
         })}
       >
-        <span dangerouslySetInnerHTML={{ __html: urlify(message.content) }}>
+        <span className={classNames({
+          "text-2xl": isOnlyEmojiMessage
+        })} dangerouslySetInnerHTML={{ __html: urlify(message.content) }}>
         </span>
         <p className="text-xs text-gray7 mt-2">
           {

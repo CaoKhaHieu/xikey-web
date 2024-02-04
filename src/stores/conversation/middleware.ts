@@ -10,7 +10,7 @@ import { saveAllConversations } from './action';
 
 function* getAllConversation({ resolve, reject }: AnyAction): any {
   try {
-    const res = yield get(['v1', 'conversation', 'get-all']);
+    const res = yield get(['v1', 'conversation', 'get-all-conversation']);
     const mappingData: Conversation[] = res.data.map((conversation: any) => {
       const conversationModel = new Conversation(conversation);
       return {

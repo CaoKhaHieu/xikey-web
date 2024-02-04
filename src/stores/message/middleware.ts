@@ -21,7 +21,7 @@ function* getListMessage({ payload, resolve, reject }: AnyAction): any {
     conversationId: payload.conversationId,
   };
   try {
-    const res = yield get(['v1', 'message', 'get-all'], { ...query });
+    const res = yield get(['v1', 'message', 'get-messages'], { ...query });
     
     yield put(saveListMessage(res.data));
     resolve();

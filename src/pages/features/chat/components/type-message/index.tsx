@@ -70,14 +70,16 @@ const TypeMessage = () => {
     }
   };
 
-  const handleSendMessage = () => {
+  const handleSendMessage = (message?: string) => {
     const body = {
       conversationId: id,
       sender: user.id,
-      content: valueInput,
+      content: message || valueInput,
     };
-  dispatch(createMessage(body, () => {
+    dispatch(createMessage(body, () => {
       setValueInput('');
+      setIsOpenModalIcon(false);
+      valueInputRef.current = '';
     }, () => {}));
   };
 
@@ -100,7 +102,9 @@ const TypeMessage = () => {
             </div>
           }
         </div>
-        <LikeIcon />
+        <div className="cursor-pointer" onClick={() => handleSendMessage('👍')}>
+          <LikeIcon />
+        </div>
       </div>
     </div>
   );
