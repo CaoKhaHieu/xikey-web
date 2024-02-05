@@ -7,6 +7,7 @@ import { useSocket } from "@/shared/contexts/socket-context";
 const ListChat = () => {
   const { conversation } = useSelector((state: any) => state.conversationReducer);
   const listConversations: Conversation[] = Object.values(conversation?.allConversations);
+  listConversations.sort((a: Conversation, b: Conversation) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime());
 
   const { socket } = useSocket();
 
