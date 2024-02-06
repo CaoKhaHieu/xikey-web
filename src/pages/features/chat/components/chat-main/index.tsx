@@ -37,7 +37,7 @@ const ChatMain = () => {
   }, [socket, id]);
 
   useEffect(() => {
-    endSectionRef.current?.scrollIntoView();
+    handleScrollToEnd();
   }, [listMessage]);
 
   const handleGetUserChat = () => {
@@ -56,6 +56,10 @@ const ChatMain = () => {
     }));
   };
 
+  const handleScrollToEnd = () => {
+    endSectionRef.current?.scrollIntoView();
+  };
+
   return (
     <div className="h-full p-4 bg-black1 overflow-y-scroll">
       <div className="flex flex-col space-y-4">
@@ -65,6 +69,7 @@ const ChatMain = () => {
               key={message.id}
               message={message}
               showAvatar={listMessage[index - 1]?.sender !== listMessage[index].sender}
+              onScrollEnd={handleScrollToEnd}
             />
           ))}
       </div>

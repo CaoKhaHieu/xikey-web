@@ -1,3 +1,5 @@
+import { TYPE_MESSAGE } from "../enums";
+
 export interface Message {
   id: string;
   conversationId: string;
@@ -6,6 +8,7 @@ export interface Message {
   isDeleted: boolean;
   createdAt: string;
   updatedAt: string;
+  type: TYPE_MESSAGE;
 }
 
 export class Message {
@@ -17,5 +20,6 @@ export class Message {
     this.isDeleted = message.isDeleted || false;
     this.createdAt = message.createdAt;
     this.updatedAt = message.updatedAt;
+    this.type = message.type;
   }
 }

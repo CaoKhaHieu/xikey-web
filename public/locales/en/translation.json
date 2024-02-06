@@ -43,5 +43,6 @@
     "days": "{{day}} days",
     "today": "Today",
     "yesterday": "Yesterday"
-  }
+  },
+  "image": "Image"
 }
