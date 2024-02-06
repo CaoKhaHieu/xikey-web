@@ -47,7 +47,7 @@ const Message = (props: MessageOptions) => {
           message.type === TYPE_MESSAGE.IMAGE &&
           <a href={message.content} className="cursor-pointer" target="_blank">
             <img
-              className="rounded-lg"
+              className="rounded-lg bg-white"
               src={message.content}
               onLoad={onScrollEnd}
             ></img>

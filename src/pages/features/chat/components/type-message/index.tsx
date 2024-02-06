@@ -107,7 +107,7 @@ const TypeMessage = () => {
           </label>
           <input className='hidden' id='input-image' type='file' accept="image/png, image/jpeg, image/jpg, image/webp" onChange={(e) => handleChangeFile(e, TYPE_MESSAGE.IMAGE)}></input>
         </div>
-        <UploadFileIcon />
+        {/* <UploadFileIcon /> */}
       </div>
       <div className="flex items-center space-x-4 px-4">
         <Input ref={inputRef} className="p-4 pl-0" placeholder={t('type_message')} value={valueInput} onChange={handleChange} onKeyPress={handleKeyPress} />
