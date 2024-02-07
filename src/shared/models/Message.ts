@@ -9,6 +9,7 @@ export interface Message {
   createdAt: string;
   updatedAt: string;
   type: TYPE_MESSAGE;
+  replyMessage: Message;
 }
 
 export class Message {
@@ -21,5 +22,6 @@ export class Message {
     this.createdAt = message.createdAt;
     this.updatedAt = message.updatedAt;
     this.type = message.type;
+    this.replyMessage = message.replyMessage;
   }
 }

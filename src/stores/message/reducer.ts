@@ -5,6 +5,7 @@ import { Message } from '@/shared/models/Message';
 // conversation
 const messageInitialState = {
   messages: {},
+  reply: {},
 };
 const saveListMessageByIdConversation = (state: any, payload: Message[]) => {
   const data: any = {};
@@ -25,9 +26,29 @@ const saveNewMessageByIdConversation = (state: any, payload: Message) => {
   };
 };
 
+const saveReplyMessage = (state: any, payload: { conversationId: string, message: Message }) => {
+  const data: any = { ...state.reply };
+  data[payload.conversationId] = payload.message;
+  return {
+    ...state,
+    reply: data,
+  };
+};
+
+const clearReplyMessage = (state: any, payload: { conversationId: string }) => {
+  const data: any = { ...state.reply };
+  delete data[payload.conversationId]
+  return {
+    ...state,
+    reply: data,
+  };
+};
+
 const messageStrategies = {
   SAVE_LIST_MESSAGE: saveListMessageByIdConversation,
   SAVE_NEW_MESSAGE: saveNewMessageByIdConversation,
+  SAVE_REPLY_MESSAGE: saveReplyMessage,
+  CLEAR_REPLY_MESSAGE: clearReplyMessage,
   __default__: (state: any) => state,
 };
 

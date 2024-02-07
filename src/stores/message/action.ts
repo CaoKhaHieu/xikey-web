@@ -14,3 +14,13 @@ export const saveNewMessage = (payload: Message) => ({
   type: types.SAVE_NEW_MESSAGE,
   payload,
 });
+
+export const saveReplyMessage = (payload: { conversationId: string, message: Message }) => ({
+  type: types.SAVE_REPLY_MESSAGE,
+  payload,
+});
+
+export const clearReplyMessage = (payload: { conversationId: string }) => ({
+  type: types.CLEAR_REPLY_MESSAGE,
+  payload,
+});

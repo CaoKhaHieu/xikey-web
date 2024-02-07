@@ -6,6 +6,9 @@ export default {
   ],
   theme: {
     extend: {
+      fontSize: {
+        2: '0.625rem',
+      },
       colors: {
         primary: '#f79090',
         primaryHover: '#f77575',
@@ -18,6 +21,7 @@ export default {
         gray7: '#383838',
         blue: '#005ae0',
         red: '#CC0000',
+        pink1: '#fde4e4',
         overlay5: 'rgba(0, 0, 0, 0.5)',
       },
       width: {
@@ -27,6 +31,7 @@ export default {
         '7/10': '70%'
       },
       minWidth: {
+        '12': '3rem',
         '20': '5rem'
       }
     },
