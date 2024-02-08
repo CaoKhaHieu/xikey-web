@@ -1,7 +1,7 @@
 import axios, { Method } from 'axios';
 import { getToken } from '../utils/utils';
+import { API_DOMAIN } from '../constants';
 
-const API_DOMAIN = 'http://localhost:4000';
 const REQUEST_TIMEOUT = 10000;
 
 export class ErrorMessage {
@@ -33,7 +33,7 @@ export class ApiService {
 
   constructor() {
     this.axiosInstance = axios.create({
-      baseURL: `${API_DOMAIN}/api/`,
+      baseURL: API_DOMAIN,
       timeout: REQUEST_TIMEOUT,
       headers: {
         'Content-Type': 'application/json',

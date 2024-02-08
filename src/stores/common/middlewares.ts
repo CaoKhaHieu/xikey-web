@@ -5,6 +5,7 @@ import { types } from "../types";
 import { createURL } from '../saga';
 import { getToken } from '@/shared/utils/utils';
 import { AnyAction } from 'redux';
+import { API_DOMAIN } from '@/shared/constants';
 
 const handleApiResponseError = function* ({ payload }: any): any {
   yield put(saveApiResponseError(payload));
@@ -12,9 +13,8 @@ const handleApiResponseError = function* ({ payload }: any): any {
 
 const handleUpload = function* ({ payload, resolve, reject }: AnyAction): any {
   try {
-    const baseURL = `http://localhost:4000/api/`;
     const url = createURL(['v1', 'upload'], '');
-    const response = yield axios.post(baseURL + url, payload, {
+    const response = yield axios.post(API_DOMAIN + url, payload, {
       headers: {
         'Authorization': `Bearer ${getToken()}`,
       }, 

@@ -1,5 +1,6 @@
 import { ReactElement, createContext, useContext, useEffect, useState } from 'react';
 import { io, Socket } from "socket.io-client";
+import { BASE_URL } from '@/shared/constants';
 
 interface SocketProps {
   children: ReactElement;
@@ -8,8 +9,6 @@ interface SocketProps {
 const SocketContext = createContext({
   socket: io(),
 });
-
-const ENDPOINT = 'http://localhost:4000';
 
 export const useSocket = () => {
   const socketContext = useContext(SocketContext);
@@ -24,7 +23,7 @@ const SocketProvider = (props: SocketProps) => {
   }, []);
 
   const createSocket = () => {
-    setSocket(io(ENDPOINT));
+    setSocket(io(BASE_URL));
   };
 
   const data: any = {
