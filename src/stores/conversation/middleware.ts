@@ -1,6 +1,6 @@
 import { AnyAction } from 'redux';
 import { types } from '../types';
-import { get } from '../saga';
+import { get, post } from '../saga';
 
 import { all, put, takeLatest } from 'redux-saga/effects';
 import { handleApiResponseError } from '../common/actions';
@@ -41,9 +41,21 @@ function* getUserOfConversation({ payload, resolve, reject }: AnyAction): any {
   }
 }
 
+function* createConversation({ payload, resolve, reject }: AnyAction): any {
+  try {
+    const res = yield post(['v1', 'conversation', 'create'], { data: payload });
+    const newConversation = new Conversation(res.data);
+    resolve(newConversation);
+  } catch (error: any) {
+    reject(error);
+    yield put(handleApiResponseError(error));
+  }
+}
+
 export function* watchConversation() {
   yield all([
     takeLatest(types.GET_ALL_CONVERSATION, getAllConversation),
     takeLatest(types.GET_USER_OF_CONVERSATION, getUserOfConversation),
+    takeLatest(types.CREATE_CONVERSATION, createConversation),
   ]);
 };

@@ -16,7 +16,6 @@ import { useChat } from "@/shared/contexts/chat-context";
 import LikeIcon from "@/assets/icons/like.svg?react";
 import Smile from "@/assets/icons/smile.svg?react";
 import UploadImageIcon from "@/assets/icons/upload-image.svg?react";
-import UploadFileIcon from "@/assets/icons/upload-file.svg?react";
 import CloseIcon from "@/assets/icons/close.svg?react";
 
 const previewConfig = {

@@ -44,5 +44,10 @@
     "today": "Today",
     "yesterday": "Yesterday"
   },
-  "image": "Image"
+  "image": "Image",
+  "you": "You: ",
+  "quotes": "“New friends are like new adventures. You never know what lessons they will teach you.”",
+  "close": "Close",
+  "no_result": "No results were found",
+  "try_again": "Please try again with another keyword"
 }

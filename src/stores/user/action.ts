@@ -6,6 +6,7 @@ export const getAllUsers = generateAPIAction(types.GET_ALL_USER);
 
 export const getUser = generateAPIAction(types.GET_USER);
 export const updateAvatar = generateAPIAction(types.UPDATE_AVATAR);
+export const searchUser = generateAPIAction(types.SEARCH_USER);
 
 export const setUser = (payload: User) => ({
   type: types.SET_USER,

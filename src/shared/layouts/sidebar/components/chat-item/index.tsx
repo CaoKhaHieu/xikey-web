@@ -7,6 +7,7 @@ import { Conversation } from "@/shared/models/Conversation";
 import { useChat } from "@/shared/contexts/chat-context";
 import { timeSince } from "@/shared/utils/utils";
 import { TYPE_MESSAGE } from "@/shared/enums";
+import classNames from "classnames";
 
 interface IUserSidebar {
   conversation: Conversation;
@@ -14,7 +15,8 @@ interface IUserSidebar {
 
 const ChatItem = (props: IUserSidebar) => {
   const { conversation } = props;
-  const { handleSelectChat } = useChat();
+
+  const { selectedChat, handleSelectChat } = useChat();
   const { t } = useTranslation();
   
   const { user }: { user: User } = useSelector((state: any) => state.userReducer);
@@ -25,11 +27,13 @@ const ChatItem = (props: IUserSidebar) => {
   }
 
   const handleClick = () => {
-    handleSelectChat(userChat);
+    handleSelectChat({ ...userChat, conversationId: conversation.id });
   };
   
   return (
-    <Link onClick={handleClick} to={`/chat/${conversation.id}`} className="w-full flex p-2 cursor-pointer hover:bg-gray2 duration-300">
+    <Link onClick={handleClick} to={`/chat/${conversation.id}`} className={classNames("w-full flex p-2 cursor-pointer hover:bg-pink2 duration-300", {
+      "bg-pink2": selectedChat.conversationId === conversation.id
+    })}>
       <div>
         <Avatar className="" url={userChat.avatar} />
       </div>
@@ -47,6 +51,9 @@ const ChatItem = (props: IUserSidebar) => {
         {/* bottom */}
         <div className="flex justify-between">
           <p className="text-sm text-gray3 line-clamp-1 text-ellipsis">
+            {
+              conversation?.lastMessage?.sender === user.id && t('you')
+            }
             {
               conversation.lastMessage?.type === TYPE_MESSAGE.TEXT &&
               conversation.lastMessage?.content
