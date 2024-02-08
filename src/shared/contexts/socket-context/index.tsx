@@ -7,7 +7,7 @@ interface SocketProps {
 }
 
 const SocketContext = createContext({
-  socket: io(),
+  socket: io(BASE_URL),
 });
 
 export const useSocket = () => {
