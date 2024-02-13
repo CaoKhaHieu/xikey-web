@@ -1,14 +1,14 @@
 import React, { createContext, useContext, useState } from 'react';
-import { User } from '@/shared/models/User';
+import { Conversation } from '@/shared/models/Conversation';
 
 interface IChatContext {
-  selectedChat: User;
-  handleSelectChat: (_user: User) => void;
+  selectedChat: Conversation;
+  handleSelectChat: (_user: Conversation) => void;
 }
 
 const ChatContext = createContext<IChatContext>({
-  selectedChat: new User({}),
-  handleSelectChat: (_user: User) => {}
+  selectedChat: new Conversation({}),
+  handleSelectChat: (_user: Conversation) => {}
 });
 
 export const useChat = () => {
@@ -16,9 +16,9 @@ export const useChat = () => {
 };
 
 const ChatProvider = (props: React.HTMLProps<HTMLButtonElement>) => {
-  const [ selectedChat, setSelectedChat ] = useState<User>(new User({}));
+  const [ selectedChat, setSelectedChat ] = useState<Conversation>(new Conversation({}));
 
-  const handleSelectChat = (user: User) => {
+  const handleSelectChat = (user: Conversation) => {
     setSelectedChat(user);
   };
 

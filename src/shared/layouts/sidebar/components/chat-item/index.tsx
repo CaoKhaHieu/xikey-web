@@ -20,6 +20,7 @@ const ChatItem = (props: IUserSidebar) => {
   const { t } = useTranslation();
   
   const { user }: { user: User } = useSelector((state: any) => state.userReducer);
+  const isGroupChat = conversation.isGroup;
   const userChat = conversation.members.find((member: User) => member.id !== user.id);
 
   if (!userChat) {
@@ -27,21 +28,27 @@ const ChatItem = (props: IUserSidebar) => {
   }
 
   const handleClick = () => {
-    handleSelectChat({ ...userChat, conversationId: conversation.id });
+    const userChat = conversation.members.find((member: User) => member.id !== user.id);
+    const conversationSelected: Conversation = {
+      ...conversation,
+      name: userChat?.name || '',
+      avatar: userChat?.avatar || '',
+    };
+    handleSelectChat(conversationSelected);
   };
   
   return (
-    <Link onClick={handleClick} to={`/chat/${conversation.id}`} className={classNames("w-full flex p-2 cursor-pointer hover:bg-pink2 duration-300", {
-      "bg-pink2": selectedChat.conversationId === conversation.id
+    <Link onClick={handleClick} to={`/chat/${conversation.id}`} className={classNames("w-full flex items-center p-2 cursor-pointer hover:bg-pink1 duration-300", {
+      "bg-pink1": selectedChat.id === conversation.id
     })}>
       <div>
-        <Avatar className="" url={userChat.avatar} />
+        <Avatar className="" url={isGroupChat ? conversation.avatar : userChat.avatar} />
       </div>
       <div className="flex-1 ml-2">
         {/* top */}
         <div className="flex justify-between items-center">
           <div className="text-black1 text-base line-clamp-1">
-            {userChat.name}
+            {isGroupChat ? conversation.name : userChat.name}
           </div>
           <span className="whitespace-nowrap text-sm text-gray3">
             {timeSince(conversation.updatedAt)}

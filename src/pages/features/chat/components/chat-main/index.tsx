@@ -5,12 +5,12 @@ import Message from "@/shared/components/message";
 import { getListMessage, saveNewMessage } from "@/stores/message/action";
 import { Message as MessageModel } from "@/shared/models/Message";
 import { useSocket } from "@/shared/contexts/socket-context";
-import { getUserOfConversation, updateLastMessageConversation } from "@/stores/conversation/action";
+import { getInfoConversation, updateLastMessageConversation } from "@/stores/conversation/action";
 import { useChat } from "@/shared/contexts/chat-context";
-import { User } from "@/shared/models/User";
 import Avatar from "@/shared/components/avatar";
 import { Loading } from "@/shared/components/loading";
 import { useTranslation } from "react-i18next";
+import { Conversation } from "@/shared/models/Conversation";
 
 
 const ChatMain = () => {
@@ -50,8 +50,8 @@ const ChatMain = () => {
   }, [listMessage]);
 
   const handleGetUserChat = () => {
-    dispatch(getUserOfConversation(id, (user: User) => {
-      handleSelectChat({ ...user, conversationId: id });
+    dispatch(getInfoConversation(id, (conversation: Conversation) => {
+      handleSelectChat(conversation);
     }, () => {
     }));
   };

@@ -23,7 +23,6 @@ const userStrategies = {
 
 export const user = createReducer(userStrategies, userInitialState);
 
-// sidebar user
 const sidebarInitialState = {
   allUsers: [],
 };
@@ -43,5 +42,5 @@ export const sidebar = createReducer(sidebarStrategies, sidebarInitialState);
 
 export const userReducer = combineReducers({
   user,
-  sidebar,
+  userManagement: sidebar,
 });

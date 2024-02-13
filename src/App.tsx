@@ -9,7 +9,7 @@ import Routes from './routes/index.routes';
 import { useDialog } from './shared/components/dialog';
 import ErrorDialog from './shared/components/dialog/templates/ErrorDialog';
 import { getToken } from './shared/utils/utils';
-import { getUser } from './stores/user/action';
+import { getAllUsers, getUser } from './stores/user/action';
 
 function App() {
   const { apiController } = useSelector((state: any) => state.commonReducer);
@@ -25,6 +25,7 @@ function App() {
   useEffect(() => {
     if (getToken()) {
       getUserProfile();
+      getAllUser();
     }
   }, []);
 
@@ -39,6 +40,12 @@ function App() {
     dispatch(getUser(null, () => {
     }, () => {
     }))
+  };
+
+  const getAllUser = () => {
+    dispatch(getAllUsers(() => {
+    }, () => {
+    }));
   };
 
   return (

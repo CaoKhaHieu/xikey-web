@@ -17,10 +17,13 @@ import { Conversation } from "@/shared/models/Conversation";
 import { searchUser } from "@/stores/user/action";
 import Avatar from "@/shared/components/avatar";
 import Button from "@/shared/components/button";
+import { useDialog } from "@/shared/components/dialog";
 import { createConversation, getAllConversation, saveAllConversations } from "@/stores/conversation/action";
 
 import SearchIcon from "@/assets/icons/search.svg?react";
 import SearchUserIcon from "@/assets/icons/search-user.svg?react";
+import GroupIcon from "@/assets/icons/group.svg?react";
+import CreateGroup from "@/shared/components/dialog/templates/CreateGroup";
 
 
 const SidebarMain = () => {
@@ -34,9 +37,10 @@ const SidebarMain = () => {
   const inputRef = useRef<HTMLInputElement>(null);
   const typingTimeoutRef = useRef(0);
 
-  const { t } = useTranslation();
   const dispatch = useDispatch();
   const history = useHistory();
+  const { t } = useTranslation();
+  const { appendDialog } = useDialog();
 
   useEffect(() => {
     if (!user.id) {
@@ -83,13 +87,19 @@ const SidebarMain = () => {
     }
     // create new conversaton
     const body = {
-      userId: userSearch.id,
+      members: [userSearch.id, user.id],
     };
     dispatch(createConversation(body, (newConversation: Conversation) => {
       dispatch(saveAllConversations([newConversation, ...listConversations]));
       history.push(`/chat/${newConversation.id}`);
     }, () => {
     }));
+  };
+
+  const handleOpenDialogCreateGroup = () => {
+    appendDialog(
+      <CreateGroup />
+    );
   };
 
   return (
@@ -108,6 +118,13 @@ const SidebarMain = () => {
             <div className="text-black1 text-2xl mr-2">
               <SearchIcon />
             </div>
+          </div>
+          <div
+            className="cursor-pointer hover:bg-pink1 text-2xl p-2 rounded"
+            hidden={isFocused}
+            onClick={handleOpenDialogCreateGroup}
+          >
+            <GroupIcon />
           </div>
           {
             isFocused &&
