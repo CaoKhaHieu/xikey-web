@@ -16,18 +16,19 @@ import { useTranslation } from "react-i18next";
 interface MessageOptions {
   message: MessageModel;
   showAvatar: boolean;
+  isShowName: boolean;
   onScrollEnd: () => void;
 }
 
 const Message = (props: MessageOptions) => {
-  const { message, showAvatar, onScrollEnd } = props;
+  const { message, showAvatar, isShowName, onScrollEnd } = props;
   const { user }: { user: User } = useSelector((state: any) => state.userReducer);
   
   const { t } = useTranslation();
   const { selectedChat } = useChat();
   const dispatch = useDispatch();
 
-  const isCurrentUser = user.id === message.sender;
+  const isCurrentUser = user.id === message.sender.id;
   const isOnlyEmojiMessage = isOnlyEmoji(message.content);
 
   const handleSaveReplyMessage = () => {
@@ -44,7 +45,7 @@ const Message = (props: MessageOptions) => {
     })}>
       {
         !isCurrentUser && showAvatar &&
-        <Avatar className="w-10 h-10" url={selectedChat.avatar} />
+        <Avatar className="w-10 h-10" url={message.sender.avatar} />
       }
       <div
         className={classNames("p-2.5 min-w-20 rounded-lg max-w-7/10 h-full relative", {
@@ -54,6 +55,10 @@ const Message = (props: MessageOptions) => {
           "!p-0 !bg-transparent": message.type === TYPE_MESSAGE.IMAGE
         })}
       >
+        {
+          isShowName && !isCurrentUser &&
+          <p className="text-gray5 text-xs mb-1.5">{message.sender.name}</p>
+        }
         {
           message.replyMessage?.id &&
           <div className="bg-pink1 p-2 mb-2 rounded-lg">
@@ -67,7 +72,7 @@ const Message = (props: MessageOptions) => {
                 </div>
               }
               <div>
-                <p className="text-sm font-semibold">{message.replyMessage.sender === user.id ? user.name : selectedChat.name}</p>
+                <p className="text-sm font-semibold">{message.replyMessage.sender.name}</p>
                 <p className="line-clamp-1 text-ellipsis pr-2 text-sm text-gray3">
                   {message.replyMessage.type === TYPE_MESSAGE.IMAGE ? t('image') : message.replyMessage.content}
                 </p>

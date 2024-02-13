@@ -1,9 +1,10 @@
 import { TYPE_MESSAGE } from "../enums";
+import { User } from "./User";
 
 export interface Message {
   id: string;
   conversationId: string;
-  sender: string;
+  sender: User;
   content: string;
   isDeleted: boolean;
   createdAt: string;

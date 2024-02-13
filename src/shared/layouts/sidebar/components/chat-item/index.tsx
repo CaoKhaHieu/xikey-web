@@ -59,7 +59,7 @@ const ChatItem = (props: IUserSidebar) => {
         <div className="flex justify-between">
           <p className="text-sm text-gray3 line-clamp-1 text-ellipsis">
             {
-              conversation?.lastMessage?.sender === user.id && t('you')
+              conversation?.lastMessage?.sender?.id === user.id && t('you')
             }
             {
               conversation.lastMessage?.type === TYPE_MESSAGE.TEXT &&

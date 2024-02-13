@@ -141,7 +141,7 @@ const TypeMessage = () => {
               </div>
             }
             <div>
-              <p className="text-sm font-semibold">{replyMessage.sender === user.id ? user.name : selectedChat.name}</p>
+              <p className="text-sm font-semibold">{replyMessage.sender.name}</p>
               <p className="line-clamp-1 text-ellipsis pr-2 text-sm text-gray3">
                 {replyMessage.type === TYPE_MESSAGE.IMAGE ? t('image') : replyMessage.content}
               </p>

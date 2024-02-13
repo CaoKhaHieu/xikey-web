@@ -87,8 +87,9 @@ const ChatMain = () => {
             <Message
               key={message.id}
               message={message}
-              showAvatar={listMessage[index - 1]?.sender !== listMessage[index].sender}
+              showAvatar={listMessage[index - 1]?.sender?.id !== listMessage[index].sender.id}
               onScrollEnd={handleScrollToEnd}
+              isShowName={selectedChat.isGroup && listMessage[index - 1]?.sender?.id !== listMessage[index].sender.id}
             />
           ))}
 
