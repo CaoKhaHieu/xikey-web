@@ -71,6 +71,25 @@ export function* put(
   }
 }
 
+export function* patch(
+  uri: string[],
+  body = {},
+  params = {},
+  moreConfig = {}
+): any {
+  const url = createURL(uri, params);
+  const config = {
+    ...body,
+    ...moreConfig
+  };
+  try {
+    const res = yield apiService.makeRequest('PATCH', url, config);
+    return res.data;
+  } catch (e) {
+    throw new ErrorMessage(e);
+  }
+}
+
 export function* remove(
   uri: string[],
   body = {},

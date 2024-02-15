@@ -1,17 +1,20 @@
 import { useDispatch, useSelector } from "react-redux";
 import classNames from "classnames";
+import { useTranslation } from "react-i18next";
 
 import Avatar from "../avatar";
+import Reaction from "../reaction";
+import Tooltip from "../tooltip";
 import { User } from "@/shared/models/User";
 import { useChat } from "@/shared/contexts/chat-context";
-import { formatTimeToHHMM, isOnlyEmoji, urlify } from "@/shared/utils/utils";
 import { Message as MessageModel } from "@/shared/models/Message";
 import { TYPE_MESSAGE } from "@/shared/enums";
+import { reactMessage, saveReplyMessage } from "@/stores/message/action";
+import { formatTimeToHHMM, isOnlyEmoji, urlify } from "@/shared/utils/utils";
+import { REACTIONS } from "@/shared/constants";
 
 import ReplyIcon from "../../../assets/icons/reply.svg?react";
 import SmilePlusIcon from "../../../assets/icons/smile-plus.svg?react";
-import { saveReplyMessage } from "@/stores/message/action";
-import { useTranslation } from "react-i18next";
 
 interface MessageOptions {
   message: MessageModel;
@@ -30,6 +33,13 @@ const Message = (props: MessageOptions) => {
 
   const isCurrentUser = user.id === message.sender.id;
   const isOnlyEmojiMessage = isOnlyEmoji(message.content);
+  let isHaveReactions = false;
+  for (const key in message.reactions) {
+    if (message.reactions.hasOwnProperty(key) && message.reactions[key].length > 0) {
+      isHaveReactions = true;
+      break;
+    }
+  }
 
   const handleSaveReplyMessage = () => {
     const data = {
@@ -37,6 +47,17 @@ const Message = (props: MessageOptions) => {
       message,
     };
     dispatch(saveReplyMessage(data));
+  };
+
+  const handleReactMessage = (value: number) => {
+    const data = {
+      messageId: message.id,
+      sender: user.id,
+      reactValue: value,
+    };
+    dispatch(reactMessage(data, () => {
+    }, () => {
+    }));
   };
 
   return (
@@ -59,6 +80,7 @@ const Message = (props: MessageOptions) => {
           isShowName && !isCurrentUser &&
           <p className="text-gray5 text-xs mb-1.5">{message.sender.name}</p>
         }
+        {/* Reply Message */}
         {
           message.replyMessage?.id &&
           <div className="bg-pink1 p-2 mb-2 rounded-lg">
@@ -97,6 +119,55 @@ const Message = (props: MessageOptions) => {
             ></img>
           </a>
         }
+        {/* Reactions  */}
+        <div className="group/reaction my-2 flex space-x-2">
+          { isHaveReactions &&
+            <>
+              <div className={classNames("text-base rounded-full cursor-pointer duration-300 flex items-center space-x-2")}>
+                {
+                  Object.entries(REACTIONS).map(([reactValue, reaction]) => {
+                    if (!message.reactions[reaction.value].length) {
+                      return null;
+                    }
+                    const tooltipContent = message.reactions[reaction.value].map(react => react.name).join(', ');
+                    const isReacted = message.reactions[reaction.value].findIndex(react => react.id === user.id) > -1;
+                    return (
+                      <div key={reactValue}>
+                        <Tooltip
+                          className="max-w-80 z-10 !bg-black2"
+                          id={reaction.text}
+                          content={tooltipContent}
+                          place={'top-start'}
+                        >
+                          <span
+                            className={classNames("text-base bg-gray2 px-1 rounded-md cursor-pointer flex items-center justify-center space-x-1", {
+                              "!bg-black2 text-white": message.type === TYPE_MESSAGE.IMAGE,
+                              "!bg-pink2 !text-black1 border border-primaryHover": isReacted,
+                            })}
+                            onClick={() => handleReactMessage(reaction.value)}
+                          >
+                            <span>{reaction.text}</span>
+                            <span className="text-xs">{message.reactions[reaction.value].length}</span>
+                          </span>
+                        </Tooltip>
+                      </div>
+                    )
+                  })
+                }
+              </div>
+              <div className={classNames("bg-pink1 text-base p-1 rounded-full cursor-pointer duration-300 relative group/react")}>
+                <SmilePlusIcon />
+                <Reaction
+                  className={classNames("absolute bottom-4 left-1/2 -translate-x-1/2 hidden group-hover/react:flex", {
+                    "right-0 !left-auto !translate-x-0": isCurrentUser
+                  })}
+                  onClick={handleReactMessage}
+                />
+              </div>
+            </>
+          }
+        </div>
+        {/* Time */}
         <p className={classNames("text-xs mt-2", {
           "text-gray7": message.type === TYPE_MESSAGE.TEXT,
           "text-white": message.type === TYPE_MESSAGE.IMAGE
@@ -105,18 +176,20 @@ const Message = (props: MessageOptions) => {
             formatTimeToHHMM(message.createdAt)
           }
         </p>
+        {/* Action */}
         <div className={classNames("absolute top-1/2 -translate-y-1/2 space-x-4 hidden items-center justify-center group-hover:flex bg-gray7 rounded-lg p-1.5 text-white text-lg", {
           "right-full -translate-x-4": isCurrentUser,
           "left-full translate-x-4": !isCurrentUser
         })}>
-          <div className="cursor-pointer">
+          <div className="cursor-pointer relative group/react">
             <SmilePlusIcon />
+            <Reaction
+              className="absolute bottom-4 left-1/2 -translate-x-1/2 hidden group-hover/react:flex"
+              onClick={handleReactMessage}
+            />
           </div>
           <div className="cursor-pointer" onClick={handleSaveReplyMessage}>
             <ReplyIcon />
-          </div>
-          <div className="cursor-pointer">
-            <SmilePlusIcon />
           </div>
         </div>
       </div>

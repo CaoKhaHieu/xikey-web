@@ -9,3 +9,35 @@ export const VALIDATE_LENGTH = {
 };
 
 export const PASSWORD_PATTERN = /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{6,}$/;
+
+export const REACTIONS: {
+  [key: number]: {
+    text: string;
+    value: number;
+  }
+} = {
+  1: {
+    text: '👍',
+    value: 1,
+  },
+  2: {
+    text: '❤️',
+    value: 2,
+  },
+  3: {
+    text: '🤣',
+    value: 3,
+  },
+  4: {
+    text: '😥',
+    value: 4,
+  },
+  5: {
+    text: '😮',
+    value: 5,
+  },
+  6: {
+    text: '😡',
+    value: 6,
+  },
+};

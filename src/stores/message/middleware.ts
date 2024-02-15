@@ -1,6 +1,6 @@
 import { AnyAction } from 'redux';
 import { types } from '../types';
-import { get, post } from '../saga';
+import { get, patch, post } from '../saga';
 
 import { all, put, takeLatest } from 'redux-saga/effects';
 import { handleApiResponseError } from '../common/actions';
@@ -31,9 +31,20 @@ function* getListMessage({ payload, resolve, reject }: AnyAction): any {
   }
 }
 
+function* reactMessage({ payload, resolve, reject }: AnyAction): any {
+  try {
+    const res = yield patch(['v1', 'message', 'reactions', `${payload.messageId}`], { data: payload });
+    resolve(res);
+  } catch (error: any) {
+    reject(error);
+    yield put(handleApiResponseError(error));
+  }
+}
+
 export function* watchMessage() {
   yield all([
     takeLatest(types.CREATE_MESSAGE, createMessage),
     takeLatest(types.GET_LIST_MESSAGE, getListMessage),
+    takeLatest(types.REACT_MESSAGE, reactMessage),
   ]);
 };

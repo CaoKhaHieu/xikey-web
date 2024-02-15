@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { useParams } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import Message from "@/shared/components/message";
-import { getListMessage, saveNewMessage } from "@/stores/message/action";
+import { getListMessage, saveNewMessage, updateMessage } from "@/stores/message/action";
 import { Message as MessageModel } from "@/shared/models/Message";
 import { useSocket } from "@/shared/contexts/socket-context";
 import { getInfoConversation, updateLastMessageConversation } from "@/stores/conversation/action";
@@ -39,9 +39,17 @@ const ChatMain = () => {
   useEffect(() => {
     if (socket && id) {
       socket.on('new_message', (newMessage: MessageModel) => {
-        dispatch(saveNewMessage(newMessage));
+        if (id === newMessage.conversationId) {
+          dispatch(saveNewMessage(newMessage));
+        }
         dispatch(updateLastMessageConversation(newMessage));
       });
+
+      socket.on('reaction', (message: MessageModel) => {
+        if (id === message.conversationId) {
+          dispatch(updateMessage(message));
+        }
+      })
     }
   }, [socket, id]);
 

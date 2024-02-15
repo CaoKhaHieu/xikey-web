@@ -26,6 +26,15 @@ const saveNewMessageByIdConversation = (state: any, payload: Message) => {
   };
 };
 
+const updateMessageByIdConversation = (state: any, payload: Message) => {
+  const data: any = { ...state.messages };
+  data[payload.id] = payload;
+  return {
+    ...state,
+    messages: data,
+  };
+};
+
 const saveReplyMessage = (state: any, payload: { conversationId: string, message: Message }) => {
   const data: any = { ...state.reply };
   data[payload.conversationId] = payload.message;
@@ -47,6 +56,7 @@ const clearReplyMessage = (state: any, payload: { conversationId: string }) => {
 const messageStrategies = {
   SAVE_LIST_MESSAGE: saveListMessageByIdConversation,
   SAVE_NEW_MESSAGE: saveNewMessageByIdConversation,
+  UPDATE_MESSAGE: updateMessageByIdConversation,
   SAVE_REPLY_MESSAGE: saveReplyMessage,
   CLEAR_REPLY_MESSAGE: clearReplyMessage,
   __default__: (state: any) => state,

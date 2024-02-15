@@ -14,6 +14,7 @@ export default {
         primaryHover: '#f77575',
         black: 'black',
         black1: '#202020',
+        black2: '#393737',
         gray1: '#A6A6A6',
         gray2: '#dfdfe5',
         gray3: '#666',
@@ -30,6 +31,7 @@ export default {
         87.5: '350px'
       },
       maxWidth: {
+        '80': '20rem',
         '7/10': '70%'
       },
       minWidth: {

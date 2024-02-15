@@ -11,6 +11,9 @@ export interface Message {
   updatedAt: string;
   type: TYPE_MESSAGE;
   replyMessage: Message;
+  reactions: {
+    [key: number]: User[]
+  };
 }
 
 export class Message {
@@ -24,5 +27,6 @@ export class Message {
     this.updatedAt = message.updatedAt;
     this.type = message.type;
     this.replyMessage = message.replyMessage;
+    this.reactions = message.reactions || [];
   }
 }
