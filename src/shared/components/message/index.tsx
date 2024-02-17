@@ -7,6 +7,7 @@ import Reaction from "../reaction";
 import Tooltip from "../tooltip";
 import { User } from "@/shared/models/User";
 import { useChat } from "@/shared/contexts/chat-context";
+import { useDialog } from "../dialog";
 import { Message as MessageModel } from "@/shared/models/Message";
 import { TYPE_MESSAGE } from "@/shared/enums";
 import { reactMessage, saveReplyMessage } from "@/stores/message/action";
@@ -15,6 +16,8 @@ import { REACTIONS } from "@/shared/constants";
 
 import ReplyIcon from "../../../assets/icons/reply.svg?react";
 import SmilePlusIcon from "../../../assets/icons/smile-plus.svg?react";
+import ShareIcon from "../../../assets/icons/share.svg?react";
+import ForwardMessage from "../dialog/templates/ForwardMessage";
 
 interface MessageOptions {
   message: MessageModel;
@@ -29,6 +32,7 @@ const Message = (props: MessageOptions) => {
   
   const { t } = useTranslation();
   const { selectedChat } = useChat();
+  const { appendDialog } = useDialog();
   const dispatch = useDispatch();
 
   const isCurrentUser = user.id === message.sender.id;
@@ -58,6 +62,12 @@ const Message = (props: MessageOptions) => {
     dispatch(reactMessage(data, () => {
     }, () => {
     }));
+  };
+
+  const handleFowardMessage = () => {
+    appendDialog(
+      <ForwardMessage message={message} />
+    );
   };
 
   return (
@@ -190,6 +200,9 @@ const Message = (props: MessageOptions) => {
           </div>
           <div className="cursor-pointer" onClick={handleSaveReplyMessage}>
             <ReplyIcon />
+          </div>
+          <div className="cursor-pointer" onClick={handleFowardMessage}>
+            <ShareIcon />
           </div>
         </div>
       </div>

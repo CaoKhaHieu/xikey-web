@@ -6,6 +6,7 @@ import { Message } from "@/shared/models/Message";
 export const getAllConversation = generateAPIAction(types.GET_ALL_CONVERSATION);
 export const getInfoConversation = generateAPIAction(types.GET_INFO_CONVERSATION);
 export const createConversation = generateAPIAction(types.CREATE_CONVERSATION);
+export const getAllGroupConversation = generateAPIAction(types.GET_GROUP_CONVERSATION);
 
 export const saveAllConversations = (payload: Conversation[]) => ({
   type: types.SAVE_ALL_CONVERSATION,

@@ -27,6 +27,25 @@ function* getAllConversation({ resolve, reject }: AnyAction): any {
   }
 }
 
+function* getGroupConversation({ resolve, reject }: AnyAction): any {
+  try {
+    const res = yield get(['v1', 'conversation', 'get-group-conversation']);
+    const mappingData: Conversation[] = res.data.map((conversation: any) => {
+      const conversationModel = new Conversation(conversation);
+      return {
+        ...conversationModel,
+        members: conversationModel.members.map((member: any) => new User(member))
+      }
+    });
+    yield put(saveAllConversations(mappingData));
+
+    resolve(mappingData);
+  } catch (error: any) {
+    reject(error);
+    yield put(handleApiResponseError(error));
+  }
+}
+
 function* getInfoConversation({ payload, resolve, reject }: AnyAction): any {
   const query = {
     conversationId: payload,
@@ -55,6 +74,7 @@ function* createConversation({ payload, resolve, reject }: AnyAction): any {
 export function* watchConversation() {
   yield all([
     takeLatest(types.GET_ALL_CONVERSATION, getAllConversation),
+    takeLatest(types.GET_GROUP_CONVERSATION, getGroupConversation),
     takeLatest(types.GET_INFO_CONVERSATION, getInfoConversation),
     takeLatest(types.CREATE_CONVERSATION, createConversation),
   ]);

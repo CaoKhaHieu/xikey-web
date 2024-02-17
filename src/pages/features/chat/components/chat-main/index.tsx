@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useHistory, useParams } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import Message from "@/shared/components/message";
 import { getListMessage, saveNewMessage, updateMessage } from "@/stores/message/action";
@@ -25,6 +25,7 @@ const ChatMain = () => {
   const { selectedChat, handleSelectChat } = useChat();
   const { socket } = useSocket();
   const dispatch = useDispatch();
+  const history = useHistory();
 
   useEffect(() => {
     if (id) {
@@ -61,6 +62,7 @@ const ChatMain = () => {
     dispatch(getInfoConversation(id, (conversation: Conversation) => {
       handleSelectChat(conversation);
     }, () => {
+      history.push('/');
     }));
   };
   

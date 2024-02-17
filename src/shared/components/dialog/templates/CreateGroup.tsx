@@ -3,21 +3,21 @@ import { useDispatch, useSelector } from 'react-redux';
 import classNames from 'classnames';
 import { useTranslation } from 'react-i18next';
 import { Controller, useForm } from 'react-hook-form';
+import { useHistory } from 'react-router-dom';
 
+import { Dialog } from '..';
 import Button from '../../button';
 import Input from '../../input';
 import Checkbox from '../../checkbox';
 import Avatar from '../../avatar';
 import { useLoading } from '../../loading';
-import { Dialog } from '..';
+import { Conversation } from '@/shared/models/Conversation';
+import { upload } from '@/stores/common/actions';
 import { User } from '@/shared/models/User';
+import { createConversation, saveAllConversations } from '@/stores/conversation/action';
 
 import CameraIcon from "@/assets/icons/camera2.svg?react";
 import SearchIcon from "@/assets/icons/search.svg?react";
-import { createConversation, saveAllConversations } from '@/stores/conversation/action';
-import { Conversation } from '@/shared/models/Conversation';
-import { useHistory } from 'react-router-dom';
-import { upload } from '@/stores/common/actions';
 
 interface CreateGroupOptions {
   close?: () => void;
