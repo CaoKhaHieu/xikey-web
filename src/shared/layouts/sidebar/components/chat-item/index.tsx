@@ -21,9 +21,10 @@ const ChatItem = (props: IUserSidebar) => {
   
   const { user }: { user: User } = useSelector((state: any) => state.userReducer);
   const isGroupChat = conversation.isGroup;
+  const isCloudChat = conversation.isCloud;
   const userChat = conversation.members.find((member: User) => member.id !== user.id);
 
-  if (!userChat) {
+  if (!userChat && !isGroupChat && !isCloudChat) {
     return null;
   }
 
@@ -42,13 +43,16 @@ const ChatItem = (props: IUserSidebar) => {
       "bg-pink1": selectedChat.id === conversation.id
     })}>
       <div>
-        <Avatar className="" url={isGroupChat ? conversation.avatar : userChat.avatar} />
+        <Avatar className="" url={(isGroupChat || isCloudChat) ? conversation.avatar : userChat?.avatar || ''} />
       </div>
       <div className="flex-1 ml-2">
         {/* top */}
         <div className="flex justify-between items-center">
           <div className="text-black1 text-base line-clamp-1">
-            {isGroupChat ? conversation.name : userChat.name}
+            {
+              isCloudChat && t('my_cloud')
+            }
+            {isGroupChat ? conversation.name : userChat?.name}
           </div>
           <span className="whitespace-nowrap text-sm text-gray3">
             {timeSince(conversation.updatedAt)}

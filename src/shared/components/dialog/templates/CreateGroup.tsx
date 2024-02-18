@@ -122,7 +122,7 @@ const CreateGroup = (props: CreateGroupOptions) => {
     <Dialog {...otherProps} className='p-5 rounded-lg overflow-scroll relative' closeRight close={handleClose}>
       <form onSubmit={handleSubmit(onSubmit)}>
         <Dialog.Header className='text-4.25 text-white font-semibold'>
-          Create Group
+          {t('create_group')}
         </Dialog.Header>
         <Dialog.Body className='text-3.25 text-white pt-2 whitespace-break mt-4'>
           <div className='flex space-x-4 items-center'>
@@ -146,18 +146,18 @@ const CreateGroup = (props: CreateGroupOptions) => {
                 <CameraIcon />
               }
             </div>
-            <Input variant='auth' placeholder='Enter the group name' {...register('groupName')} />
+            <Input variant='auth' placeholder={t('group_name_placeholder')} {...register('groupName')} />
           </div>
           <div className='mt-4 border border-white rounded-full flex items-center space-x-2 px-4'>
             <SearchIcon />
             <Input
               className='bg-transparent py-1.5'
-              placeholder='Search user'
+              placeholder={t('search_user')}
               onChange={handleSearchUser}
             />
           </div>
           <div className='flex flex-col space-y-4 mt-4 min-h-88 max-h-88 overflow-y-scroll'>
-            <span className='font-semibold'>All users</span>
+            <span className='font-semibold'>{t('all_user')}</span>
             {
               allUsers.map((user: User) => (
                 <div className='flex items-center' key={user.id}>

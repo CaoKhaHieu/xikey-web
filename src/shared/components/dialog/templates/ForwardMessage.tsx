@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useDispatch, useSelector } from 'react-redux';
 
 import { Dialog } from '..';
@@ -23,18 +24,24 @@ const ForwardMessage = (props: ForwardMessageOptions) => {
   const { message, close, ...otherProps } = props;
 
   const [allUsers, setAllUsers] = useState<User[]>([]);
+  const [allGroups, setAllGroups] = useState<Conversation[]>([]);
   const { userManagement, user } = useSelector((state: any) => state.userReducer);
   const { conversation } = useSelector((state: any) => state.conversationReducer);
   const listConversations: Conversation[] = Object.values(conversation?.allConversations);
   const groupConversations: Conversation[] = listConversations.filter((conversation: Conversation) => conversation.isGroup);
 
   const dispatch = useDispatch();
+  const { t } = useTranslation();
 
   useEffect(() => {
     if (userManagement?.allUsers) {
       setAllUsers(userManagement?.allUsers);
     }
   }, [userManagement]);
+
+  useEffect(() => {
+    setAllGroups(groupConversations);
+  }, []);
 
   const handleClose = () => {
     close && close();
@@ -66,22 +73,38 @@ const ForwardMessage = (props: ForwardMessageOptions) => {
     }, () => {}));
   };
 
+  const handleSearchConversation = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const searchValue = e.target.value.toLowerCase();
+    if (!searchValue) {
+      setAllUsers(userManagement?.allUsers);
+      return;
+    }
+    const users = userManagement?.allUsers?.filter((user: User) => user.name.toLowerCase().includes(searchValue));
+    const groups = groupConversations.filter((conversation: Conversation) => conversation.name.toLowerCase().includes(searchValue));
+    setAllUsers(users);
+    setAllGroups(groups);
+  };
+
   return (
     <Dialog {...otherProps} className='p-5 rounded-lg overflow-scroll relative' closeRight close={handleClose}>
       <Dialog.Header className='text-lg text-center text-white font-semibold'>
-        Forward
+        {t('forward')}
       </Dialog.Header>
       <Dialog.Body className='text-3.25 text-white pt-2 whitespace-break'>
-        <div className='mt-4 border border-white rounded-full flex items-center space-x-2 px-4'>
+        <div className='my-4 border border-white rounded-full flex items-center space-x-2 px-4'>
           <SearchIcon />
           <Input
             className='bg-transparent py-1.5'
-            placeholder='Search user'
+            placeholder={t('search_user_or_group')}
+            onChange={handleSearchConversation}
           />
         </div>
         <div className='min-h-88 max-h-88 overflow-y-scroll'>
-          <div className='flex flex-col space-y-4 mt-4'>
-            <span className='font-semibold'>All users</span>
+          <div className='flex flex-col space-y-4'>
+            {
+              allUsers.length > 0 &&
+              <span className='font-semibold'>{t('all_user')}</span>
+            }
             {
               allUsers.map((user: User) => (
                 <div className='flex items-center' key={user.id}>
@@ -93,16 +116,19 @@ const ForwardMessage = (props: ForwardMessageOptions) => {
                     className='bg-primaryHover px-3 py-1.5 cursor-pointer rounded-md text-sm text-white font-medium duration-300 hover:bg-primary'
                     onClick={() => handleForwardMessage(user)}
                   >
-                    Send
+                    {t('send')}
                   </Button>
                 </div>
               ))
             }
           </div>
           <div className='flex flex-col space-y-4 mt-4'>
-            <span className='font-semibold'>All Groups</span>
             {
-              groupConversations.map((conversation: Conversation) => (
+              allGroups.length > 0 &&
+              <span className='font-semibold'>{t('all_group')}</span>
+            }
+            {
+              allGroups.map((conversation: Conversation) => (
                 <div className='flex items-center' key={conversation.id}>
                   <div className='flex items-center space-x-4 grow'>
                     <Avatar className='' url={conversation.avatar} />
@@ -112,7 +138,7 @@ const ForwardMessage = (props: ForwardMessageOptions) => {
                     className='bg-primaryHover px-3 py-1.5 cursor-pointer rounded-md text-sm text-white font-medium duration-300 hover:bg-primary'
                     onClick={() => handleCreateMessage(conversation.id)}
                   >
-                    Send
+                    {t('send')}
                   </Button>
                 </div>
               ))

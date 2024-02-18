@@ -9,6 +9,7 @@ export interface Conversation {
   lastMessage: Message;
   updatedAt: string;
   isGroup: boolean;
+  isCloud: boolean;
 }
 
 export class Conversation {
@@ -20,5 +21,6 @@ export class Conversation {
     this.lastMessage = conversation.lastMessage;
     this.updatedAt = conversation.updatedAt;
     this.isGroup = conversation.isGroup || this.members?.length > 2;
+    this.isCloud = conversation.isCloud || false;
   }
 }

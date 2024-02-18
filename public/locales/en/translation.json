@@ -49,5 +49,14 @@
   "quotes": "“New friends are like new adventures. You never know what lessons they will teach you.”",
   "close": "Close",
   "no_result": "No results were found",
-  "try_again": "Please try again with another keyword"
+  "try_again": "Please try again with another keyword",
+  "create_group": "Create Group",
+  "group_name_placeholder": "Enter the group name",
+  "search_user": "Search user",
+  "all_user": "All Users",
+  "forward": "Forward",
+  "send": "Send",
+  "all_group": "All Groups",
+  "search_user_or_group": "Search user or group",
+  "my_cloud": "My Cloud"
 }
