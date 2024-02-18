@@ -11,7 +11,6 @@ import { User } from "@/shared/models/User";
 import { upload } from "@/stores/common/actions";
 import { TYPE_MESSAGE } from "@/shared/enums";
 import { Message } from "@/shared/models/Message";
-import { useChat } from "@/shared/contexts/chat-context";
 
 import LikeIcon from "@/assets/icons/like.svg?react";
 import Smile from "@/assets/icons/smile.svg?react";
@@ -32,7 +31,6 @@ const TypeMessage = () => {
   const emojiRef = useRef<any>();
   const valueInputRef = useRef<string>('');
 
-  const { selectedChat } = useChat();
   const { id }: { id: string } = useParams();
   const { t } = useTranslation();
   const dispatch = useDispatch();

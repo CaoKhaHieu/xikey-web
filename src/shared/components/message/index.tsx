@@ -6,7 +6,6 @@ import Avatar from "../avatar";
 import Reaction from "../reaction";
 import Tooltip from "../tooltip";
 import { User } from "@/shared/models/User";
-import { useChat } from "@/shared/contexts/chat-context";
 import { useDialog } from "../dialog";
 import { Message as MessageModel } from "@/shared/models/Message";
 import { TYPE_MESSAGE } from "@/shared/enums";
@@ -31,7 +30,6 @@ const Message = (props: MessageOptions) => {
   const { user }: { user: User } = useSelector((state: any) => state.userReducer);
   
   const { t } = useTranslation();
-  const { selectedChat } = useChat();
   const { appendDialog } = useDialog();
   const dispatch = useDispatch();
 

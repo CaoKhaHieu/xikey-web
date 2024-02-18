@@ -1,5 +1,5 @@
-import { ReactElement, createContext, useContext, useEffect, useState } from 'react';
-import { io, Socket } from "socket.io-client";
+import { ReactElement, createContext, useContext } from 'react';
+import { io } from "socket.io-client";
 import { BASE_URL } from '@/shared/constants';
 
 interface SocketProps {
