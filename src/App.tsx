@@ -10,13 +10,23 @@ import { useDialog } from './shared/components/dialog';
 import ErrorDialog from './shared/components/dialog/templates/ErrorDialog';
 import { getToken } from './shared/utils/utils';
 import { getAllUsers, getUser } from './stores/user/action';
+import { useSocket } from './shared/contexts/socket-context';
+import { User } from './shared/models/User';
 
 function App() {
   const { apiController } = useSelector((state: any) => state.commonReducer);
+  const { user }: { user: User } = useSelector((state: any) => state.userReducer);
 
   const { appendDialog } = useDialog();
   const { t } = useTranslation();
   const dispatch = useDispatch();
+  const { socket} = useSocket();
+
+  useEffect(() => {
+    if (user.id) {
+      socket.emit('join', user.id);
+    }
+  }, [user]);
 
   useEffect(() => {
     i18next.changeLanguage('en');

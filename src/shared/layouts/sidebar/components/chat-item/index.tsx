@@ -32,8 +32,8 @@ const ChatItem = (props: IUserSidebar) => {
     const userChat = conversation.members.find((member: User) => member.id !== user.id);
     const conversationSelected: Conversation = {
       ...conversation,
-      name: userChat?.name || '',
-      avatar: userChat?.avatar || '',
+      name: (isGroupChat || isCloudChat) ? conversation.name : userChat?.name || '',
+      avatar: (isGroupChat || isCloudChat) ? conversation.avatar : userChat?.avatar || '',
     };
     handleSelectChat(conversationSelected);
   };

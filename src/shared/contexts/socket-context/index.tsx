@@ -6,8 +6,10 @@ interface SocketProps {
   children: ReactElement;
 }
 
+const ioData = io(BASE_URL);
+
 const SocketContext = createContext({
-  socket: io(BASE_URL),
+  socket: ioData,
 });
 
 export const useSocket = () => {
@@ -16,18 +18,8 @@ export const useSocket = () => {
 };
 
 const SocketProvider = (props: SocketProps) => {
-  const [socket, setSocket] = useState<Socket>();
-
-  useEffect(() => {
-    createSocket()
-  }, []);
-
-  const createSocket = () => {
-    setSocket(io(BASE_URL));
-  };
-
-  const data: any = {
-    socket,
+  const data = {
+    socket: ioData,
   };
 
   return (

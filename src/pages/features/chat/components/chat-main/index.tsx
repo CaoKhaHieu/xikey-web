@@ -38,7 +38,7 @@ const ChatMain = () => {
   }, [id]);
 
   useEffect(() => {
-    if (socket && id) {
+    if (id) {
       socket.on('new_message', (newMessage: MessageModel) => {
         if (id === newMessage.conversationId) {
           dispatch(saveNewMessage(newMessage));
@@ -52,7 +52,7 @@ const ChatMain = () => {
         }
       })
     }
-  }, [socket, id]);
+  }, [id]);
 
   useEffect(() => {
     handleScrollToEnd();
