@@ -14,33 +14,41 @@ import { useLoading } from '../../loading';
 import { Conversation } from '@/shared/models/Conversation';
 import { upload } from '@/stores/common/actions';
 import { User } from '@/shared/models/User';
-import { createConversation, saveAllConversations } from '@/stores/conversation/action';
+import { createConversation, saveAllConversations, updateConversation, updateInfoConversation } from '@/stores/conversation/action';
 
 import CameraIcon from "@/assets/icons/camera2.svg?react";
 import SearchIcon from "@/assets/icons/search.svg?react";
+import { showToast } from '@/shared/utils/utils';
+import { useChat } from '@/shared/contexts/chat-context';
 
 interface CreateGroupOptions {
+  type?: 'CREATE' | 'ADD_USER';
+  conversationEdit?: Conversation;
   close?: () => void;
   afterClose?: () => void;
+  handleAfterUpdateConversation?: (conversation: Conversation) => void;
 }
 
 const CreateGroup = (props: CreateGroupOptions) => {
-  const { close, afterClose, ...otherProps } = props;
+  const { type = 'CREATE', conversationEdit, close, afterClose, handleAfterUpdateConversation, ...otherProps } = props;
+  const isCreateGroup = type === 'CREATE';
 
   const inputRef = useRef<HTMLInputElement>(null);
-  const [avatarLocal, setAvatarLocal] = useState<string>('');
-  const [avatarGroup, setAvatarGroup] = useState<string>('');
-  const [isDisabled, setIsDisabled] = useState<boolean>(true);
+  const [avatarLocal, setAvatarLocal] = useState<string>(conversationEdit?.avatar || '');
+  const [avatarGroup, setAvatarGroup] = useState<string>(conversationEdit?.avatar || '');
+  const [isDisabled, setIsDisabled] = useState<boolean>(!!isCreateGroup);
   const [allUsers, setAllUsers] = useState<User[]>([]);
 
   const { userManagement, user } = useSelector((state: any) => state.userReducer);
   const { conversation } = useSelector((state: any) => state.conversationReducer);
   const listConversations: Conversation[] = Object.values(conversation?.allConversations);
+  const listMemberIdConversationEdit = JSON.stringify(conversationEdit?.members.map((member: User) => member.id));
 
   const { t } = useTranslation();
   const dispatch = useDispatch();
   const history = useHistory();
   const { setLoading } = useLoading();
+  const { selectedChat, handleSelectChat } = useChat();
   const {
     register,
     control,
@@ -51,10 +59,16 @@ const CreateGroup = (props: CreateGroupOptions) => {
   });
 
   useEffect(() => {
-    const subscription = watch((value) =>{
+    const subscription = watch((value) => {
       const members: any[] = Object.values(value.groupMembers).filter((item: any) => !!item);
-      const isDisabledBtn = !value.groupName || members.length < 2;
-      setIsDisabled(isDisabledBtn);
+      if (isCreateGroup) {
+        const isDisabledBtn = !value.groupName || members.length < 2;
+        setIsDisabled(isDisabledBtn);
+      }
+      if (!isCreateGroup) {
+        const isDisabledBtn = !value.groupName;
+        setIsDisabled(isDisabledBtn);
+      }
     });
     return () => subscription.unsubscribe()
   }, [watch]);
@@ -100,16 +114,27 @@ const CreateGroup = (props: CreateGroupOptions) => {
     const members: User[] = userManagement?.allUsers.filter((item: any, index: number) => Object.values(data.groupMembers)[index] && !!item);
     const membersIds = members.map((user: User) => user.id);
 
-    const body = {
+    const body: any = {
       avatar: avatarGroup,
       name: data.groupName,
       members: [...membersIds, user.id],
     };
-    dispatch(createConversation(body, (newConversation: Conversation) => {
-      dispatch(saveAllConversations([newConversation, ...listConversations]));
-      history.push(`/chat/${newConversation.id}`);
-    }, () => {
-    }));
+    if (isCreateGroup) {
+      dispatch(createConversation(body, (newConversation: Conversation) => {
+        dispatch(saveAllConversations([newConversation, ...listConversations]));
+        history.push(`/chat/${newConversation.id}`);
+      }, () => {
+      }));
+    } else {
+      body.conversationId = conversationEdit?.id;
+      dispatch(updateConversation(body, (newConversation: Conversation) => {
+        dispatch(updateInfoConversation(newConversation));
+        handleSelectChat(newConversation);
+        showToast(t('group_updated'));
+        handleClose();
+        handleAfterUpdateConversation && handleAfterUpdateConversation(newConversation);
+      }, () => {}));
+    }
   };
 
   const handleSearchUser = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -122,9 +147,9 @@ const CreateGroup = (props: CreateGroupOptions) => {
     <Dialog {...otherProps} className='p-5 rounded-lg overflow-scroll relative' closeRight close={handleClose}>
       <form onSubmit={handleSubmit(onSubmit)}>
         <Dialog.Header className='text-4.25 text-white font-semibold'>
-          {t('create_group')}
+          {t(isCreateGroup ? 'create_group' : 'edit_group')}
         </Dialog.Header>
-        <Dialog.Body className='text-3.25 text-white pt-2 whitespace-break mt-4'>
+        <Dialog.Body className='text-3.25 text-white pt-2 whitespace-break mt-4 flex flex-col space-y-4'>
           <div className='flex space-x-4 items-center'>
             <div className='min-w-16 w-16 h-16 rounded-full border border-white flex items-center justify-center text-3xl overflow-hidden cursor-pointer' onClick={handleAvatarClick}>
               <div className="hidden">
@@ -146,9 +171,9 @@ const CreateGroup = (props: CreateGroupOptions) => {
                 <CameraIcon />
               }
             </div>
-            <Input variant='auth' placeholder={t('group_name_placeholder')} {...register('groupName')} />
+            <Input variant='auth' placeholder={t('group_name_placeholder')} defaultValue={conversationEdit?.name || ''} {...register('groupName')} />
           </div>
-          <div className='mt-4 border border-white rounded-full flex items-center space-x-2 px-4'>
+          <div className='border border-white rounded-full flex items-center space-x-2 px-4'>
             <SearchIcon />
             <Input
               className='bg-transparent py-1.5'
@@ -156,35 +181,39 @@ const CreateGroup = (props: CreateGroupOptions) => {
               onChange={handleSearchUser}
             />
           </div>
-          <div className='flex flex-col space-y-4 mt-4 min-h-88 max-h-88 overflow-y-scroll'>
+          <div className='flex flex-col space-y-4 min-h-88 max-h-88 overflow-y-scroll'>
             <span className='font-semibold'>{t('all_user')}</span>
             {
-              allUsers.map((user: User) => (
-                <div className='flex items-center' key={user.id}>
-                  <Controller
-                    control={control}
-                    name={`groupMembers[${user.id}]`}
-                    key={user.id}
-                    render={({
-                      field: { onChange, value },
-                    }) => (
-                      <Checkbox
-                        key={user.id}
-                        name={user.id}
-                        isChecked={value}
-                        className='text-white'
-                        onChange={onChange}
-                        render={() => (
-                          <div className='flex items-center space-x-2'>
-                            <Avatar className='' url={user.avatar} />
-                            <p>{user.name}</p>
-                          </div>
-                        )}
-                      />
-                    )}
-                  />
-                </div>
-              ))
+              allUsers.map((user: User) => {
+                const isInGroup = !isCreateGroup && conversationEdit?.members.findIndex((member: User) => member.id === user.id) !== -1;
+                return (
+                  <div className='flex items-center' key={user.id}>
+                    <Controller
+                      control={control}
+                      name={`groupMembers[${user.id}]`}
+                      key={user.id}
+                      render={({
+                        field: { onChange, value },
+                      }) => (
+                        <Checkbox
+                          key={user.id}
+                          name={user.id}
+                          readOnly={isInGroup}
+                          isChecked={isCreateGroup ? value : isInGroup}
+                          className='text-white'
+                          onChange={onChange}
+                          render={() => (
+                            <div className='flex items-center space-x-2'>
+                              <Avatar className='' url={user.avatar} />
+                              <p>{user.name}</p>
+                            </div>
+                          )}
+                        />
+                      )}
+                    />
+                  </div>
+                );
+              })
             }
           </div>
         </Dialog.Body>
@@ -195,7 +224,7 @@ const CreateGroup = (props: CreateGroupOptions) => {
               "!bg-gray1 !border-gray1 pointer-events-none": isDisabled
             })}
           >
-            {t('Create')}
+            {t(isCreateGroup ? 'Create' : 'save')}
           </Button>
         </Dialog.Footer>
       </form>

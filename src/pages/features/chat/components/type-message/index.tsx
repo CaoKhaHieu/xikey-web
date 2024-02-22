@@ -15,6 +15,7 @@ import { Message } from "@/shared/models/Message";
 import LikeIcon from "@/assets/icons/like.svg?react";
 import Smile from "@/assets/icons/smile.svg?react";
 import UploadImageIcon from "@/assets/icons/upload-image.svg?react";
+// import UploadFileIcon from "@/assets/icons/file.svg?react";
 import CloseIcon from "@/assets/icons/close.svg?react";
 
 const previewConfig = {
@@ -117,14 +118,19 @@ const TypeMessage = () => {
 
   return (
     <div className="flex flex-col">
-      <div className="flex items-center space-x-6 px-4 py-2 border-b border-gray2">
-        <div className="cursor-pointer">
+      <div className="flex items-center space-x-2 px-2 py-1 border-b border-gray2">
+        <div className="cursor-pointer duration-300 hover:bg-gray2 p-1.5 rounded">
           <label htmlFor='input-image' className="cursor-pointer">
             <UploadImageIcon />
           </label>
           <input className='hidden' id='input-image' type='file' accept="image/png, image/jpeg, image/jpg, image/webp" onChange={(e) => handleChangeFile(e, TYPE_MESSAGE.IMAGE)}></input>
         </div>
-        {/* <UploadFileIcon /> */}
+        {/* <div className="cursor-pointer duration-300 hover:bg-gray2 p-1.5 rounded">
+          <label htmlFor='input-file' className="cursor-pointer">
+            <UploadFileIcon />
+          </label>
+          <input className='hidden' id='input-file' type='file'></input>
+        </div> */}
       </div>
       {
         replyMessage &&

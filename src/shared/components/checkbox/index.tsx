@@ -1,5 +1,5 @@
-import { useState, FunctionComponent, ReactElement } from 'react';
-import classnames from 'classnames';
+import { useState, FunctionComponent, ReactElement, useEffect } from 'react';
+import classNames from 'classnames';
 import style from './style.module.scss';
 
 interface ICheckBox {
@@ -24,6 +24,12 @@ const Checkbox: FunctionComponent<ICheckBox> = ({
 }) => {
   const [val, setVal] = useState<boolean>(!!isChecked);
 
+  useEffect(() => {
+    if (isChecked) {
+      onChange && onChange(isChecked);
+    }
+  }, [isChecked]);
+
   const toggleCheck = () => {
     if (!readOnly) {
       setVal(pre => {
@@ -36,9 +42,11 @@ const Checkbox: FunctionComponent<ICheckBox> = ({
   };
 
   return (
-    <div className={classnames(className)}>
+    <div className={classNames(className)}>
       <label
-        className={style.inputCheckboxLabel}
+        className={classNames(style.inputCheckboxLabel, {
+          [style.readOnly]: readOnly,
+        })}
         htmlFor={name}
       >
         <input

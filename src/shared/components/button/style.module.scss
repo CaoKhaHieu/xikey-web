@@ -1,6 +1,6 @@
 :global {
   .button {
-    @apply duration-300;
+    @apply duration-300 cursor-pointer;
     &.contained {
       @apply w-full text-xl bg-primary py-3 rounded-lg font-semibold text-black1;
 

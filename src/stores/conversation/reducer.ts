@@ -17,6 +17,7 @@ const saveAllConversations = (state: any, payload: Conversation[]) => {
     allConversations: data,
   };
 };
+
 const updateLastMessageConversation = (state: any, payload: Message) => {
   const data: any = { ...state.allConversations };
   data[payload.conversationId].lastMessage = payload;
@@ -27,9 +28,29 @@ const updateLastMessageConversation = (state: any, payload: Message) => {
   };
 };
 
+const updateInfoConversation = (state: any, payload: Conversation) => {
+  const data: any = { ...state.allConversations };
+  data[payload.id] = payload;
+  return {
+    ...state,
+    allConversations: { ...data },
+  };
+};
+
+const removeConversation = (state: any, payload: Conversation) => {
+  const data: any = { ...state.allConversations };
+  delete(data[payload.id]);
+  return {
+    ...state,
+    allConversations: { ...data },
+  };
+};
+
 const conversationStrategies = {
   SAVE_ALL_CONVERSATION: saveAllConversations,
   UPDATE_LAST_MESSAGE_CONVERSATION: updateLastMessageConversation,
+  UPDATE_INFO_CONVERSATION: updateInfoConversation,
+  REMOVE_CONVERSATION: removeConversation,
   __default__: (state: any) => state,
 };
 

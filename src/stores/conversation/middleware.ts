@@ -1,6 +1,6 @@
 import { AnyAction } from 'redux';
 import { types } from '../types';
-import { get, post } from '../saga';
+import { get, patch, post, put as update } from '../saga';
 
 import { all, put, takeLatest } from 'redux-saga/effects';
 import { handleApiResponseError } from '../common/actions';
@@ -71,11 +71,36 @@ function* createConversation({ payload, resolve, reject }: AnyAction): any {
   }
 }
 
+function* updateConversation({ payload, resolve, reject }: AnyAction): any {
+  try {
+    const res = yield update(['v1', 'conversation', 'update', `${payload.conversationId}`], { data: payload });
+    const newConversation = new Conversation(res.data);
+    resolve(newConversation);
+  } catch (error: any) {
+    reject(error);
+    yield put(handleApiResponseError(error));
+  }
+}
+
+function* leaveGroup({ payload, resolve, reject }: AnyAction): any {
+  const { conversationId, userId } = payload;
+  try {
+    const res = yield patch(['v1', 'conversation', 'leave-group'], { data: { conversationId, userId } });
+    const newConversation = new Conversation(res.data);
+    resolve(newConversation);
+  } catch (error: any) {
+    reject(error);
+    yield put(handleApiResponseError(error));
+  }
+}
+
 export function* watchConversation() {
   yield all([
     takeLatest(types.GET_ALL_CONVERSATION, getAllConversation),
     takeLatest(types.GET_GROUP_CONVERSATION, getGroupConversation),
     takeLatest(types.GET_INFO_CONVERSATION, getInfoConversation),
     takeLatest(types.CREATE_CONVERSATION, createConversation),
+    takeLatest(types.UPDATE_CONVERSATION, updateConversation),
+    takeLatest(types.LEAVE_GROUP, leaveGroup),
   ]);
 };

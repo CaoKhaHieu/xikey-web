@@ -17,13 +17,13 @@ ReactDOM.render(
     <Provider store={store}>
       <BrowserRouter>
         <SocketProvider>
-          <DialogProvider>
-            <LoadingProvider>
-              <ChatProvider>
+          <ChatProvider>
+            <DialogProvider>
+              <LoadingProvider>
                 <App />
-              </ChatProvider>
-            </LoadingProvider>
-          </DialogProvider>
+              </LoadingProvider>
+            </DialogProvider>
+          </ChatProvider>
         </SocketProvider>
       </BrowserRouter>
     </Provider>

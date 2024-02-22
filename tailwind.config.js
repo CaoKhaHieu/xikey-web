@@ -46,6 +46,7 @@ export default {
         '88': '22rem'
       },
       maxHeight: {
+        '72': '18rem',
         '88': '22rem'
       }
     },

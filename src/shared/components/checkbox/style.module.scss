@@ -1,6 +1,10 @@
 .inputCheckboxLabel {
   @apply flex items-center cursor-pointer font-normal;
 
+  &.readOnly {
+    @apply cursor-auto;
+  }
+
   .inputCheckbox {
     @apply relative w-4 h-4 bg-black1 mr-4 border border-gray4 rounded-sm;
     min-width: 1rem;
