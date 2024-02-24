@@ -14,9 +14,10 @@ import { User } from '@/shared/models/User';
 import LeaveIcon from "@/assets/icons/leave.svg?react";
 import AddIcon from "@/assets/icons/add.svg?react";
 import EditIcon from "@/assets/icons/edit.svg?react";
+import DeleteIcon from "@/assets/icons/delete.svg?react";
 import DotThreeIcon from "@/assets/icons/dot-three.svg?react";
 import { Conversation } from '@/shared/models/Conversation';
-import { kickUser, leaveGroup, removeConversation } from '@/stores/conversation/action';
+import { kickUser, leaveGroup, removeConversation, removeGroup } from '@/stores/conversation/action';
 import { showToast } from '@/shared/utils/utils';
 import { useChat } from '@/shared/contexts/chat-context';
 
@@ -94,6 +95,26 @@ const ConversationInfo = (props: ConversationInfoOptions) => {
           dispatch(leaveGroup(data, (conversation: Conversation) => {
             dispatch(removeConversation(conversation));
             history.push('/');
+          }, () => {
+          }));
+        }}
+      />
+    );
+  };
+
+  const handleRemoveGroup = () => {
+    appendDialog(
+      <ConfirmDialog
+        title={t('are_you_sure')}
+        content={t('remove_group_content')}
+        onClick={() => {
+          const data = {
+            conversationId: conversationInfo.id,
+          };
+          dispatch(removeGroup(data, () => {
+            dispatch(removeConversation(conversationInfo));
+            history.push('/');
+            showToast(t('remove_group_success'));
           }, () => {
           }));
         }}
@@ -185,6 +206,15 @@ const ConversationInfo = (props: ConversationInfoOptions) => {
               <LeaveIcon />
             </span>
             <p>{t('leave_group')}</p>
+          </div>
+        }
+        {
+          isGroupChat && isOwner &&
+          <div className='flex items-center space-x-4 cursor-pointer text-red mt-4 hover:text-gray1 duration-300' onClick={handleRemoveGroup}>
+            <span className='text-xl'>
+              <DeleteIcon />
+            </span>
+            <p>{t('remove_group')}</p>
           </div>
         }
       </Dialog.Body>

@@ -49,7 +49,7 @@ const ChatMain = () => {
       });
 
       socket.on('reaction', (message: MessageModel) => {
-        if (id === message.conversationId) {
+        if (idConversationRef.current === message.conversationId) {
           dispatch(updateMessage(message));
         }
       })

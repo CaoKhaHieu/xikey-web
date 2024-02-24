@@ -1,6 +1,6 @@
 import { AnyAction } from 'redux';
 import { types } from '../types';
-import { get, patch, post, put as update } from '../saga';
+import { get, patch, post, put as update, remove } from '../saga';
 
 import { all, put, takeLatest } from 'redux-saga/effects';
 import { handleApiResponseError } from '../common/actions';
@@ -118,6 +118,16 @@ function* addUser({ payload, resolve, reject }: AnyAction): any {
   }
 }
 
+function* removeGroup({ payload, resolve, reject }: AnyAction): any {
+  try {
+    const res = yield remove(['v1', 'conversation', 'remove-group', `${payload.conversationId}`]);
+    resolve(res);
+  } catch (error: any) {
+    reject(error);
+    yield put(handleApiResponseError(error));
+  }
+}
+
 export function* watchConversation() {
   yield all([
     takeLatest(types.GET_ALL_CONVERSATION, getAllConversation),
@@ -128,5 +138,6 @@ export function* watchConversation() {
     takeLatest(types.LEAVE_GROUP, leaveGroup),
     takeLatest(types.KICK_USER, kickUser),
     takeLatest(types.ADD_USER, addUser),
+    takeLatest(types.REMOVE_GROUP, removeGroup),
   ]);
 };
