@@ -52,7 +52,7 @@ const ChatMain = () => {
         if (idConversationRef.current === message.conversationId) {
           dispatch(updateMessage(message));
         }
-      })
+      });
     }
   }, [id]);
 

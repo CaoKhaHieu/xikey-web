@@ -46,11 +46,22 @@ const removeConversation = (state: any, payload: Conversation) => {
   };
 };
 
+const addConversation = (state: any, payload: Conversation) => {
+  const data: any = { ...state.allConversations };
+  data[payload.id] = payload;
+
+  return {
+    ...state,
+    allConversations: { ...data },
+  };
+};
+
 const conversationStrategies = {
   SAVE_ALL_CONVERSATION: saveAllConversations,
   UPDATE_LAST_MESSAGE_CONVERSATION: updateLastMessageConversation,
   UPDATE_INFO_CONVERSATION: updateInfoConversation,
   REMOVE_CONVERSATION: removeConversation,
+  ADD_CONVERSATION: addConversation,
   __default__: (state: any) => state,
 };
 

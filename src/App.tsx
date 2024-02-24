@@ -12,6 +12,8 @@ import { getToken } from './shared/utils/utils';
 import { getAllUsers, getUser } from './stores/user/action';
 import { useSocket } from './shared/contexts/socket-context';
 import { User } from './shared/models/User';
+import { Conversation } from './shared/models/Conversation';
+import { addConversation } from './stores/conversation/action';
 
 function App() {
   const { apiController } = useSelector((state: any) => state.commonReducer);
@@ -25,6 +27,10 @@ function App() {
   useEffect(() => {
     if (user.id) {
       socket.emit('join', user.id);
+
+      socket.on('invite_to_group', (newConversation: Conversation) => {
+        dispatch(addConversation(newConversation));
+      });
     }
   }, [user]);
 

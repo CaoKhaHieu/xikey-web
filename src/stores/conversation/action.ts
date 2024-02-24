@@ -18,6 +18,11 @@ export const saveAllConversations = (payload: Conversation[]) => ({
   payload,
 });
 
+export const addConversation = (payload: Conversation) => ({
+  type: types.ADD_CONVERSATION,
+  payload,
+});
+
 export const updateLastMessageConversation = (payload: Message) => ({
   type: types.UPDATE_LAST_MESSAGE_CONVERSATION,
   payload,
