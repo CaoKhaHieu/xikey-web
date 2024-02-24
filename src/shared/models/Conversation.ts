@@ -10,6 +10,7 @@ export interface Conversation {
   updatedAt: string;
   isGroup: boolean;
   isCloud: boolean;
+  ownerId: string;
 }
 
 export class Conversation {
@@ -22,5 +23,6 @@ export class Conversation {
     this.updatedAt = conversation.updatedAt;
     this.isGroup = conversation.isGroup || this.members?.length > 2;
     this.isCloud = conversation.isCloud || false;
+    this.ownerId = conversation.ownerId || '';
   }
 }

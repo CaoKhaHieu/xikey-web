@@ -118,6 +118,7 @@ const CreateGroup = (props: CreateGroupOptions) => {
       avatar: avatarGroup,
       name: data.groupName,
       members: [...membersIds, user.id],
+      ownerId: isCreateGroup ? user.id : conversationEdit?.ownerId,
     };
     if (isCreateGroup) {
       dispatch(createConversation(body, (newConversation: Conversation) => {

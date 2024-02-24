@@ -1,7 +1,10 @@
+import { useState } from 'react';
+import { useHistory } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useDispatch, useSelector } from 'react-redux';
 
 import { Dialog, useDialog } from '..';
+import ConfirmDialog from './ConfirmDialog';
 import Avatar from '../../avatar';
 import Button from '../../button';
 import Tooltip from '../../tooltip';
@@ -13,9 +16,8 @@ import AddIcon from "@/assets/icons/add.svg?react";
 import EditIcon from "@/assets/icons/edit.svg?react";
 import DotThreeIcon from "@/assets/icons/dot-three.svg?react";
 import { Conversation } from '@/shared/models/Conversation';
-import { useState } from 'react';
-import { leaveGroup, removeConversation } from '@/stores/conversation/action';
-import { useHistory } from 'react-router-dom';
+import { kickUser, leaveGroup, removeConversation } from '@/stores/conversation/action';
+import { showToast } from '@/shared/utils/utils';
 
 interface ConversationInfoOptions {
   conversation: Conversation,
@@ -31,11 +33,12 @@ const ConversationInfo = (props: ConversationInfoOptions) => {
   const userChat = conversationInfo.members.find((member: User) => member.id !== user.id);
   const isGroupChat = conversationInfo.isGroup;
   const isCloudChat = conversationInfo.isCloud;
+  const isOwner = conversationInfo.ownerId === user.id;
 
   const dispatch = useDispatch();
   const history = useHistory();
   const { t } = useTranslation();
-  const { appendDialog } = useDialog();
+  const { dialogs, appendDialog, closeCurrentDialog } = useDialog();
 
   const handleClose = () => {
     close && close();
@@ -56,18 +59,43 @@ const ConversationInfo = (props: ConversationInfoOptions) => {
   };
 
   const handleKickUser = (user: User) => {
+    appendDialog(
+      <ConfirmDialog
+        title={t('are_you_sure')}
+        content={t('kick_content')}
+        onClick={() => {
+          const data = {
+            conversationId: conversationInfo.id,
+            userId: user.id,
+          };
+          dispatch(kickUser(data, (conversation: Conversation) => {
+            setConversationInfo(conversation);
+            showToast(t('deleted_user'));
+          }, () => {
+          }));
+        }}
+      />
+    );
   };
 
   const handleLeaveGroup = () => {
-    const data = {
-      conversationId: conversationInfo.id,
-      userId: user.id,
-    };
-    dispatch(leaveGroup(data, (conversation: Conversation) => {
-      dispatch(removeConversation(conversation));
-      history.push('/');
-    }, () => {
-    }));
+    appendDialog(
+      <ConfirmDialog
+        title={t('are_you_sure')}
+        content={t('leave_group_content')}
+        onClick={() => {
+          const data = {
+            conversationId: conversationInfo.id,
+            userId: user.id,
+          };
+          dispatch(leaveGroup(data, (conversation: Conversation) => {
+            dispatch(removeConversation(conversation));
+            history.push('/');
+          }, () => {
+          }));
+        }}
+      />
+    );
   };
 
   return (
@@ -80,9 +108,12 @@ const ConversationInfo = (props: ConversationInfoOptions) => {
           <Avatar className='!w-20 !h-20' url={conversationInfo.avatar} />
           <p className='font-semibold text-xl line-clamp-1 flex items-center space-x-2'>
             <span>{conversationInfo.name}</span>
-            <span className='cursor-pointer' onClick={handleOpenAddUserDialog}>
-              <EditIcon />
-            </span>
+            {
+              isOwner &&
+              <span className='cursor-pointer' onClick={handleOpenAddUserDialog}>
+                <EditIcon />
+              </span>
+            }
           </p>
         </div>
         <Button
@@ -110,18 +141,21 @@ const ConversationInfo = (props: ConversationInfoOptions) => {
           <div className='mt-4 mb-2 flex flex-col space-y-2'>
             <div className='flex items-center justify-between'>
               <p>{t('members')} ({conversationInfo.members.length})</p>
-              <Tooltip
-                className=''
-                id='add_user'
-                content='Add user'
-              >
-                <p
-                  className='text-2xl cursor-pointer duration-300 rounded hover:bg-pink1 hover:text-primaryHover'
-                  onClick={handleOpenAddUserDialog}
+              {
+                isOwner &&
+                <Tooltip
+                  className=''
+                  id='add_user'
+                  content={t('add_user')}
                 >
-                  <AddIcon />
-                </p>
-              </Tooltip>
+                  <p
+                    className='text-2xl cursor-pointer duration-300 rounded hover:bg-pink1 hover:text-primaryHover'
+                    onClick={handleOpenAddUserDialog}
+                  >
+                    <AddIcon />
+                  </p>
+                </Tooltip>
+              }
             </div>
             <div className='flex flex-col space-y-4 max-h-72 overflow-y-scroll'>
               {
@@ -131,7 +165,10 @@ const ConversationInfo = (props: ConversationInfoOptions) => {
                       <Avatar className='' url={member.avatar} />
                       <p className='line-clamp-1'>{member.name}</p>
                     </div>
-                    <Button className='text-red hidden group-hover:flex px-2' onClick={() => handleKickUser(member)}>Kick</Button>
+                    {
+                      isOwner && member.id !== conversationInfo.ownerId &&
+                      <Button className='text-red hidden group-hover:flex px-2' onClick={() => handleKickUser(member)}>{t('kick')}</Button>
+                    }
                   </div>
                 ))
               }

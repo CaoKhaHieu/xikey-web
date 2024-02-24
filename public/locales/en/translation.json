@@ -69,5 +69,12 @@
   "leave_group": "Leave group",
   "edit_group": "Update group",
   "save": "Save",
-  "group_updated": "Group update successful"
+  "group_updated": "Group update successful",
+  "deleted_user": "Deleted user",
+  "kick": "Kick",
+  "add_user": "Add user",
+  "are_you_sure": "Are you sure?",
+  "leave_group_content": "Do you want to leave this conversation?",
+  "kick_content": "Do you want to kick this user?",
+  "cancel": "Cancel"
 }
