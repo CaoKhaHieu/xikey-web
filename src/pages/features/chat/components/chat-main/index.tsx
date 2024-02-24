@@ -14,8 +14,6 @@ import { Conversation } from "@/shared/models/Conversation";
 
 
 const ChatMain = () => {
-  const endSectionRef = useRef<HTMLDivElement>(null);
-
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const { messageManagement } = useSelector((state: any) => state.messageReducer);
   const listMessage: MessageModel[] = Object.values(messageManagement.messages);
@@ -27,10 +25,14 @@ const ChatMain = () => {
   const dispatch = useDispatch();
   const history = useHistory();
 
+  const endSectionRef = useRef<HTMLDivElement>(null);
+  const idConversationRef = useRef<string>(id);
+
   useEffect(() => {
     if (id) {
       handleGetUserChat();
       handleGetMessage();
+      idConversationRef.current = id;
     }
     return () => {
       setIsLoading(true);
@@ -40,7 +42,7 @@ const ChatMain = () => {
   useEffect(() => {
     if (id) {
       socket.on('new_message', (newMessage: MessageModel) => {
-        if (id === newMessage.conversationId) {
+        if (idConversationRef.current === newMessage.conversationId) {
           dispatch(saveNewMessage(newMessage));
         }
         dispatch(updateLastMessageConversation(newMessage));

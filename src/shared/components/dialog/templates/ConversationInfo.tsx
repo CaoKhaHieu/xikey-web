@@ -18,6 +18,7 @@ import DotThreeIcon from "@/assets/icons/dot-three.svg?react";
 import { Conversation } from '@/shared/models/Conversation';
 import { kickUser, leaveGroup, removeConversation } from '@/stores/conversation/action';
 import { showToast } from '@/shared/utils/utils';
+import { useChat } from '@/shared/contexts/chat-context';
 
 interface ConversationInfoOptions {
   conversation: Conversation,
@@ -38,7 +39,8 @@ const ConversationInfo = (props: ConversationInfoOptions) => {
   const dispatch = useDispatch();
   const history = useHistory();
   const { t } = useTranslation();
-  const { dialogs, appendDialog, closeCurrentDialog } = useDialog();
+  const { handleSelectChat } = useChat();
+  const { appendDialog } = useDialog();
 
   const handleClose = () => {
     close && close();
@@ -48,10 +50,10 @@ const ConversationInfo = (props: ConversationInfoOptions) => {
     setConversationInfo(conversation);
   };
 
-  const handleOpenAddUserDialog = () => {
+  const handleOpenAddUserDialog = (type: 'CREATE' | 'ADD_USER' | 'EDIT') => {
     appendDialog(
       <CreateGroup
-        type='ADD_USER'
+        type={type}
         conversationEdit={conversationInfo}
         handleAfterUpdateConversation={handleAfterUpdateConversation}
       />
@@ -69,6 +71,7 @@ const ConversationInfo = (props: ConversationInfoOptions) => {
             userId: user.id,
           };
           dispatch(kickUser(data, (conversation: Conversation) => {
+            handleSelectChat(conversation);
             setConversationInfo(conversation);
             showToast(t('deleted_user'));
           }, () => {
@@ -110,14 +113,14 @@ const ConversationInfo = (props: ConversationInfoOptions) => {
             <span>{conversationInfo.name}</span>
             {
               isOwner &&
-              <span className='cursor-pointer' onClick={handleOpenAddUserDialog}>
+              <span className='cursor-pointer' onClick={() => handleOpenAddUserDialog('EDIT')}>
                 <EditIcon />
               </span>
             }
           </p>
         </div>
         <Button
-          className='w-full bg-pink2 text-lg text-primaryHover font-semibold py-2.5 mt-4 rounded-lg hover:bg-pink1'
+          className='w-full bg-pink1 text-lg text-primaryHover font-semibold py-2.5 mt-4 rounded-lg hover:bg-pink2'
           onClick={handleClose}
         >
           {t('text_message')}
@@ -150,7 +153,7 @@ const ConversationInfo = (props: ConversationInfoOptions) => {
                 >
                   <p
                     className='text-2xl cursor-pointer duration-300 rounded hover:bg-pink1 hover:text-primaryHover'
-                    onClick={handleOpenAddUserDialog}
+                    onClick={() => handleOpenAddUserDialog('ADD_USER')}
                   >
                     <AddIcon />
                   </p>

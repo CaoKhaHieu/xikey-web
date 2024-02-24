@@ -22,7 +22,7 @@ const ChatHeader = () => {
     <div className="flex items-center bg-white px-4 border-b border-gray2 h-20">
       <div className="flex items-center flex-1 space-x-4">
         <Avatar className="cursor-pointer" url={selectedChat?.avatar} onClick={handleWatchInfoConversation} />
-        <p className="font-semibold text-lg text-black1">{selectedChat?.name}</p>
+        <p className="font-semibold text-lg text-black1 line-clamp-1">{selectedChat?.name}</p>
       </div>
       <div className="flex items-center space-x-4">
         <div className="text-2xl cursor-pointer">

@@ -1,7 +1,8 @@
 export enum TYPE_MESSAGE {
   FILE = 'FILE',
   IMAGE = 'IMAGE',
-  TEXT = 'TEXT'
+  TEXT = 'TEXT',
+  NOTIFY = 'NOTIFY',
 };
 
 export enum DIALOG_POSITION {

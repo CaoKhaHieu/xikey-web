@@ -68,6 +68,18 @@ const Message = (props: MessageOptions) => {
     );
   };
 
+  if (message.type === TYPE_MESSAGE.NOTIFY) {
+    return (
+      <div className="flex justify-center items-center space-x-2">
+        <Avatar className="w-6 h-6" url={message.sender.avatar} />
+        <p className="text-white flex items-center space-x-1">
+          <span>{message.sender.name}</span>
+          <span className="text-gray1">{t(message.content)}</span>
+        </p>
+      </div>
+    );
+  }
+
   return (
     <div className={classNames("flex space-x-2 h-full group", {
       "flex-row-reverse": isCurrentUser,

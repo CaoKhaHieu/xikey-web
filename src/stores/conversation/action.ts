@@ -9,6 +9,7 @@ export const createConversation = generateAPIAction(types.CREATE_CONVERSATION);
 export const updateConversation = generateAPIAction(types.UPDATE_CONVERSATION);
 export const leaveGroup = generateAPIAction(types.LEAVE_GROUP);
 export const kickUser = generateAPIAction(types.KICK_USER);
+export const addUser = generateAPIAction(types.ADD_USER);
 export const getAllGroupConversation = generateAPIAction(types.GET_GROUP_CONVERSATION);
 
 export const saveAllConversations = (payload: Conversation[]) => ({

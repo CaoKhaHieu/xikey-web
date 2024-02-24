@@ -106,6 +106,18 @@ function* kickUser({ payload, resolve, reject }: AnyAction): any {
   }
 }
 
+function* addUser({ payload, resolve, reject }: AnyAction): any {
+  const { conversationId, listUserId } = payload;
+  try {
+    const res = yield patch(['v1', 'conversation', 'add-user'], { data: { conversationId, listUserId } });
+    const newConversation = new Conversation(res.data);
+    resolve(newConversation);
+  } catch (error: any) {
+    reject(error);
+    yield put(handleApiResponseError(error));
+  }
+}
+
 export function* watchConversation() {
   yield all([
     takeLatest(types.GET_ALL_CONVERSATION, getAllConversation),
@@ -115,5 +127,6 @@ export function* watchConversation() {
     takeLatest(types.UPDATE_CONVERSATION, updateConversation),
     takeLatest(types.LEAVE_GROUP, leaveGroup),
     takeLatest(types.KICK_USER, kickUser),
+    takeLatest(types.ADD_USER, addUser),
   ]);
 };

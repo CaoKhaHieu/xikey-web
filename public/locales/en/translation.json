@@ -76,5 +76,9 @@
   "are_you_sure": "Are you sure?",
   "leave_group_content": "Do you want to leave this conversation?",
   "kick_content": "Do you want to kick this user?",
-  "cancel": "Cancel"
+  "cancel": "Cancel",
+  "left_group": "has left the group",
+  "update_group": "just updated group information",
+  "just_create_group": "just created this group",
+  "new_member": "has been added to the group"
 }
