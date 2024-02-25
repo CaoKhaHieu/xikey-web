@@ -1,10 +1,11 @@
-import { ReactElement, createContext, useContext, useEffect } from 'react';
+import { ReactElement, createContext, useContext, useEffect, useRef } from 'react';
 import { io } from "socket.io-client";
+import { useDispatch, useSelector } from 'react-redux';
+
 import { BASE_URL } from '@/shared/constants';
 import { Message } from '@/shared/models/Message';
-import { useDispatch, useSelector } from 'react-redux';
 import { saveNewMessage, updateMessage } from '@/stores/message/action';
-import { addConversation, updateLastMessageConversation } from '@/stores/conversation/action';
+import { addConversation, selectConversation, updateLastMessageConversation } from '@/stores/conversation/action';
 import { Conversation } from '@/shared/models/Conversation';
 import { User } from '@/shared/models/User';
 
@@ -26,17 +27,10 @@ export const useSocket = () => {
 const SocketProvider = (props: SocketProps) => {
   const { conversation } = useSelector((state: any) => state.conversationReducer);
   const { user }: { user: User } = useSelector((state: any) => state.userReducer);
-
   const { currentConversation }: { currentConversation: Conversation } = conversation;
-
+  const currentConversationRef = useRef<Conversation>(currentConversation);
+  
   const dispatch = useDispatch();
-
-  useEffect(() => {
-    // case: not have current conversation
-    socket.on('new_message', (newMessage: Message) => {
-      dispatch(updateLastMessageConversation(newMessage));
-    });
-  }, []);
 
   useEffect(() => {
     if (user.id) {
@@ -46,25 +40,30 @@ const SocketProvider = (props: SocketProps) => {
         dispatch(addConversation(newConversation));
       });
     }
-  }, [user]);
+  }, [user.id]);
 
   useEffect(() => {
-    if (!currentConversation.id) {
-      return;
-    }
-    // handle incase have current conversation
     socket.on('new_message', (newMessage: Message) => {
-      if (currentConversation.id === newMessage.conversationId) {
+      if (currentConversationRef.current.id === newMessage.conversationId) {
         dispatch(saveNewMessage(newMessage));
       }
+      dispatch(updateLastMessageConversation(newMessage));
     });
 
     socket.on('reaction', (message: Message) => {
-      if (currentConversation.id === message.conversationId) {
+      if (currentConversationRef.current.id === message.conversationId) {
         dispatch(updateMessage(message));
       }
     });
-  }, [currentConversation]);
+
+    socket.on('update_conversation', (conversation: Conversation) => {
+      dispatch(selectConversation(conversation));
+    });
+  }, []);
+
+  useEffect(() => {
+    currentConversationRef.current = currentConversation;
+  }, [conversation.currentConversation]);
 
   const data = {
     socket,
