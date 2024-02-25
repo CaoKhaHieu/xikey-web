@@ -15,11 +15,9 @@ import LeaveIcon from "@/assets/icons/leave.svg?react";
 import AddIcon from "@/assets/icons/add.svg?react";
 import EditIcon from "@/assets/icons/edit.svg?react";
 import DeleteIcon from "@/assets/icons/delete.svg?react";
-import DotThreeIcon from "@/assets/icons/dot-three.svg?react";
 import { Conversation } from '@/shared/models/Conversation';
-import { kickUser, leaveGroup, removeConversation, removeGroup } from '@/stores/conversation/action';
+import { kickUser, leaveGroup, removeConversation, removeGroup, selectConversation } from '@/stores/conversation/action';
 import { showToast } from '@/shared/utils/utils';
-import { useChat } from '@/shared/contexts/chat-context';
 
 interface ConversationInfoOptions {
   conversation: Conversation,
@@ -40,7 +38,6 @@ const ConversationInfo = (props: ConversationInfoOptions) => {
   const dispatch = useDispatch();
   const history = useHistory();
   const { t } = useTranslation();
-  const { handleSelectChat } = useChat();
   const { appendDialog } = useDialog();
 
   const handleClose = () => {
@@ -72,7 +69,7 @@ const ConversationInfo = (props: ConversationInfoOptions) => {
             userId: user.id,
           };
           dispatch(kickUser(data, (conversation: Conversation) => {
-            handleSelectChat(conversation);
+            dispatch(selectConversation(conversation));
             setConversationInfo(conversation);
             showToast(t('deleted_user'));
           }, () => {

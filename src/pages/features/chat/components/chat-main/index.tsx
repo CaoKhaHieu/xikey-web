@@ -2,26 +2,25 @@ import { useEffect, useRef, useState } from "react";
 import { useHistory, useParams } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import Message from "@/shared/components/message";
-import { getListMessage, saveNewMessage, updateMessage } from "@/stores/message/action";
+import { getListMessage} from "@/stores/message/action";
 import { Message as MessageModel } from "@/shared/models/Message";
-import { useSocket } from "@/shared/contexts/socket-context";
-import { getInfoConversation, updateLastMessageConversation } from "@/stores/conversation/action";
-import { useChat } from "@/shared/contexts/chat-context";
+import { getInfoConversation, selectConversation } from "@/stores/conversation/action";
 import Avatar from "@/shared/components/avatar";
 import { Loading } from "@/shared/components/loading";
 import { useTranslation } from "react-i18next";
 import { Conversation } from "@/shared/models/Conversation";
+import { TYPE_MESSAGE } from "@/shared/enums";
 
 
 const ChatMain = () => {
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const { messageManagement } = useSelector((state: any) => state.messageReducer);
+  const { conversation } = useSelector((state: any) => state.conversationReducer);
   const listMessage: MessageModel[] = Object.values(messageManagement.messages);
+  const { currentConversation } = conversation;
 
   const { t } = useTranslation();
   const { id }: { id: string } = useParams();
-  const { selectedChat, handleSelectChat } = useChat();
-  const { socket } = useSocket();
   const dispatch = useDispatch();
   const history = useHistory();
 
@@ -40,29 +39,12 @@ const ChatMain = () => {
   }, [id]);
 
   useEffect(() => {
-    if (id) {
-      socket.on('new_message', (newMessage: MessageModel) => {
-        if (idConversationRef.current === newMessage.conversationId) {
-          dispatch(saveNewMessage(newMessage));
-        }
-        dispatch(updateLastMessageConversation(newMessage));
-      });
-
-      socket.on('reaction', (message: MessageModel) => {
-        if (idConversationRef.current === message.conversationId) {
-          dispatch(updateMessage(message));
-        }
-      });
-    }
-  }, [id]);
-
-  useEffect(() => {
     handleScrollToEnd();
   }, [listMessage]);
 
   const handleGetUserChat = () => {
     dispatch(getInfoConversation(id, (conversation: Conversation) => {
-      handleSelectChat(conversation);
+      dispatch(selectConversation(conversation));
     }, () => {
       history.push('/');
     }));
@@ -99,17 +81,17 @@ const ChatMain = () => {
             <Message
               key={message.id}
               message={message}
-              showAvatar={listMessage[index - 1]?.sender?.id !== listMessage[index].sender.id}
+              showAvatar={listMessage[index - 1]?.sender?.id !== listMessage[index].sender.id || listMessage[index - 1]?.type === TYPE_MESSAGE.NOTIFY}
               onScrollEnd={handleScrollToEnd}
-              isShowName={selectedChat.isGroup && listMessage[index - 1]?.sender?.id !== listMessage[index].sender.id}
+              isShowName={currentConversation.isGroup && listMessage[index - 1]?.sender?.id !== listMessage[index].sender.id}
             />
           ))}
 
         {
           listMessage.length === 0 &&
           <div className="flex flex-col justify-center items-center mt-40">
-            <Avatar className="w-20 h-20" url={selectedChat.avatar} />
-            <p className="text-white text-lg font-semibold mt-4">{selectedChat.name}</p>
+            <Avatar className="w-20 h-20" url={currentConversation.avatar} />
+            <p className="text-white text-lg font-semibold mt-4">{currentConversation.name}</p>
             <p className="text-base text-primary italic mt-2">{t('quotes')}</p>
           </div>
         }

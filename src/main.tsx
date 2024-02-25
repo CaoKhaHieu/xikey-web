@@ -9,7 +9,6 @@ import App from './App.tsx';
 import store from './stores/index.ts';
 import LoadingProvider from './shared/components/loading/index.tsx';
 import { DialogProvider } from './shared/components/dialog/index.tsx';
-import ChatProvider from './shared/contexts/chat-context/index.tsx';
 import SocketProvider from './shared/contexts/socket-context/index.tsx';
 
 ReactDOM.render(
@@ -17,13 +16,11 @@ ReactDOM.render(
     <Provider store={store}>
       <BrowserRouter>
         <SocketProvider>
-          <ChatProvider>
-            <DialogProvider>
-              <LoadingProvider>
-                <App />
-              </LoadingProvider>
-            </DialogProvider>
-          </ChatProvider>
+          <DialogProvider>
+            <LoadingProvider>
+              <App />
+            </LoadingProvider>
+          </DialogProvider>
         </SocketProvider>
       </BrowserRouter>
     </Provider>

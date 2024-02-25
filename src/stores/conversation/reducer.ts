@@ -6,6 +6,7 @@ import { Message } from '@/shared/models/Message';
 // conversation
 const conversationInitialState = {
   allConversations: {},
+  currentConversation: new Conversation({}),
 };
 const saveAllConversations = (state: any, payload: Conversation[]) => {
   const data: any = {};
@@ -56,12 +57,22 @@ const addConversation = (state: any, payload: Conversation) => {
   };
 };
 
+const selectConversation = (state: any, payload: Conversation) => {
+  const data: any = { ...state };
+  data.currentConversation = payload;
+
+  return {
+    ...data,
+  };
+};
+
 const conversationStrategies = {
   SAVE_ALL_CONVERSATION: saveAllConversations,
   UPDATE_LAST_MESSAGE_CONVERSATION: updateLastMessageConversation,
   UPDATE_INFO_CONVERSATION: updateInfoConversation,
   REMOVE_CONVERSATION: removeConversation,
   ADD_CONVERSATION: addConversation,
+  SELECT_CONVERSATION: selectConversation,
   __default__: (state: any) => state,
 };
 

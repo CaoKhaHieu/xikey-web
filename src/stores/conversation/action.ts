@@ -37,3 +37,8 @@ export const removeConversation = (payload: Conversation) => ({
   type: types.REMOVE_CONVERSATION,
   payload,
 });
+
+export const selectConversation = (payload: Conversation) => ({
+  type: types.SELECT_CONVERSATION,
+  payload,
+});

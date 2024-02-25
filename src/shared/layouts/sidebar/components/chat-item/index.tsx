@@ -1,13 +1,14 @@
 import { useTranslation } from "react-i18next";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
+import classNames from "classnames";
 import { Link } from "react-router-dom";
+
 import Avatar from "@/shared/components/avatar";
 import { User } from "@/shared/models/User";
 import { Conversation } from "@/shared/models/Conversation";
-import { useChat } from "@/shared/contexts/chat-context";
 import { timeSince } from "@/shared/utils/utils";
 import { TYPE_MESSAGE } from "@/shared/enums";
-import classNames from "classnames";
+import { selectConversation } from "@/stores/conversation/action";
 
 interface IUserSidebar {
   conversation: Conversation;
@@ -15,14 +16,16 @@ interface IUserSidebar {
 
 const ChatItem = (props: IUserSidebar) => {
   const { conversation } = props;
-
-  const { selectedChat, handleSelectChat } = useChat();
-  const { t } = useTranslation();
   
   const { user }: { user: User } = useSelector((state: any) => state.userReducer);
+  const { conversation: conversationRedux } = useSelector((state: any) => state.conversationReducer);
+  const { currentConversation } = conversationRedux;
   const isGroupChat = conversation.isGroup;
   const isCloudChat = conversation.isCloud;
   const userChat = conversation.members.find((member: User) => member.id !== user.id);
+
+  const { t } = useTranslation();
+  const dispatch = useDispatch();
 
   if (!userChat && !isGroupChat && !isCloudChat) {
     return null;
@@ -35,12 +38,12 @@ const ChatItem = (props: IUserSidebar) => {
       name: (isGroupChat || isCloudChat) ? conversation.name : userChat?.name || '',
       avatar: (isGroupChat || isCloudChat) ? conversation.avatar : userChat?.avatar || '',
     };
-    handleSelectChat(conversationSelected);
+    dispatch(selectConversation(conversationSelected));
   };
   
   return (
     <Link onClick={handleClick} to={`/chat/${conversation.id}`} className={classNames("w-full flex items-center p-2 cursor-pointer hover:bg-pink1 duration-300", {
-      "bg-pink1": selectedChat.id === conversation.id
+      "bg-pink1": currentConversation.id === conversation.id
     })}>
       <div>
         <Avatar className="" url={(isGroupChat || isCloudChat) ? conversation.avatar : userChat?.avatar || ''} />

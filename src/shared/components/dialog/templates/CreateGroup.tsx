@@ -14,12 +14,11 @@ import { useLoading } from '../../loading';
 import { Conversation } from '@/shared/models/Conversation';
 import { upload } from '@/stores/common/actions';
 import { User } from '@/shared/models/User';
-import { addUser, createConversation, saveAllConversations, updateConversation, updateInfoConversation } from '@/stores/conversation/action';
+import { addUser, createConversation, saveAllConversations, selectConversation, updateConversation, updateInfoConversation } from '@/stores/conversation/action';
 
 import CameraIcon from "@/assets/icons/camera2.svg?react";
 import SearchIcon from "@/assets/icons/search.svg?react";
 import { showToast } from '@/shared/utils/utils';
-import { useChat } from '@/shared/contexts/chat-context';
 
 interface CreateGroupOptions {
   type?: 'CREATE' | 'ADD_USER' | 'EDIT';
@@ -56,7 +55,6 @@ const CreateGroup = (props: CreateGroupOptions) => {
   const dispatch = useDispatch();
   const history = useHistory();
   const { setLoading } = useLoading();
-  const { selectedChat, handleSelectChat } = useChat();
   const {
     register,
     control,
@@ -151,7 +149,7 @@ const CreateGroup = (props: CreateGroupOptions) => {
       body.conversationId = conversationEdit?.id;
       dispatch(updateConversation(body, (newConversation: Conversation) => {
         dispatch(updateInfoConversation(newConversation));
-        handleSelectChat(newConversation);
+        dispatch(selectConversation(newConversation));
         showToast(t('group_updated'));
         handleClose();
         handleAfterUpdateConversation && handleAfterUpdateConversation(newConversation);
@@ -163,7 +161,7 @@ const CreateGroup = (props: CreateGroupOptions) => {
       };
       dispatch(addUser(body, (newConversation: Conversation) => {
         dispatch(updateInfoConversation(newConversation));
-        handleSelectChat(newConversation);
+        dispatch(selectConversation(newConversation));
         showToast(t('add_user_success'));
         handleClose();
         handleAfterUpdateConversation && handleAfterUpdateConversation(newConversation);
