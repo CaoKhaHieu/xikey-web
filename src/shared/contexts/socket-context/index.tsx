@@ -5,7 +5,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { BASE_URL } from '@/shared/constants';
 import { Message } from '@/shared/models/Message';
 import { saveNewMessage, updateMessage } from '@/stores/message/action';
-import { addConversation, selectConversation, updateLastMessageConversation } from '@/stores/conversation/action';
+import { addConversation, selectConversation, updateInfoConversation, updateLastMessageConversation } from '@/stores/conversation/action';
 import { Conversation } from '@/shared/models/Conversation';
 import { User } from '@/shared/models/User';
 
@@ -57,7 +57,24 @@ const SocketProvider = (props: SocketProps) => {
     });
 
     socket.on('update_conversation', (conversation: Conversation) => {
-      dispatch(selectConversation(conversation));
+      if (currentConversationRef.current.id === conversation.id) {
+        dispatch(selectConversation(conversation));
+      }
+      dispatch(updateInfoConversation(conversation));
+    });
+
+    socket.on('add_user', (conversation: Conversation) => {
+      if (currentConversationRef.current.id === conversation.id) {
+        dispatch(selectConversation(conversation));
+      }
+      dispatch(updateInfoConversation(conversation));
+    });
+
+    socket.on('kick_user', (conversation: Conversation) => {
+      if (currentConversationRef.current.id === conversation.id) {
+        dispatch(selectConversation(conversation));
+      }
+      dispatch(updateInfoConversation(conversation));
     });
   }, []);
 
