@@ -1,11 +1,11 @@
 import { AnyAction } from 'redux';
 import { types } from '../types';
-import { get, post } from '../saga';
+import { get, patch, post } from '../saga';
 
 import { all, put, takeLatest } from 'redux-saga/effects';
 import { handleApiResponseError } from '../common/actions';
 import { User } from '@/shared/models/User';
-import { saveAllUsers } from './action';
+import { saveAllUsers, setUser } from './action';
 
 function* getAllUser({ resolve, reject }: AnyAction): any {
   try {
@@ -44,10 +44,27 @@ function* searchUser({ payload, resolve, reject }: AnyAction): any {
   }
 }
 
+function* updateInfoAccount({ payload, resolve, reject }: AnyAction): any {
+  const body = {
+    name: payload.name,
+    email: payload.email,
+  };
+  try {
+    const res = yield patch(['v1', 'user', 'update-info'], { data: body });
+    const updatedUser = new User(res.data);
+    yield put(setUser(updatedUser));
+    resolve(updatedUser);
+  } catch (error: any) {
+    reject(error);
+    yield put(handleApiResponseError(error));
+  }
+}
+
 export function* watchUser() {
   yield all([
     takeLatest(types.GET_ALL_USER, getAllUser),
     takeLatest(types.UPDATE_AVATAR, updateAvatar),
     takeLatest(types.SEARCH_USER, searchUser),
+    takeLatest(types.UPDATE_INFO_ACCOUNT, updateInfoAccount),
   ]);
 };

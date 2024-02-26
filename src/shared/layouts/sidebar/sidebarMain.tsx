@@ -47,7 +47,7 @@ const SidebarMain = () => {
       return;
     }
     handleGetAllConversation();
-  }, [user]);
+  }, [user.id]);
 
   const handleChangeInput = (event: React.FormEvent<HTMLInputElement>) => {
     const value = event.currentTarget.value;

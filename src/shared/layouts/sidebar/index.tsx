@@ -16,6 +16,8 @@ import { getRefreshToken, removeToken } from "@/shared/utils/utils";
 import { User } from "@/shared/models/User";
 import { updateAvatar } from "@/stores/user/action";
 import { upload } from "@/stores/common/actions";
+import { useDialog } from "@/shared/components/dialog";
+import AccountInfo from "@/shared/components/dialog/templates/AccountInfo";
 
 const menu: IMenuData[] = [
   {
@@ -41,6 +43,7 @@ const Sidebar = () => {
 
   const dispatch = useDispatch();
   const { t } = useTranslation();
+  const { appendDialog } = useDialog();
 
   useEffect(() => {
     if (user?.avatar) {
@@ -94,6 +97,12 @@ const Sidebar = () => {
 
   const handleAvatarClick = () => {
     inputRef.current?.click();
+  };
+
+  const handleOpenDialogUpdateInfo = () => {
+    appendDialog(
+      <AccountInfo />
+    );
   };
 
   return (
@@ -157,9 +166,10 @@ const Sidebar = () => {
                   }
                   content={
                     <div className="shadow-2xl bg-white px-8 py-3 w-44 border border-gray2 rounded-md flex flex-col space-y-2">
-                      <p className="text-sm cursor-pointer">{t('account_settings')}</p>
-                      <p className="text-sm cursor-pointer">{t('introduce')}</p>
-                      <p className="text-sm cursor-pointer text-red" onClick={item.onClick}>{t('logout')}</p>
+                      <p className="text-sm cursor-pointer whitespace-nowrap">{t('account_settings')}</p>
+                      <p className="text-sm cursor-pointer whitespace-nowrap">{t('introduce')}</p>
+                      <p className="text-sm cursor-pointer whitespace-nowrap" onClick={handleOpenDialogUpdateInfo}>{t('update_account')}</p>
+                      <p className="text-sm cursor-pointer whitespace-nowrap text-red" onClick={item.onClick}>{t('logout')}</p>
                     </div>
                   }
                 />
