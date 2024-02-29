@@ -6,6 +6,7 @@ export const VALIDATE_LENGTH = {
   MAX_NAME: 30,
   MAX_PASSWORD: 32,
   MAX_EMAIL: 128,
+  LIMIT_IMAGES: 4,
 };
 
 export const PASSWORD_PATTERN = /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{6,}$/;

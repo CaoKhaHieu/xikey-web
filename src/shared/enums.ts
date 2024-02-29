@@ -1,6 +1,7 @@
 export enum TYPE_MESSAGE {
   FILE = 'FILE',
   IMAGE = 'IMAGE',
+  IMAGE_LIST = 'IMAGE_LIST',
   TEXT = 'TEXT',
   NOTIFY = 'NOTIFY',
 };

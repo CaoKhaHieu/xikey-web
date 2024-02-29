@@ -47,7 +47,8 @@ export default {
       },
       maxHeight: {
         '72': '18rem',
-        '88': '22rem'
+        '88': '22rem',
+        '96': '24rem'
       }
     },
   },

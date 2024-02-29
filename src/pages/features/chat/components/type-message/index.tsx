@@ -6,11 +6,13 @@ import { useDispatch, useSelector } from "react-redux";
 import EmojiPicker from 'emoji-picker-react';
 
 import Input from "@/shared/components/input";
-import { clearReplyMessage, createMessage } from "@/stores/message/action";
 import { User } from "@/shared/models/User";
 import { upload } from "@/stores/common/actions";
 import { TYPE_MESSAGE } from "@/shared/enums";
 import { Message } from "@/shared/models/Message";
+import { VALIDATE_LENGTH } from "@/shared/constants";
+import { showToast } from "@/shared/utils/utils";
+import { clearReplyMessage, createMessage } from "@/stores/message/action";
 
 import LikeIcon from "@/assets/icons/like.svg?react";
 import Smile from "@/assets/icons/smile.svg?react";
@@ -18,11 +20,24 @@ import UploadImageIcon from "@/assets/icons/upload-image.svg?react";
 // import UploadFileIcon from "@/assets/icons/file.svg?react";
 import CloseIcon from "@/assets/icons/close.svg?react";
 
+interface ImageData {
+  urlLocal: string;
+  url: string;
+  id: number;
+}
+
+interface UploadImage {
+  [key: number]: ImageData;
+}
+
 const previewConfig = {
   showPreview: false,
 };
 
 const TypeMessage = () => {
+  const [uploadImage, setUploadImage] = useState<UploadImage>({});
+  const listImg = Object.values(uploadImage);
+  
   const [valueInput, setValueInput] = useState('');
   const [isOpenModalIcon, setIsOpenModalIcon] = useState<boolean>(false);
   const { user }: { user: User } = useSelector((state: any) => state.userReducer);
@@ -31,12 +46,77 @@ const TypeMessage = () => {
   const inputRef = useRef<HTMLInputElement>(null);
   const emojiRef = useRef<any>();
   const valueInputRef = useRef<string>('');
+  const countUploadImagesRef = useRef<number>(listImg.length);
 
   const { id }: { id: string } = useParams();
   const { t } = useTranslation();
   const dispatch = useDispatch();
 
   const replyMessage: Message = messageManagement.reply[id];
+
+  useEffect(() => {
+    const handlePaste = (event: ClipboardEvent) => {
+      const items = (event.clipboardData || (event as any).originalEvent.clipboardData).items;
+      for (const item of items) {
+        if (item.kind === 'file' && item.type.startsWith('image/')) {
+          // limit image
+          if (countUploadImagesRef.current >= VALIDATE_LENGTH.LIMIT_IMAGES) {
+            showToast('limit_image_upload');
+            return;
+          }
+
+          const file: File = item.getAsFile();
+          const reader = new FileReader();
+          reader.onload = (e: any) => {
+            const src = e.target.result;
+            const dataImage: ImageData = {
+              url: '',
+              urlLocal: src,
+              id: file.lastModified
+            };
+            setUploadImage((prev) => ({
+              ...prev,
+              [file.lastModified]: dataImage
+            }));
+          };
+          reader.readAsDataURL(file);
+
+          // upload image
+          let formData = new FormData()
+          formData.append("image", file);
+          
+          dispatch(upload(formData, (res: { url: string}) => {
+            setUploadImage((prev) => ({
+              ...prev,
+              [file.lastModified]: {
+                url: res.url,
+                urlLocal: '',
+                id: file.lastModified
+              }
+            }));
+          }, () => {
+          }));
+
+          break;
+        }
+      }
+    };
+
+    document.addEventListener('paste', handlePaste);
+    return () => {
+      document.removeEventListener('paste', handlePaste);
+    };
+  }, []);
+
+  useEffect(() => {
+    countUploadImagesRef.current = listImg.length;
+  }, [listImg.length]);
+
+  const handleRemoveImage = (key: number) => {
+    const newData: UploadImage = { ...uploadImage };
+    delete newData[key];
+    setUploadImage(newData);
+  };
 
   useEffect(() => {
     const handleClickOutside = (e: any) => {
@@ -77,8 +157,21 @@ const TypeMessage = () => {
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
     if(e.key == 'Enter' && !e.shiftKey){
+      const isUploadingImage = listImg.length && listImg.find((image: ImageData) => !image.url);
+      if (listImg.length > 0 && isUploadingImage) {
+        showToast('uploading_image');
+        return;
+      }
+
       e.preventDefault();
       handleSendMessage();
+
+      if (listImg.length > 0) {
+        const listUrl = listImg.map((item: ImageData) => item.url);
+        const contentMessage = listUrl.join(',');
+        handleSendMessage(contentMessage, TYPE_MESSAGE.IMAGE_LIST);
+        setUploadImage({});
+      }
     }
   };
 
@@ -91,6 +184,10 @@ const TypeMessage = () => {
       type,
       replyMessage: isImageMessage ? undefined : replyMessage?.id,
     };
+    if (!body.content) {
+      return;
+    }
+    
     dispatch(createMessage(body, () => {
       setValueInput('');
       setIsOpenModalIcon(false);
@@ -136,12 +233,18 @@ const TypeMessage = () => {
         replyMessage &&
         <div className="bg-pink1 p-2 mb-2">
           <div className={classNames("border-l-4 border-primary pl-2 relative", {
-            "flex items-center space-x-2": replyMessage?.type === TYPE_MESSAGE.IMAGE
+            "flex items-center space-x-2": replyMessage?.type === TYPE_MESSAGE.IMAGE || replyMessage?.type === TYPE_MESSAGE.IMAGE_LIST
           })}>
             {
               replyMessage?.type === TYPE_MESSAGE.IMAGE &&
               <div>
                 <img className="min-w-12 w-12 h-12 object-cover" src={replyMessage.content}></img>
+              </div>
+            }
+            {
+              replyMessage?.type === TYPE_MESSAGE.IMAGE_LIST &&
+              <div>
+                <img className="min-w-12 w-12 h-12 object-cover" src={replyMessage.content.split(',')[0]}></img>
               </div>
             }
             <div>
@@ -176,6 +279,26 @@ const TypeMessage = () => {
           <LikeIcon />
         </div>
       </div>
+      {
+        Object.values(uploadImage).length > 0 &&
+        <div className="border-t border-gray2 mb-4 px-4 flex flex-wrap items-center">
+          {
+            Object.values(uploadImage).map((img: ImageData) => (
+              <div key={img.id} className="relative mt-4 mr-4">
+                <img className="w-20 h-20 rounded-lg object-cover border border-gray2" src={img.urlLocal || img.url} width='100px' height='100px' />
+                <div className="absolute right-1 top-1 text-2 text-black bg-gray2 border border-white rounded-full p-0.5 cursor-pointer duration-300 hover:bg-primary hover:text-white">
+                  {
+                    !img.url ? <p>Loading...</p> :
+                    <div onClick={() => handleRemoveImage(img.id)}>
+                      <CloseIcon />
+                    </div>
+                  }
+                </div>
+              </div>
+            ))
+          }
+        </div>
+      }
     </div>
   );
 };

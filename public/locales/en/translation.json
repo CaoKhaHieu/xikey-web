@@ -86,5 +86,7 @@
   "remove_group_success": "Successfully deleted this group",
   "admin_remove_group": "has been deleted this group",
   "update_account": "Update information",
-  "update_personal_info": "Update personal information"
+  "update_personal_info": "Update personal information",
+  "uploading_image": "Please wait for the image to upload",
+  "limit_image_upload": "Only upload a maximum of 5 files"
 }

@@ -33,6 +33,8 @@ const Message = (props: MessageOptions) => {
   const { appendDialog } = useDialog();
   const dispatch = useDispatch();
 
+  const imgs = message.type === TYPE_MESSAGE.IMAGE_LIST ? message.content.split(',') : [];
+  const totalImgs = imgs.length;
   const isCurrentUser = user.id === message.sender.id;
   const isOnlyEmojiMessage = isOnlyEmoji(message.content);
   let isHaveReactions = false;
@@ -93,7 +95,7 @@ const Message = (props: MessageOptions) => {
           "ml-auto bg-gray4": isCurrentUser,
           "bg-white mr-auto": !isCurrentUser,
           "ml-14": !isCurrentUser,
-          "!p-0 !bg-transparent": message.type === TYPE_MESSAGE.IMAGE
+          "!p-0 !bg-transparent": message.type === TYPE_MESSAGE.IMAGE || message.type === TYPE_MESSAGE.IMAGE_LIST
         })}
       >
         {
@@ -133,11 +135,32 @@ const Message = (props: MessageOptions) => {
           message.type === TYPE_MESSAGE.IMAGE &&
           <a href={message.content} className="cursor-pointer" target="_blank">
             <img
-              className="rounded-lg bg-white"
+              className="rounded-lg bg-white max-h-96"
               src={message.content}
               onLoad={onScrollEnd}
             ></img>
           </a>
+        }
+        {
+          message.type === TYPE_MESSAGE.IMAGE_LIST &&
+          <div className='grid grid-cols-6 gap-2'>
+            {imgs.map((image, index) => (
+              <a
+                key={index}
+                href={image}
+                target="_blank"
+                className={classNames("cursor-pointer col-span-6", {
+                  '!col-span-3': totalImgs > 1,
+                })}
+              >
+                <img
+                  className="rounded-lg bg-white max-h-96"
+                  src={image}
+                  onLoad={onScrollEnd}
+                ></img>
+              </a>
+            ))}
+          </div>
         }
         {/* Reactions  */}
         <div className="group/reaction my-2 flex space-x-2">
@@ -190,7 +213,7 @@ const Message = (props: MessageOptions) => {
         {/* Time */}
         <p className={classNames("text-xs mt-2", {
           "text-gray7": message.type === TYPE_MESSAGE.TEXT,
-          "text-white": message.type === TYPE_MESSAGE.IMAGE
+          "text-white": message.type === TYPE_MESSAGE.IMAGE || message.type === TYPE_MESSAGE.IMAGE_LIST
         })}>
           {
             formatTimeToHHMM(message.createdAt)
@@ -208,9 +231,12 @@ const Message = (props: MessageOptions) => {
               onClick={handleReactMessage}
             />
           </div>
-          <div className="cursor-pointer" onClick={handleSaveReplyMessage}>
-            <ReplyIcon />
-          </div>
+          {
+            message.type !== TYPE_MESSAGE.IMAGE_LIST &&
+            <div className="cursor-pointer" onClick={handleSaveReplyMessage}>
+              <ReplyIcon />
+            </div>
+          }
           <div className="cursor-pointer" onClick={handleFowardMessage}>
             <ShareIcon />
           </div>
