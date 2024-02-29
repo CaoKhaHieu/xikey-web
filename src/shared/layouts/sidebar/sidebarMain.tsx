@@ -35,7 +35,7 @@ const SidebarMain = () => {
   const listConversations: Conversation[] = Object.values(conversation?.allConversations);
 
   const inputRef = useRef<HTMLInputElement>(null);
-  const typingTimeoutRef = useRef(0);
+  const typingTimeoutRef = useRef<any>(0);
 
   const dispatch = useDispatch();
   const history = useHistory();
