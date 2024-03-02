@@ -17,6 +17,7 @@ import ReplyIcon from "../../../assets/icons/reply.svg?react";
 import SmilePlusIcon from "../../../assets/icons/smile-plus.svg?react";
 import ShareIcon from "../../../assets/icons/share.svg?react";
 import ForwardMessage from "../dialog/templates/ForwardMessage";
+import Thumbnail from "../thumbnail";
 
 interface MessageOptions {
   message: MessageModel;
@@ -135,9 +136,10 @@ const Message = (props: MessageOptions) => {
           message.type === TYPE_MESSAGE.IMAGE &&
           <a href={message.content} className="cursor-pointer" target="_blank">
             <img
-              className="rounded-lg bg-white max-h-96"
+              loading="lazy"
+              className="rounded-lg max-h-96"
               src={message.content}
-              onLoad={onScrollEnd}
+              // onLoad={onScrollEnd}
             ></img>
           </a>
         }
@@ -153,11 +155,17 @@ const Message = (props: MessageOptions) => {
                   '!col-span-3': totalImgs > 1,
                 })}
               >
-                <img
+                <Thumbnail
+                  className="rounded-lg bg-white max-h-96"
+                  url={image}
+                  // onLoad={onScrollEnd}
+                />
+                {/* <img
+                  loading="lazy"
                   className="rounded-lg bg-white max-h-96"
                   src={image}
                   onLoad={onScrollEnd}
-                ></img>
+                ></img> */}
               </a>
             ))}
           </div>

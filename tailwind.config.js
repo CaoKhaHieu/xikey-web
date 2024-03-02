@@ -15,6 +15,7 @@ export default {
         black: 'black',
         black1: '#202020',
         black2: '#393737',
+        black3: '#393737',
         gray1: '#A6A6A6',
         gray2: '#dfdfe5',
         gray3: '#666',
