@@ -38,12 +38,6 @@ const ChatMain = () => {
   }, [id]);
 
   useEffect(() => {
-    if (listMessage.length) {
-      handleScrollToEnd();
-    }
-  }, [listMessage.length]);
-
-  useEffect(() => {
     // scroll to end if have any reaction of message
     if (isScrollEndRef.current) {
       handleScrollToEnd();
@@ -68,6 +62,9 @@ const ChatMain = () => {
         listMessageRef.current.scrollTop = listMessageRef.current.scrollHeight - previousScrollHeightRef.current;
       }
       setIsLoading(false);
+      if (!body.messageId) {
+        handleScrollToEnd();
+      }
     }, () => {
       setIsLoading(false);
     }));

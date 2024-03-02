@@ -46,6 +46,8 @@ const SocketProvider = (props: SocketProps) => {
     socket.on('new_message', (newMessage: Message) => {
       if (currentConversationRef.current.id === newMessage.conversationId) {
         dispatch(saveNewMessage(newMessage));
+         // handle scroll list message to end
+         dispatch(triggerScrollToEndListMessage());
       }
       dispatch(updateLastMessageConversation(newMessage));
     });

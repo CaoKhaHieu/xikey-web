@@ -43,7 +43,9 @@ const saveNewMessageByIdConversation = (state: any, payload: Message) => {
 
 const updateMessageByIdConversation = (state: any, payload: Message) => {
   const data: any = { ...state.messages };
-  data[payload.id] = payload;
+  if (data[payload.id]) {
+    data[payload.id] = payload;
+  }
   return {
     ...state,
     messages: data,
