@@ -17,13 +17,14 @@ function* createMessage({ payload, resolve, reject }: AnyAction): any {
 }
 
 function* getListMessage({ payload, resolve, reject }: AnyAction): any {
-  const query = {
-    conversationId: payload.conversationId,
-  };
+  const { conversationId } = payload;
   try {
-    const res = yield get(['v1', 'message', 'get-messages'], { ...query });
+    const res = yield get(['v1', 'message', 'get-messages'], { ...payload });
     
-    yield put(saveListMessage(res.data));
+    yield put(saveListMessage({
+      conversationId,
+      messages: res.data,
+    }));
     resolve();
   } catch (error: any) {
     reject(error);

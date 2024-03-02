@@ -197,7 +197,7 @@ const ConversationInfo = (props: ConversationInfoOptions) => {
           </div>
         }
         {
-          isGroupChat &&
+          isGroupChat && !isOwner &&
           <div className='flex items-center space-x-4 cursor-pointer text-red mt-4 hover:text-gray1 duration-300' onClick={handleLeaveGroup}>
             <span className='text-xl'>
               <LeaveIcon />

@@ -4,7 +4,7 @@ import { useDispatch, useSelector } from 'react-redux';
 
 import { BASE_URL } from '@/shared/constants';
 import { Message } from '@/shared/models/Message';
-import { saveNewMessage, updateMessage } from '@/stores/message/action';
+import { saveNewMessage, triggerScrollToEndListMessage, updateMessage } from '@/stores/message/action';
 import { addConversation, selectConversation, updateInfoConversation, updateLastMessageConversation } from '@/stores/conversation/action';
 import { Conversation } from '@/shared/models/Conversation';
 import { User } from '@/shared/models/User';
@@ -53,6 +53,8 @@ const SocketProvider = (props: SocketProps) => {
     socket.on('reaction', (message: Message) => {
       if (currentConversationRef.current.id === message.conversationId) {
         dispatch(updateMessage(message));
+        // handle scroll list message to end because height of list message can change
+        dispatch(triggerScrollToEndListMessage());
       }
     });
 
