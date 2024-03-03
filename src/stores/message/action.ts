@@ -38,3 +38,7 @@ export const triggerScrollToEndListMessage = () => ({
   type: types.SCROLL_TO_END_LIST_MESSAGE,
 });
 
+export const triggerAlertNewMessage = (payload: { type: 'INCREASE' | 'RESET' }) => ({
+  type: types.ALERT_NEW_MESSAGE,
+  payload
+});

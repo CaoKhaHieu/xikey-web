@@ -4,7 +4,7 @@ import { useDispatch, useSelector } from 'react-redux';
 
 import { BASE_URL } from '@/shared/constants';
 import { Message } from '@/shared/models/Message';
-import { saveNewMessage, triggerScrollToEndListMessage, updateMessage } from '@/stores/message/action';
+import { saveNewMessage, triggerAlertNewMessage, triggerScrollToEndListMessage, updateMessage } from '@/stores/message/action';
 import { addConversation, selectConversation, updateInfoConversation, updateLastMessageConversation } from '@/stores/conversation/action';
 import { Conversation } from '@/shared/models/Conversation';
 import { User } from '@/shared/models/User';
@@ -43,11 +43,18 @@ const SocketProvider = (props: SocketProps) => {
   }, [user.id]);
 
   useEffect(() => {
-    socket.on('new_message', (newMessage: Message) => {
+    socket.on('new_message', (message: Message) => {
+      const newMessage: Message = {
+        ...message,
+        // isNew to know message is receive by socket
+        isNew: true,
+      };
       if (currentConversationRef.current.id === newMessage.conversationId) {
         dispatch(saveNewMessage(newMessage));
-         // handle scroll list message to end
-         dispatch(triggerScrollToEndListMessage());
+        // handle scroll list message to end
+        dispatch(triggerScrollToEndListMessage());
+        // handle show alert new message
+        dispatch(triggerAlertNewMessage({ type: 'INCREASE' }));
       }
       dispatch(updateLastMessageConversation(newMessage));
     });

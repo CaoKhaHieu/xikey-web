@@ -88,5 +88,6 @@
   "update_account": "Update information",
   "update_personal_info": "Update personal information",
   "uploading_image": "Please wait for the image to upload",
-  "limit_image_upload": "Only upload a maximum of 5 files"
+  "limit_image_upload": "Only upload a maximum of 5 files",
+  "alert_new_message": "Have a new message"
 }

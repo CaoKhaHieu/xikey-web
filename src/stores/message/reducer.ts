@@ -7,7 +7,10 @@ const messageInitialState = {
   conversationId: '',
   messages: {},
   reply: {},
+  // use to trigger scroll to end list message
   triggerScroll: 1,
+  // use to trigger show alert new message incase user not scroll to end list message
+  alert: 0,
 };
 const saveListMessageByIdConversation = (state: any, payload: {
   messages: Message[],
@@ -79,6 +82,20 @@ const scrollToEndListMessage = (state: any) => {
   };
 };
 
+const alertNewMessage = (state: any, payload: { type: 'INCREASE' | 'RESET' }) => {
+  const { type } = payload;
+  let currentAlert = state.alert;
+  if (type === 'INCREASE') {
+    currentAlert = currentAlert + 1;
+  } else {
+    currentAlert = 0;
+  }
+  return {
+    ...state,
+    alert: currentAlert,
+  };
+};
+
 const messageStrategies = {
   SAVE_LIST_MESSAGE: saveListMessageByIdConversation,
   SAVE_NEW_MESSAGE: saveNewMessageByIdConversation,
@@ -86,6 +103,7 @@ const messageStrategies = {
   SAVE_REPLY_MESSAGE: saveReplyMessage,
   CLEAR_REPLY_MESSAGE: clearReplyMessage,
   SCROLL_TO_END_LIST_MESSAGE: scrollToEndListMessage,
+  ALERT_NEW_MESSAGE: alertNewMessage,
   __default__: (state: any) => state,
 };
 

@@ -5,6 +5,7 @@ import { get, patch, post } from '../saga';
 import { all, put, takeLatest } from 'redux-saga/effects';
 import { handleApiResponseError } from '../common/actions';
 import { saveListMessage } from './action';
+import { Message } from '@/shared/models/Message';
 
 function* createMessage({ payload, resolve, reject }: AnyAction): any {
   try {
@@ -17,13 +18,15 @@ function* createMessage({ payload, resolve, reject }: AnyAction): any {
 }
 
 function* getListMessage({ payload, resolve, reject }: AnyAction): any {
-  const { conversationId } = payload;
+  const { conversationId, messageId } = payload;
   try {
     const res = yield get(['v1', 'message', 'get-messages'], { ...payload });
+    // init isNew = true to scroll to end list messgage for image message
+    const mappingMessage: Message[] = res.data.map((message: any) => new Message({ ...message, isNew: !messageId && true }));
     
     yield put(saveListMessage({
       conversationId,
-      messages: res.data,
+      messages: mappingMessage,
     }));
     resolve();
   } catch (error: any) {

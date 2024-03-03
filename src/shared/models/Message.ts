@@ -7,6 +7,8 @@ export interface Message {
   sender: User;
   content: string;
   isDeleted: boolean;
+  // isNew is check message call api first time or receive from socket
+  isNew: boolean;
   createdAt: string;
   updatedAt: string;
   type: TYPE_MESSAGE;
@@ -23,6 +25,7 @@ export class Message {
     this.sender = message.sender;
     this.content = message.content;
     this.isDeleted = message.isDeleted || false;
+    this.isNew = message.isNew || false;
     this.createdAt = message.createdAt;
     this.updatedAt = message.updatedAt;
     this.type = message.type;

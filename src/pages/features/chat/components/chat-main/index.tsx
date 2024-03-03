@@ -1,21 +1,29 @@
 import { useEffect, useRef, useState } from "react";
 import { useHistory, useParams } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
+import { useTranslation } from "react-i18next";
+
 import Message from "@/shared/components/message";
-import { getListMessage} from "@/stores/message/action";
+import { getListMessage, triggerAlertNewMessage} from "@/stores/message/action";
 import { Message as MessageModel } from "@/shared/models/Message";
 import { getInfoConversation, selectConversation } from "@/stores/conversation/action";
 import { Loading } from "@/shared/components/loading";
 import { Conversation } from "@/shared/models/Conversation";
 import { TYPE_MESSAGE } from "@/shared/enums";
 
+import DoubleArrowDownIcon from "@/assets/icons/double-arrow-down.svg?react";
+
 const ChatMain = () => {
+  const [isShowAlertNewMessage, setIsShowAlertNewMessage] = useState<boolean>(true);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const { messageManagement } = useSelector((state: any) => state.messageReducer);
   const { conversation } = useSelector((state: any) => state.conversationReducer);
+
   const listMessage: MessageModel[] = Object.values(messageManagement.messages);
   const { currentConversation } = conversation;
+  const { alert }: { alert: number} = messageManagement;
 
+  const { t } = useTranslation();
   const { id }: { id: string } = useParams();
   const dispatch = useDispatch();
   const history = useHistory();
@@ -36,6 +44,24 @@ const ChatMain = () => {
       setIsLoading(true);
     };
   }, [id]);
+
+  useEffect(() => {
+    // scroll to end if have any reaction of message
+    if (isScrollEndRef.current) {
+      handleScrollToEnd();
+    }
+  }, [messageManagement.triggerScroll]);
+
+  useEffect(() => {
+    // handle show alert new message incase usesr not scroll to end list message
+    if (alert === 0) {
+      setIsShowAlertNewMessage(false);
+      return;
+    }
+    if (!isScrollEndRef.current && alert > 0) {
+      setIsShowAlertNewMessage(true);
+    }
+  }, [alert]);
 
   useEffect(() => {
     // scroll to end if have any reaction of message
@@ -82,6 +108,10 @@ const ChatMain = () => {
     if (listMessageRef.current) {
       const isScrollEndList = listMessageRef.current.scrollTop + listMessageRef.current.clientHeight >= listMessageRef.current.scrollHeight;
       isScrollEndRef.current = isScrollEndList;
+
+      if (isScrollEndList) {
+        dispatch(triggerAlertNewMessage({ type: 'RESET' }));
+      }
     }
     // handle load more message
     if (scrollTop === 0) {
@@ -90,6 +120,11 @@ const ChatMain = () => {
 
       handleGetMessage(listMessage[0].id);
     }
+  };
+
+  const handleClickAlertNewMessage = () => {
+    handleScrollToEnd();
+    dispatch(triggerAlertNewMessage({ type: 'RESET' }));
   };
 
   if (isLoading) {
@@ -108,12 +143,12 @@ const ChatMain = () => {
             <Message
               key={message.id}
               message={message}
+              isScrollEnd={isScrollEndRef.current}
               showAvatar={listMessage[index - 1]?.sender?.id !== listMessage[index].sender.id || listMessage[index - 1]?.type === TYPE_MESSAGE.NOTIFY}
               onScrollEnd={handleScrollToEnd}
               isShowName={currentConversation.isGroup && listMessage[index - 1]?.sender?.id !== listMessage[index].sender.id}
             />
           ))}
-
         {/* {
           listMessage.length === 0 &&
           <div className="flex flex-col justify-center items-center mt-40">
@@ -122,6 +157,16 @@ const ChatMain = () => {
             <p className="text-base text-primary italic mt-2">{t('quotes')}</p>
           </div>
         } */}
+        {
+          isShowAlertNewMessage &&
+          <div
+            className='sticky bottom-4 left-full right-0 flex items-center space-x-1 w-fit rounded px-3 py-1.5 border border-gray2 bg-pink2 animate-bounce duration-200 cursor-pointer'
+            onClick={handleClickAlertNewMessage}
+          >
+            <p className="text-xl"><DoubleArrowDownIcon /></p>
+            <span>{t('alert_new_message')}</span>
+          </div>
+        }
       </div>
       <div ref={endSectionRef}></div>
     </div>

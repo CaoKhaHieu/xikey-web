@@ -61,7 +61,7 @@ const TypeMessage = () => {
         if (item.kind === 'file' && item.type.startsWith('image/')) {
           // limit image
           if (countUploadImagesRef.current >= VALIDATE_LENGTH.LIMIT_IMAGES) {
-            showToast('limit_image_upload');
+            showToast(t('limit_image_upload'));
             return;
           }
 
@@ -159,7 +159,7 @@ const TypeMessage = () => {
     if(e.key == 'Enter' && !e.shiftKey){
       const isUploadingImage = listImg.length && listImg.find((image: ImageData) => !image.url);
       if (listImg.length > 0 && isUploadingImage) {
-        showToast('uploading_image');
+        showToast(t('uploading_image'));
         return;
       }
 

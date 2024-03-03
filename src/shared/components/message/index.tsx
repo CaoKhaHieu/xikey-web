@@ -22,11 +22,12 @@ interface MessageOptions {
   message: MessageModel;
   showAvatar: boolean;
   isShowName: boolean;
+  isScrollEnd: boolean;
   onScrollEnd: () => void;
 }
 
 const Message = (props: MessageOptions) => {
-  const { message, showAvatar, isShowName, onScrollEnd } = props;
+  const { message, showAvatar, isShowName, isScrollEnd, onScrollEnd } = props;
   const { user }: { user: User } = useSelector((state: any) => state.userReducer);
   
   const { t } = useTranslation();
@@ -137,7 +138,8 @@ const Message = (props: MessageOptions) => {
             <img
               className="rounded-lg bg-white max-h-96"
               src={message.content}
-              onLoad={onScrollEnd}
+              onLoad={(message.isNew && isScrollEnd) ? onScrollEnd : undefined}
+              // check list end more
             ></img>
           </a>
         }
@@ -156,7 +158,7 @@ const Message = (props: MessageOptions) => {
                 <img
                   className="rounded-lg bg-white max-h-96"
                   src={image}
-                  onLoad={onScrollEnd}
+                  onLoad={(message.isNew && isScrollEnd) ? onScrollEnd : undefined}
                 ></img>
               </a>
             ))}
