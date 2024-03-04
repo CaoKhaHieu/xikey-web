@@ -43,7 +43,8 @@ export default {
         '12': '3rem',
         '16': '4rem',
         '20': '5rem',
-        '88': '22rem'
+        '88': '22rem',
+        '96': '24rem'
       },
       maxHeight: {
         '72': '18rem',

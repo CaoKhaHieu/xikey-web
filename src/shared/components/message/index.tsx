@@ -136,7 +136,7 @@ const Message = (props: MessageOptions) => {
           message.type === TYPE_MESSAGE.IMAGE &&
           <a href={message.content} className="cursor-pointer" target="_blank">
             <img
-              className="rounded-lg bg-white max-h-96"
+              className="rounded-lg bg-white object-cover min-h-96 max-h-96"
               src={message.content}
               onLoad={(message.isNew && isScrollEnd) ? onScrollEnd : undefined}
               // check list end more
@@ -156,7 +156,7 @@ const Message = (props: MessageOptions) => {
                 })}
               >
                 <img
-                  className="rounded-lg bg-white max-h-96"
+                  className="rounded-lg bg-white min-h-96 object-cover max-h-96"
                   src={image}
                   onLoad={(message.isNew && isScrollEnd) ? onScrollEnd : undefined}
                 ></img>
