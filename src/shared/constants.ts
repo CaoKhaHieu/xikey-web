@@ -1,4 +1,4 @@
-export const BASE_URL = import.meta.env.VITE_BASE_URL;
+export const BASE_URL = 'http://216.107.138.212:4000';
 export const API_DOMAIN = `${BASE_URL}/api/`;
 
 export const VALIDATE_LENGTH = {
