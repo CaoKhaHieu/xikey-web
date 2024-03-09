@@ -8,11 +8,12 @@ import './index.scss';
 import Routes from './routes/index.routes';
 import { useDialog } from './shared/components/dialog';
 import ErrorDialog from './shared/components/dialog/templates/ErrorDialog';
-import { getToken } from './shared/utils/utils';
 import { getAllUsers, getUser } from './stores/user/action';
+import { User } from './shared/models/User';
 
 function App() {
   const { apiController } = useSelector((state: any) => state.commonReducer);
+  const { user }: { user: User } = useSelector((state: any) => state.userReducer);
 
   const { appendDialog } = useDialog();
   const { t } = useTranslation();
@@ -23,11 +24,12 @@ function App() {
   }, []);
 
   useEffect(() => {
-    if (getToken()) {
-      getUserProfile();
-      getAllUser();
+    if (!user.id) {
+      return;
     }
-  }, []);
+    getUserProfile();
+    getAllUser();
+  }, [user.id]);
 
   useEffect(() => {
     if (apiController.statusCode) {
