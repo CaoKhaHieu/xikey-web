@@ -8,6 +8,7 @@ import './index.scss';
 import Routes from './routes/index.routes';
 import { useDialog } from './shared/components/dialog';
 import ErrorDialog from './shared/components/dialog/templates/ErrorDialog';
+import { getToken } from './shared/utils/utils';
 import { getAllUsers, getUser } from './stores/user/action';
 import { User } from './shared/models/User';
 
@@ -27,9 +28,14 @@ function App() {
     if (!user.id) {
       return;
     }
-    getUserProfile();
     getAllUser();
   }, [user.id]);
+
+  useEffect(() => {
+    if (getToken()) {
+      getUserProfile();
+    }
+  }, []);
 
   useEffect(() => {
     if (apiController.statusCode) {
