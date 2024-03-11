@@ -59,6 +59,12 @@ const SocketProvider = (props: SocketProps) => {
       dispatch(updateLastMessageConversation(newMessage));
     });
 
+    socket.on('delete_message', (message: Message) => {
+      if (currentConversationRef.current.id === message.conversationId) {
+        dispatch(updateMessage(message));
+      }
+    });
+
     socket.on('reaction', (message: Message) => {
       if (currentConversationRef.current.id === message.conversationId) {
         dispatch(updateMessage(message));

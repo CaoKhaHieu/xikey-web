@@ -4,10 +4,12 @@ import { Popover } from 'react-tiny-popover';
 interface PopoverProps extends PopoverContentProps {
   triggerElm: any;
   customClass?: string;
+  parentElement?: any;
   positions?: ('left' | 'right' | 'top' | 'bottom')[]; // preferred positions by priority. Ex: ['top', 'bottom', 'left', 'right']
   toggleCondition?: boolean;
   ref?: any;
   align?: 'start' | 'center' | 'end';
+  padding?: number;
 }
 
 interface PopoverContentProps {
@@ -35,10 +37,12 @@ const DynamicPopover = forwardRef(({
   triggerElm,
   customClass,
   positions,
+  parentElement,
   title,
   content,
   toggleCondition,
   align,
+  padding = 0,
 }: PopoverProps, ref) => {
   const [isPopoverOpen, setIsPopoverOpen] = useState(false);
 
@@ -71,12 +75,14 @@ const DynamicPopover = forwardRef(({
 
   return (
     <Popover
-      containerClassName={`popover ${customClass} ml-2 z-1`}
+      containerClassName={`popover ${customClass} ml-2 z-10`}
       isOpen={ isPopoverOpen }
       onClickOutside={handleClickOutSide}
-      positions={ positions || ['right'] }
+      positions={ positions }
       content={ <PopoverContent title={ title } content={ content } /> }
-      align={ align || 'center' }
+      parentElement={parentElement}
+      padding={padding}
+      align={align}
     >
       <div className="flex-center-y popover-wrapper" onClick={ handleClick }>
         { triggerElm }
