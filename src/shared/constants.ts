@@ -1,4 +1,4 @@
-export const BASE_URL = 'http://128.199.76.146:4000';
+export const BASE_URL = 'http://14.225.217.189:4000';
 export const API_DOMAIN = `${BASE_URL}/api/`;
 
 export const VALIDATE_LENGTH = {
