@@ -200,6 +200,10 @@ const TypeMessage = () => {
   const handleChangeFile = (e: any, type: TYPE_MESSAGE) => {
     const file = e.target.files[0];
 
+    if (!file) {
+      return;
+    }
+
     let formData = new FormData()
     formData.append("image", file);
 
