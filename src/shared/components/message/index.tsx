@@ -10,13 +10,14 @@ import { User } from "@/shared/models/User";
 
 import { useDialog } from "../dialog";
 import DynamicPopover from "../popover";
+import ImageDetail from "../image-detail";
 import ForwardMessage from "../dialog/templates/ForwardMessage";
 import { deleteMessage, reactMessage, saveReplyMessage } from "@/stores/message/action";
-import { formatTimeToHHMM, isOnlyEmoji, urlify } from "@/shared/utils/utils";
 
 import { TYPE_MESSAGE } from "@/shared/enums";
 import { REACTIONS } from "@/shared/constants";
 import { Message as MessageModel } from "@/shared/models/Message";
+import { formatTimeToHHMM, isOnlyEmoji, urlify } from "@/shared/utils/utils";
 
 import ReplyIcon from "../../../assets/icons/reply.svg?react";
 import SmilePlusIcon from "../../../assets/icons/smile-plus.svg?react";
@@ -80,33 +81,26 @@ const Message = (props: MessageOptions) => {
         }
         {
           message.type === TYPE_MESSAGE.IMAGE &&
-          <a href={message.content} className="cursor-pointer" target="_blank">
-            <img
-              className="rounded-lg bg-white max-h-96"
-              src={message.content}
-              onLoad={(message.isNew && isScrollEnd) ? onScrollEnd : undefined}
-              // check list end more
-            ></img>
-          </a>
+          <ImageDetail
+            className="rounded-lg object-cover min-h-96 max-h-96 max-w-xl cursor-pointer"
+            src={message.content}
+          ></ImageDetail>
         }
         {
           message.type === TYPE_MESSAGE.IMAGE_LIST &&
           <div className='grid grid-cols-6 gap-2'>
             {imgs.map((image, index) => (
-              <a
+              <div
                 key={index}
-                href={image}
-                target="_blank"
                 className={classNames("cursor-pointer col-span-6", {
                   '!col-span-3': totalImgs > 1,
                 })}
               >
-                <img
-                  className="rounded-lg bg-white max-h-96"
+                <ImageDetail
+                  className="rounded-lg min-h-96 object-cover max-h-96 max-w-xl"
                   src={image}
-                  onLoad={(message.isNew && isScrollEnd) ? onScrollEnd : undefined}
-                ></img>
-              </a>
+                ></ImageDetail>
+              </div>
             ))}
           </div>
         }

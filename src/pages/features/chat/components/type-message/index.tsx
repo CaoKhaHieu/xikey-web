@@ -200,6 +200,10 @@ const TypeMessage = () => {
   const handleChangeFile = (e: any, type: TYPE_MESSAGE) => {
     const file = e.target.files[0];
 
+    if (!file) {
+      return;
+    }
+
     let formData = new FormData()
     formData.append("image", file);
 
@@ -264,7 +268,7 @@ const TypeMessage = () => {
       }
       <div className="flex items-center space-x-4 px-4">
         <Input ref={inputRef} className="p-4 pl-0" placeholder={t('type_message')} value={valueInput} onChange={handleChange} onKeyPress={handleKeyPress} autoFocus />
-        <div className="flex items-center relative">
+        {/* <div className="flex items-center relative">
           <button onClick={() => toggleOpenModalIcon(!isOpenModalIcon)}>
             <Smile />
           </button>
@@ -274,7 +278,7 @@ const TypeMessage = () => {
               <EmojiPicker onEmojiClick={onEmojiClick} searchDisabled previewConfig={previewConfig} height={350} />
             </div>
           }
-        </div>
+        </div> */}
         <div className="cursor-pointer" onClick={() => handleSendMessage('👍')}>
           <LikeIcon />
         </div>
