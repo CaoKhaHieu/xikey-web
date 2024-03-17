@@ -40,6 +40,34 @@ const ChatItem = (props: IUserSidebar) => {
     };
     dispatch(selectConversation(conversationSelected));
   };
+
+  const renderLastMessage = () => {
+    if (conversation.lastMessage?.isDeleted) {
+      return (
+        <>
+          {
+            conversation?.lastMessage?.sender?.id === user.id && t('you')
+          }
+          {t('deleted_message')}
+        </>
+      );
+    }
+    return (
+      <>
+        {
+          conversation?.lastMessage?.sender?.id === user.id && t('you')
+        }
+        {
+          conversation.lastMessage?.type === TYPE_MESSAGE.TEXT &&
+          conversation.lastMessage?.content
+        }
+        {
+          conversation.lastMessage?.type === TYPE_MESSAGE.IMAGE &&
+          t('image')
+        }
+      </>
+    );
+  };
   
   return (
     <Link onClick={handleClick} to={`/chat/${conversation.id}`} className={classNames("w-full flex items-center p-2 cursor-pointer hover:bg-pink1 duration-300", {
@@ -65,17 +93,7 @@ const ChatItem = (props: IUserSidebar) => {
         {/* bottom */}
         <div className="flex justify-between">
           <p className="text-sm text-gray3 line-clamp-1 text-ellipsis">
-            {
-              conversation?.lastMessage?.sender?.id === user.id && t('you')
-            }
-            {
-              conversation.lastMessage?.type === TYPE_MESSAGE.TEXT &&
-              conversation.lastMessage?.content
-            }
-            {
-              conversation.lastMessage?.type === TYPE_MESSAGE.IMAGE &&
-              t('image')
-            }
+            { renderLastMessage() }
           </p>
         </div>
       </div>
