@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState, ClipboardEventHandler } from "react";
 import classNames from "classnames";
 import { useTranslation } from "react-i18next";
 import { useParams } from "react-router-dom";
@@ -10,7 +10,7 @@ import { User } from "@/shared/models/User";
 import { upload } from "@/stores/common/actions";
 import { TYPE_MESSAGE } from "@/shared/enums";
 import { Message } from "@/shared/models/Message";
-import { VALIDATE_LENGTH } from "@/shared/constants";
+import { BASE_URL, VALIDATE_LENGTH } from "@/shared/constants";
 import { showToast } from "@/shared/utils/utils";
 import { clearReplyMessage, createMessage } from "@/stores/message/action";
 
@@ -53,60 +53,6 @@ const TypeMessage = () => {
   const dispatch = useDispatch();
 
   const replyMessage: Message = messageManagement.reply[id];
-
-  useEffect(() => {
-    const handlePaste = (event: ClipboardEvent) => {
-      const items = (event.clipboardData || (event as any).originalEvent.clipboardData).items;
-      for (const item of items) {
-        if (item.kind === 'file' && item.type.startsWith('image/')) {
-          // limit image
-          if (countUploadImagesRef.current >= VALIDATE_LENGTH.LIMIT_IMAGES) {
-            showToast(t('limit_image_upload'));
-            return;
-          }
-
-          const file: File = item.getAsFile();
-          const reader = new FileReader();
-          reader.onload = (e: any) => {
-            const src = e.target.result;
-            const dataImage: ImageData = {
-              url: '',
-              urlLocal: src,
-              id: file.lastModified
-            };
-            setUploadImage((prev) => ({
-              ...prev,
-              [file.lastModified]: dataImage
-            }));
-          };
-          reader.readAsDataURL(file);
-
-          // upload image
-          let formData = new FormData()
-          formData.append("image", file);
-          
-          dispatch(upload(formData, (res: { url: string}) => {
-            setUploadImage((prev) => ({
-              ...prev,
-              [file.lastModified]: {
-                url: res.url,
-                urlLocal: '',
-                id: file.lastModified
-              }
-            }));
-          }, () => {
-          }));
-
-          break;
-        }
-      }
-    };
-
-    document.addEventListener('paste', handlePaste);
-    return () => {
-      document.removeEventListener('paste', handlePaste);
-    };
-  }, []);
 
   useEffect(() => {
     countUploadImagesRef.current = listImg.length;
@@ -153,6 +99,86 @@ const TypeMessage = () => {
     const value = e.target.value;
     setValueInput(value);
     valueInputRef.current = value;
+  };
+
+  const handlePaste: ClipboardEventHandler<HTMLInputElement> = (event) => {
+    const items = (event.clipboardData || (event as any).originalEvent.clipboardData).items;
+    let isText = false;
+    let isImage = false;
+
+    for (let index in items) {
+      const item = items[index];
+      if (item.kind === 'string' && item.type === 'text/plain') {
+        isText = true;
+      } else if (item.kind === 'file' && item.type.includes('image')) {
+        isImage = true;
+      }
+    }
+
+    // cehck is text content
+    if (isText) {
+      const text = event.clipboardData.getData('text/plain');
+      if (text.startsWith(`${BASE_URL}/uploads`)) {
+        setUploadImage((prev) => ({
+          ...prev,
+          [id]: {
+            url: text,
+            urlLocal: '',
+            id,
+          }
+        }));
+        return event.preventDefault();
+      }
+    }
+
+    if (isImage) {
+      for (const item of items) {
+        if (item.kind === 'file' && item.type.startsWith('image/')) {
+          // limit image
+          if (countUploadImagesRef.current >= VALIDATE_LENGTH.LIMIT_IMAGES) {
+            showToast(t('limit_image_upload'));
+            return;
+          }
+  
+          const file: File | null = item.getAsFile();
+          if (!file) {
+            return;
+          }
+          const reader = new FileReader();
+          reader.onload = (e: any) => {
+            const src = e.target.result;
+            const dataImage: ImageData = {
+              url: '',
+              urlLocal: src,
+              id: file.lastModified
+            };
+            setUploadImage((prev) => ({
+              ...prev,
+              [file.lastModified]: dataImage
+            }));
+          };
+          reader.readAsDataURL(file);
+  
+          // upload image
+          let formData = new FormData()
+          formData.append("image", file);
+          
+          dispatch(upload(formData, (res: { url: string}) => {
+            setUploadImage((prev) => ({
+              ...prev,
+              [file.lastModified]: {
+                url: res.url,
+                urlLocal: '',
+                id: file.lastModified
+              }
+            }));
+          }, () => {
+          }));
+  
+          break;
+        }
+      }
+    }
   };
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
@@ -267,7 +293,16 @@ const TypeMessage = () => {
         </div>
       }
       <div className="flex items-center space-x-4 px-4">
-        <Input ref={inputRef} className="p-4 pl-0" placeholder={t('type_message')} value={valueInput} onChange={handleChange} onKeyPress={handleKeyPress} autoFocus />
+        <Input
+          ref={inputRef}
+          className="p-4 pl-0"
+          placeholder={t('type_message')}
+          value={valueInput}
+          onChange={handleChange}
+          onKeyPress={handleKeyPress}
+          onPaste={handlePaste}
+          autoFocus
+        />
         {/* <div className="flex items-center relative">
           <button onClick={() => toggleOpenModalIcon(!isOpenModalIcon)}>
             <Smile />

@@ -17,7 +17,7 @@ import { deleteMessage, reactMessage, saveReplyMessage } from "@/stores/message/
 import { TYPE_MESSAGE } from "@/shared/enums";
 import { REACTIONS } from "@/shared/constants";
 import { Message as MessageModel } from "@/shared/models/Message";
-import { formatTimeToHHMM, isOnlyEmoji, urlify } from "@/shared/utils/utils";
+import { formatTimeToHHMM, isOnlyEmoji, showToast, urlify } from "@/shared/utils/utils";
 
 import ReplyIcon from "../../../assets/icons/reply.svg?react";
 import SmilePlusIcon from "../../../assets/icons/smile-plus.svg?react";
@@ -177,6 +177,13 @@ const Message = (props: MessageOptions) => {
     }, () => {}));
   };
 
+  const handleCopyMessage = () => {
+    const value = message.content;
+    navigator.clipboard.writeText(value);
+    showToast('copied');
+    handleClosePopover();
+  };
+
   const menusAction = [
     {
       title: 'pin',
@@ -185,8 +192,9 @@ const Message = (props: MessageOptions) => {
     },
     {
       title: 'copy_message',
-      isShow: true,
-      icon: <CopyIcon />
+      isShow: !isDeleted && message.type !== TYPE_MESSAGE.IMAGE_LIST,
+      icon: <CopyIcon />,
+      onClick: handleCopyMessage,
     },
     // {
     //   title: 'edit',

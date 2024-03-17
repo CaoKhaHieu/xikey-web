@@ -60,7 +60,7 @@ function App() {
     <>
       <Routes />
       <Toaster
-        position="bottom-left"
+        position="bottom-right"
         toastOptions={{
           className: '',
           duration: 3000,
