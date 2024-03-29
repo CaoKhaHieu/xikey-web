@@ -303,7 +303,7 @@ const TypeMessage = () => {
           onPaste={handlePaste}
           autoFocus
         />
-        {/* <div className="flex items-center relative">
+        <div className="flex items-center relative">
           <button onClick={() => toggleOpenModalIcon(!isOpenModalIcon)}>
             <Smile />
           </button>
@@ -313,7 +313,7 @@ const TypeMessage = () => {
               <EmojiPicker onEmojiClick={onEmojiClick} searchDisabled previewConfig={previewConfig} height={350} />
             </div>
           }
-        </div> */}
+        </div>
         <div className="cursor-pointer" onClick={() => handleSendMessage('👍')}>
           <LikeIcon />
         </div>
