@@ -95,5 +95,6 @@
   "edit": "Edit",
   "copy_message": "Copy message",
   "delete": "Delete",
-  "deleted_message": "Message has been deleted"
+  "deleted_message": "Message has been deleted",
+  "message": "Message"
 }

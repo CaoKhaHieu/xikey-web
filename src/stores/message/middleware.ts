@@ -55,11 +55,34 @@ function* reactMessage({ payload, resolve, reject }: AnyAction): any {
   }
 }
 
+function* pinMessage({ payload, resolve, reject }: AnyAction): any {
+  try {
+    const res = yield post(['v1', 'message', 'pin'], { data: payload });
+    resolve(res.data);
+  } catch (error: any) {
+    reject(error);
+    yield put(handleApiResponseError(error));
+  }
+}
+
+function* getPinedMessages({ payload, resolve, reject }: AnyAction): any {
+  console.log({payload})
+  try {
+    const res = yield get(['v1', 'message', 'pin', `${payload.conversationId}`]);
+    resolve(res.data);
+  } catch (error: any) {
+    reject(error);
+    yield put(handleApiResponseError(error));
+  }
+}
+
 export function* watchMessage() {
   yield all([
     takeLatest(types.CREATE_MESSAGE, createMessage),
     takeLatest(types.DELETE_MESSAGE, deleteMessage),
     takeLatest(types.GET_LIST_MESSAGE, getListMessage),
     takeLatest(types.REACT_MESSAGE, reactMessage),
+    takeLatest(types.PIN_MESSAGE, pinMessage),
+    takeLatest(types.GET_PINED_MESSAGES, getPinedMessages),
   ]);
 };

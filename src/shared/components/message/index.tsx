@@ -12,7 +12,7 @@ import { useDialog } from "../dialog";
 import DynamicPopover from "../popover";
 import ImageDetail from "../image-detail";
 import ForwardMessage from "../dialog/templates/ForwardMessage";
-import { deleteMessage, reactMessage, saveReplyMessage } from "@/stores/message/action";
+import { deleteMessage, pinMessage, reactMessage, saveReplyMessage } from "@/stores/message/action";
 
 import { TYPE_MESSAGE } from "@/shared/enums";
 import { REACTIONS } from "@/shared/constants";
@@ -26,6 +26,8 @@ import ThreedotIcon from "../../../assets/icons/dot-three.svg?react";
 import PinIcon from "../../../assets/icons/pin.svg?react";
 import CopyIcon from "../../../assets/icons/copy.svg?react";
 import DeleteIcon from "../../../assets/icons/delete.svg?react";
+import { Conversation } from "@/shared/models/Conversation";
+import { updateInfoConversation } from "@/stores/conversation/action";
 
 interface MessageOptions {
   message: MessageModel;
@@ -184,11 +186,23 @@ const Message = (props: MessageOptions) => {
     handleClosePopover();
   };
 
+  const handlePinMessage = () => {
+    const body = {
+      messageId: message.id,
+      conversationId: message.conversationId,
+    };
+    dispatch(pinMessage(body, (conversation: Conversation) => {
+      dispatch(updateInfoConversation(conversation));
+    }, () => {
+    }));
+  };
+
   const menusAction = [
     {
       title: 'pin',
       isShow: true,
       icon: <PinIcon />,
+      onClick: handlePinMessage,
     },
     {
       title: 'copy_message',

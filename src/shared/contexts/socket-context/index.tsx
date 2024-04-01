@@ -1,4 +1,4 @@
-import { ReactElement, createContext, useContext, useEffect, useRef } from 'react';
+import { ReactElement, createContext, useContext, useEffect, useRef, useState } from 'react';
 import { io } from "socket.io-client";
 import { useDispatch, useSelector } from 'react-redux';
 
@@ -49,6 +49,7 @@ const SocketProvider = (props: SocketProps) => {
         // isNew to know message is receive by socket
         isNew: true,
       };
+
       if (currentConversationRef.current.id === newMessage.conversationId) {
         dispatch(saveNewMessage(newMessage));
         // handle scroll list message to end
