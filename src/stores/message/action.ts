@@ -6,6 +6,8 @@ export const createMessage = generateAPIAction(types.CREATE_MESSAGE);
 export const deleteMessage = generateAPIAction(types.DELETE_MESSAGE);
 export const getListMessage = generateAPIAction(types.GET_LIST_MESSAGE);
 export const reactMessage = generateAPIAction(types.REACT_MESSAGE);
+export const pinMessage = generateAPIAction(types.PIN_MESSAGE);
+export const getPinedMessages = generateAPIAction(types.GET_PINED_MESSAGES);
 
 export const saveListMessage = (payload: {
   messages: Message[],
