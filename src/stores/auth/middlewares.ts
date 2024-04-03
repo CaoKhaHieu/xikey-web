@@ -46,7 +46,7 @@ function* logout({ payload, resolve, reject }: AnyAction): any {
 
 function* getUser({ payload, resolve, reject }: AnyAction): any {
   try {
-    const res = yield get(['v1', 'user', 'profile'], { data: payload });
+    const res = yield get(['v1', 'users', 'profile'], { data: payload });
     const user = new User(res.data);
     yield put(setUser(user));
     resolve(res);
