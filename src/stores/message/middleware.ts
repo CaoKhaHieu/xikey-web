@@ -9,7 +9,7 @@ import { Message } from '@/shared/models/Message';
 
 function* createMessage({ payload, resolve, reject }: AnyAction): any {
   try {
-    const res = yield post(['v1', 'message', 'create'], { data: payload });
+    const res = yield post(['v1', 'messages'], { data: payload });
     resolve(res);
   } catch (error: any) {
     reject(error);
@@ -19,7 +19,7 @@ function* createMessage({ payload, resolve, reject }: AnyAction): any {
 
 function* deleteMessage({ payload, resolve, reject }: AnyAction): any {
   try {
-    const res = yield remove(['v1', 'message', 'delete', `${payload.id}`]);
+    const res = yield remove(['v1', 'messages', `${payload.id}`]);
     resolve(res);
   } catch (error: any) {
     reject(error);
@@ -30,7 +30,7 @@ function* deleteMessage({ payload, resolve, reject }: AnyAction): any {
 function* getListMessage({ payload, resolve, reject }: AnyAction): any {
   const { conversationId, messageId } = payload;
   try {
-    const res = yield get(['v1', 'message', 'get-messages'], { ...payload });
+    const res = yield get(['v1', 'messages'], { ...payload });
     // init isNew = true to scroll to end list messgage for image message
     const mappingMessage: Message[] = res.data.map((message: any) => new Message({ ...message, isNew: !messageId && true }));
     
@@ -47,7 +47,7 @@ function* getListMessage({ payload, resolve, reject }: AnyAction): any {
 
 function* reactMessage({ payload, resolve, reject }: AnyAction): any {
   try {
-    const res = yield patch(['v1', 'message', 'reactions', `${payload.messageId}`], { data: payload });
+    const res = yield patch(['v1', 'messages', `${payload.messageId}`, 'reaction'], { data: payload });
     resolve(res);
   } catch (error: any) {
     reject(error);
