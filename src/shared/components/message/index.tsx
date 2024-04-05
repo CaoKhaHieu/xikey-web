@@ -193,6 +193,7 @@ const Message = (props: MessageOptions) => {
     };
     dispatch(pinMessage(body, (conversation: Conversation) => {
       dispatch(updateInfoConversation(conversation));
+      handleClosePopover();
     }, () => {
     }));
   };

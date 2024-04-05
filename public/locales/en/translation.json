@@ -96,5 +96,7 @@
   "copy_message": "Copy message",
   "delete": "Delete",
   "deleted_message": "Message has been deleted",
-  "message": "Message"
+  "message": "Message",
+  "pin_notify": "have pined a message",
+  "unpin_notify": "have unpined a message"
 }

@@ -5,7 +5,7 @@ import TypeMessage from './components/type-message';
 
 const ChatContainer = () => {
   return (
-    <div className='h-screen w-full flex flex-col'>
+    <div className='h-screen w-full flex flex-col relative'>
       <ChatHeader />
       <PinMessages />
       <ChatMain />

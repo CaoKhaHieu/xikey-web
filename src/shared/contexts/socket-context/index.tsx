@@ -4,7 +4,7 @@ import { useDispatch, useSelector } from 'react-redux';
 
 import { BASE_URL } from '@/shared/constants';
 import { Message } from '@/shared/models/Message';
-import { saveNewMessage, triggerAlertNewMessage, triggerScrollToEndListMessage, updateMessage } from '@/stores/message/action';
+import { saveNewMessage, triggerAlertNewMessage, triggerGetPinedMessage, triggerScrollToEndListMessage, updateMessage } from '@/stores/message/action';
 import { addConversation, selectConversation, updateInfoConversation, updateLastMessageConversation } from '@/stores/conversation/action';
 import { Conversation } from '@/shared/models/Conversation';
 import { User } from '@/shared/models/User';
@@ -93,6 +93,17 @@ const SocketProvider = (props: SocketProps) => {
         dispatch(selectConversation(conversation));
       }
       dispatch(updateInfoConversation(conversation));
+    });
+
+    socket.on('pin_message', (conversationId: string) => {
+      if (currentConversationRef.current.id === conversationId) {
+        dispatch(triggerGetPinedMessage());
+      }
+    });
+    socket.on('unpin_message', (conversationId: string) => {
+      if (currentConversationRef.current.id === conversationId) {
+        dispatch(triggerGetPinedMessage());
+      }
     });
   }, []);
 
