@@ -99,7 +99,7 @@ const ChatMain = () => {
 
   const handleScrollToEnd = () => {
     setTimeout(() => {
-      endSectionRef.current?.scrollIntoView({ behavior: 'smooth' });
+      endSectionRef.current?.scrollIntoView();
     }, 150);
   };
 
