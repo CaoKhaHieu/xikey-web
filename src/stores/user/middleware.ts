@@ -9,7 +9,7 @@ import { saveAllUsers, setUser } from './action';
 
 function* getAllUser({ resolve, reject }: AnyAction): any {
   try {
-    const res = yield get(['v1', 'user', 'all-user']);
+    const res = yield get(['v1', 'users']);
     const mappingData = res.data.map((user: any) => new User(user));
     
     yield put(saveAllUsers(mappingData));
@@ -22,7 +22,7 @@ function* getAllUser({ resolve, reject }: AnyAction): any {
 
 function* updateAvatar({ payload, resolve, reject }: AnyAction): any {
   try {
-    const res = yield post(['v1', 'user', 'update-avatar'], { data: payload });
+    const res = yield post(['v1', 'users', 'avatar'], { data: payload });
     resolve(res);
   } catch (error: any) {
     reject(error);
@@ -35,7 +35,7 @@ function* searchUser({ payload, resolve, reject }: AnyAction): any {
     name: payload.name,
   };
   try {
-    const res = yield get(['v1', 'user', 'search-user'], { ...query });
+    const res = yield get(['v1', 'users', 'search'], { ...query });
     const mappingData: User[] = res.data.map((item: any) => new User(item));
     resolve(mappingData);
   } catch (error: any) {
@@ -50,7 +50,7 @@ function* updateInfoAccount({ payload, resolve, reject }: AnyAction): any {
     email: payload.email,
   };
   try {
-    const res = yield patch(['v1', 'user', 'update-info'], { data: body });
+    const res = yield patch(['v1', 'users', 'info'], { data: body });
     const updatedUser = new User(res.data);
     yield put(setUser(updatedUser));
     resolve(updatedUser);

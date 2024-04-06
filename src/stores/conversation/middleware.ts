@@ -10,7 +10,7 @@ import { saveAllConversations } from './action';
 
 function* getAllConversation({ resolve, reject }: AnyAction): any {
   try {
-    const res = yield get(['v1', 'conversation', 'get-all-conversation']);
+    const res = yield get(['v1', 'conversations']);
     const mappingData: Conversation[] = res.data.map((conversation: any) => {
       const conversationModel = new Conversation(conversation);
       return {
@@ -29,7 +29,7 @@ function* getAllConversation({ resolve, reject }: AnyAction): any {
 
 function* getGroupConversation({ resolve, reject }: AnyAction): any {
   try {
-    const res = yield get(['v1', 'conversation', 'get-group-conversation']);
+    const res = yield get(['v1', 'conversations', 'get-group-conversation']);
     const mappingData: Conversation[] = res.data.map((conversation: any) => {
       const conversationModel = new Conversation(conversation);
       return {
@@ -51,7 +51,7 @@ function* getInfoConversation({ payload, resolve, reject }: AnyAction): any {
     conversationId: payload,
   };
   try {
-    const res = yield get(['v1', 'conversation', 'get-info'], { ...query });
+    const res = yield get(['v1', 'conversations', `${query.conversationId}`]);
     const conversation = new Conversation(res.data);
     resolve(conversation);
   } catch (error: any) {
@@ -62,7 +62,7 @@ function* getInfoConversation({ payload, resolve, reject }: AnyAction): any {
 
 function* createConversation({ payload, resolve, reject }: AnyAction): any {
   try {
-    const res = yield post(['v1', 'conversation', 'create'], { data: payload });
+    const res = yield post(['v1', 'conversations'], { data: payload });
     const newConversation = new Conversation(res.data);
     resolve(newConversation);
   } catch (error: any) {
@@ -73,7 +73,7 @@ function* createConversation({ payload, resolve, reject }: AnyAction): any {
 
 function* updateConversation({ payload, resolve, reject }: AnyAction): any {
   try {
-    const res = yield update(['v1', 'conversation', 'update', `${payload.conversationId}`], { data: payload });
+    const res = yield update(['v1', 'conversations', `${payload.conversationId}`], { data: payload });
     const newConversation = new Conversation(res.data);
     resolve(newConversation);
   } catch (error: any) {
@@ -85,7 +85,7 @@ function* updateConversation({ payload, resolve, reject }: AnyAction): any {
 function* leaveGroup({ payload, resolve, reject }: AnyAction): any {
   const { conversationId, userId } = payload;
   try {
-    const res = yield patch(['v1', 'conversation', 'leave-group'], { data: { conversationId, userId } });
+    const res = yield patch(['v1', 'conversations', `${conversationId}`, 'leave'], { data: { userId } });
     const newConversation = new Conversation(res.data);
     resolve(newConversation);
   } catch (error: any) {
@@ -97,7 +97,7 @@ function* leaveGroup({ payload, resolve, reject }: AnyAction): any {
 function* kickUser({ payload, resolve, reject }: AnyAction): any {
   const { conversationId, userId } = payload;
   try {
-    const res = yield patch(['v1', 'conversation', 'kick-user'], { data: { conversationId, userId } });
+    const res = yield patch(['v1', 'conversations', `${conversationId}`, 'kick'], { data: { userId } });
     const newConversation = new Conversation(res.data);
     resolve(newConversation);
   } catch (error: any) {
@@ -109,7 +109,7 @@ function* kickUser({ payload, resolve, reject }: AnyAction): any {
 function* addUser({ payload, resolve, reject }: AnyAction): any {
   const { conversationId, listUserId } = payload;
   try {
-    const res = yield patch(['v1', 'conversation', 'add-user'], { data: { conversationId, listUserId } });
+    const res = yield patch(['v1', 'conversations',  `${conversationId}`, 'add-user'], { data: { listUserId } });
     const newConversation = new Conversation(res.data);
     resolve(newConversation);
   } catch (error: any) {
@@ -120,7 +120,7 @@ function* addUser({ payload, resolve, reject }: AnyAction): any {
 
 function* removeGroup({ payload, resolve, reject }: AnyAction): any {
   try {
-    const res = yield remove(['v1', 'conversation', 'remove-group', `${payload.conversationId}`]);
+    const res = yield remove(['v1', 'conversations', `${payload.conversationId}`]);
     resolve(res);
   } catch (error: any) {
     reject(error);

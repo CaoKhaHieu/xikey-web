@@ -88,7 +88,12 @@
   "update_account": "Update information",
   "update_personal_info": "Update personal information",
   "uploading_image": "Please wait for the image to upload",
-  "limit_image_upload": "Only upload a maximum of 5 files",
+  "limit_image_upload": "Only upload a maximum of 4 files",
   "alert_new_message": "Have a new message",
-  "add_user_success": "User added successfully"
+  "add_user_success": "User added successfully",
+  "pin": "Pin",
+  "edit": "Edit",
+  "copy_message": "Copy message",
+  "delete": "Delete",
+  "deleted_message": "Message has been deleted"
 }

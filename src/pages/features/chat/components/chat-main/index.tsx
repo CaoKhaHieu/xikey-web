@@ -58,7 +58,8 @@ const ChatMain = () => {
       setIsShowAlertNewMessage(false);
       return;
     }
-    if (!isScrollEndRef.current && alert > 0) {
+    const hasVerticalScrollbar = listMessageRef.current && listMessageRef.current.scrollHeight > listMessageRef.current.clientHeight;
+    if (!isScrollEndRef.current && alert > 0 && hasVerticalScrollbar) {
       setIsShowAlertNewMessage(true);
     }
   }, [alert]);
@@ -98,7 +99,7 @@ const ChatMain = () => {
 
   const handleScrollToEnd = () => {
     setTimeout(() => {
-      endSectionRef.current?.scrollIntoView({ behavior: 'smooth' });
+      endSectionRef.current?.scrollIntoView();
     }, 150);
   };
 
