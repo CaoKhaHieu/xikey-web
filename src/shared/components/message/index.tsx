@@ -216,9 +216,9 @@ const Message = (props: MessageOptions) => {
     return (
       <div className="flex justify-center items-center space-x-2">
         <Avatar className="w-6 h-6" url={message.sender.avatar} />
-        <p className="text-white flex items-center space-x-1">
+        <p className="flex items-center space-x-1 text-gray3">
           <span>{message.sender.name}</span>
-          <span className="text-gray1">{t(message.content)}</span>
+          <span>{t(message.content)}</span>
         </p>
       </div>
     );
@@ -246,7 +246,7 @@ const Message = (props: MessageOptions) => {
       >
         {/* Name  */}
         {
-          isShowName && !isCurrentUser &&
+          isShowName && !isCurrentUser && !message.replyMessage?.id &&
           <p className="text-gray5 text-xs mb-1 ml-2">{message.sender.name}</p>
         }
         {/* Reply */}
@@ -257,7 +257,7 @@ const Message = (props: MessageOptions) => {
               <div className="text-sm">
                 <ShareIcon />
               </div>
-              <span>Bạn đã trả lời</span>
+              <span>{message.sender.id === user.id ? t('you') : message.sender.name} {t('replied')} </span>
             </div>
 
             <div className="bg-gray9 p-2 mb-0.5 rounded-lg max-w-7/10 ml-2">
@@ -367,7 +367,7 @@ const Message = (props: MessageOptions) => {
                       return null;
                     }
                     const tooltipContent = message.reactions[reaction.value].map(react => react.name).join(', ');
-                    const isReacted = message.reactions[reaction.value].findIndex(react => react.id === user.id) > -1;
+                    // const isReacted = message.reactions[reaction.value].findIndex(react => react.id === user.id) > -1;
                     return (
                       <div key={reactValue}>
                         <Tooltip

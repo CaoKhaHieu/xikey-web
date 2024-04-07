@@ -130,7 +130,7 @@ const ChatMain = () => {
 
   if (isLoading) {
     return (
-      <div className="h-full p-4 bg-black1 flex items-center justify-center">
+      <div className="h-full p-4 flex items-center justify-center">
         <Loading />
       </div>
     );

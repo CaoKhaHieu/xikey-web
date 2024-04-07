@@ -46,7 +46,7 @@ const ChatItem = (props: IUserSidebar) => {
       return (
         <>
           {
-            conversation?.lastMessage?.sender?.id === user.id && t('you')
+            conversation?.lastMessage?.sender?.id === user.id && t('you_last_message')
           }
           {t('deleted_message')}
         </>
@@ -55,7 +55,7 @@ const ChatItem = (props: IUserSidebar) => {
     return (
       <>
         {
-          conversation?.lastMessage?.sender?.id === user.id && t('you')
+          conversation?.lastMessage?.sender?.id === user.id && t('you_last_message')
         }
         {
           conversation.lastMessage?.type === TYPE_MESSAGE.TEXT &&

@@ -239,7 +239,6 @@ const CreateGroup = (props: CreateGroupOptions) => {
                               name={user.id}
                               readOnly={isInGroup}
                               isChecked={isCreateGroup ? value : isInGroup}
-                              className=''
                               onChange={onChange}
                               render={() => (
                                 <div className='flex items-center space-x-2'>
