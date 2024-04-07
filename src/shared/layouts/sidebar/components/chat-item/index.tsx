@@ -70,8 +70,9 @@ const ChatItem = (props: IUserSidebar) => {
   };
   
   return (
-    <Link onClick={handleClick} to={`/chat/${conversation.id}`} className={classNames("w-full flex items-center p-2 cursor-pointer hover:bg-pink1 duration-300", {
-      "bg-pink1": currentConversation.id === conversation.id
+    <Link onClick={handleClick} to={`/chat/${conversation.id}`} className={classNames("w-full flex items-center p-2 cursor-pointer rounded-lg duration-300", {
+      "bg-gray2 hover:bg-gray2": currentConversation.id === conversation.id,
+      "hover:bg-gray8": currentConversation.id !== conversation.id,
     })}>
       <div>
         <Avatar className="" url={(isGroupChat || isCloudChat) ? conversation.avatar : userChat?.avatar || ''} />

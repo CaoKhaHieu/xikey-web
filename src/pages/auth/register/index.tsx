@@ -48,9 +48,9 @@ const Register = () => {
   };
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className='h-screen bg-black1 flex items-center justify-center'>
+    <form onSubmit={handleSubmit(onSubmit)} className='h-screen flex items-center justify-center'>
       <div className='max-w-sm flex flex-col space-y-8 w-full'>
-        <div className='flex items-center justify-center text-8xl text-white mb-4'>
+        <div className='flex items-center justify-center text-8xl text-black1 mb-4'>
           <LogoIcon />
         </div>
         <Input variant='auth' type='name' label='Name' {...register('name')} error={errors.name?.message} />

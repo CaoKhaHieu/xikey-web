@@ -261,7 +261,7 @@ const TypeMessage = () => {
       </div>
       {
         replyMessage &&
-        <div className="bg-pink1 p-2 mb-2">
+        <div className="p-2">
           <div className={classNames("border-l-4 border-primary pl-2 relative", {
             "flex items-center space-x-2": replyMessage?.type === TYPE_MESSAGE.IMAGE || replyMessage?.type === TYPE_MESSAGE.IMAGE_LIST
           })}>
@@ -284,7 +284,7 @@ const TypeMessage = () => {
               </p>
             </div>
             <div
-              className="absolute right-2 top-0 cursor-pointer text-2 text-white rounded-full bg-gray1 w-5 h-5 flex items-center justify-center"
+              className="absolute right-2 top-0 cursor-pointer text-2 text-black rounded-full w-5 h-5 flex items-center justify-center"
               onClick={handleClearReply}
             >
               <CloseIcon />

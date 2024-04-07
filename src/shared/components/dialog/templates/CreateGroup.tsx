@@ -179,14 +179,14 @@ const CreateGroup = (props: CreateGroupOptions) => {
   return (
     <Dialog {...otherProps} className='p-5 rounded-lg overflow-scroll relative' closeRight close={handleClose}>
       <form onSubmit={handleSubmit(onSubmit)}>
-        <Dialog.Header className='text-4.25 text-white font-semibold'>
+        <Dialog.Header className='text-4.25 font-semibold'>
           {t(titles[type])}
         </Dialog.Header>
-        <Dialog.Body className='text-3.25 text-white pt-2 whitespace-break mt-4 flex flex-col space-y-4'>
+        <Dialog.Body className='text-3.25 pt-2 whitespace-break mt-4 flex flex-col space-y-4'>
           {
             (isCreateGroup || isEdit) &&
             <div className='flex space-x-4 items-center'>
-              <div className='min-w-16 w-16 h-16 rounded-full border border-white flex items-center justify-center text-3xl overflow-hidden cursor-pointer' onClick={handleAvatarClick}>
+              <div className='min-w-16 w-16 h-16 rounded-full border border-gray2 flex items-center justify-center text-3xl overflow-hidden cursor-pointer' onClick={handleAvatarClick}>
                 <div className="hidden">
                   <Input
                     ref={inputRef}
@@ -212,7 +212,7 @@ const CreateGroup = (props: CreateGroupOptions) => {
           {
             (isCreateGroup || isAddUser) &&
             <>
-              <div className='border border-white rounded-full flex items-center space-x-2 px-4'>
+              <div className='border rounded-full flex items-center space-x-2 px-4'>
                 <SearchIcon />
                 <Input
                   className='bg-transparent py-1.5'
@@ -239,7 +239,7 @@ const CreateGroup = (props: CreateGroupOptions) => {
                               name={user.id}
                               readOnly={isInGroup}
                               isChecked={isCreateGroup ? value : isInGroup}
-                              className='text-white'
+                              className=''
                               onChange={onChange}
                               render={() => (
                                 <div className='flex items-center space-x-2'>
@@ -258,11 +258,11 @@ const CreateGroup = (props: CreateGroupOptions) => {
             </>
           }
         </Dialog.Body>
-        <Dialog.Footer className='pt-5 flex justify-end w-full bg-black1 px-4 py-2'>
+        <Dialog.Footer className='pt-5 flex justify-end w-full px-4 py-2'>
           <Button
             type='submit'
-            className={classNames('border rounded-md text-white px-10 py-1.5 bg-primaryHover border-primaryHover', {
-              "!bg-gray1 !border-gray1 pointer-events-none": isDisabled
+            className={classNames('rounded-md px-10 py-1.5 bg-primaryHover border-primaryHover text-white', {
+              "!bg-gray8 pointer-events-none !text-black1": isDisabled
             })}
           >
             {t(isCreateGroup ? 'Create' : 'save')}

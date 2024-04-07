@@ -137,8 +137,8 @@ const ChatMain = () => {
   }
 
   return (
-    <div ref={listMessageRef} className="h-full p-4 bg-black1 overflow-y-scroll" onScroll={handleScrollListMessage}>
-      <div className="flex flex-col space-y-4">
+    <div ref={listMessageRef} className="h-full p-4 overflow-y-scroll" onScroll={handleScrollListMessage}>
+      <div className="flex flex-col space-y-0.5">
         {listMessage.length > 0 &&
           listMessage.map((message: MessageModel, index: number) => (
             <Message
@@ -148,6 +148,7 @@ const ChatMain = () => {
               showAvatar={listMessage[index - 1]?.sender?.id !== listMessage[index].sender.id || listMessage[index - 1]?.type === TYPE_MESSAGE.NOTIFY}
               onScrollEnd={handleScrollToEnd}
               isShowName={currentConversation.isGroup && listMessage[index - 1]?.sender?.id !== listMessage[index].sender.id}
+              isLastOfSection={listMessage[index].sender.id !== listMessage[index + 1]?.sender?.id}
             />
           ))}
         {/* {

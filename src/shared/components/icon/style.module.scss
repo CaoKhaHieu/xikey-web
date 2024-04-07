@@ -2,10 +2,10 @@
   .icon {
     @apply p-1.5 duration-300;
     &:hover {
-      @apply text-white bg-primary rounded;
+      @apply bg-gray8 rounded-full;
     }
     &.active {
-      @apply text-white bg-primary rounded;
+      @apply bg-gray8 rounded-full;
     }
   }
 }

@@ -3,6 +3,8 @@ import { useDispatch, useSelector } from "react-redux";
 import classNames from "classnames";
 import { useTranslation } from "react-i18next";
 
+import './style.module.scss';
+
 import Avatar from "../avatar";
 import Reaction from "../reaction";
 import Tooltip from "../tooltip";
@@ -31,6 +33,7 @@ interface MessageOptions {
   message: MessageModel;
   showAvatar: boolean;
   isShowName: boolean;
+  isLastOfSection: boolean;
   isScrollEnd: boolean;
   onScrollEnd: () => void;
 }
@@ -39,7 +42,7 @@ const heightChatHeader = 60;
 const heightOfPopover = 100;
 
 const Message = (props: MessageOptions) => {
-  const { message, showAvatar, isShowName, isScrollEnd, onScrollEnd } = props;
+  const { message, showAvatar, isShowName, isLastOfSection, isScrollEnd, onScrollEnd } = props;
   const { user }: { user: User } = useSelector((state: any) => state.userReducer);
   
   const { t } = useTranslation();
@@ -222,49 +225,142 @@ const Message = (props: MessageOptions) => {
   }
 
   return (
-    <div
-      className={classNames("flex space-x-2 h-full group", {
-      "flex-row-reverse": isCurrentUser,
-      })}
-      onMouseLeave={handleClosePopover}
-    >
+    <div className={classNames("flex w-full", {
+      "me": isCurrentUser,
+      "him": !isCurrentUser,
+      'last': isLastOfSection,
+    })}>
       {
-        !isCurrentUser && showAvatar &&
-        <Avatar className="w-10 h-10" url={message.sender.avatar} />
+        !isCurrentUser &&
+        <div className={classNames({
+          'opacity-0': !showAvatar
+        })}>
+          <Avatar className="w-7 h-7" url={message.sender.avatar} />
+        </div>
       }
       <div
-        className={classNames("p-2.5 min-w-20 rounded-lg max-w-7/10 h-full relative", {
-          "ml-auto bg-gray4": isCurrentUser,
-          "bg-white mr-auto": !isCurrentUser,
-          "ml-14": !isCurrentUser,
-          "!p-0 !bg-transparent": message.type === TYPE_MESSAGE.IMAGE || message.type === TYPE_MESSAGE.IMAGE_LIST
+        className={classNames("flex flex-col items-start h-full w-full group", {
+          "items-end": isCurrentUser,
         })}
+        onMouseLeave={handleClosePopover}
       >
+        {/* Name  */}
         {
           isShowName && !isCurrentUser &&
-          <p className="text-gray5 text-xs mb-1.5">{message.sender.name}</p>
+          <p className="text-gray5 text-xs mb-1 ml-2">{message.sender.name}</p>
         }
-        {/* Reply Message */}
+        {/* Reply */}
         {
           message.replyMessage?.id &&
-          <div className="bg-pink1 p-2 mb-2 rounded-lg">
-            <div className={classNames("border-l-4 border-primary pl-2", {
-              "flex items-center space-x-2": message.replyMessage?.type === TYPE_MESSAGE.IMAGE
-            })}>
-              {
-                handleRenderReplyMessage(message)
-              }
+          <>
+            <div className="flex items-center space-x-1 text-xs text-gray5 mt-2 mb-1 ml-2">
+              <div className="text-sm">
+                <ShareIcon />
+              </div>
+              <span>Bạn đã trả lời</span>
             </div>
-          </div>
+
+            <div className="bg-gray9 p-2 mb-0.5 rounded-lg max-w-7/10 ml-2">
+              <div className={classNames("border-l-4 border-primary pl-2", {
+                "flex items-center space-x-2": message.replyMessage?.type === TYPE_MESSAGE.IMAGE
+              })}>
+                {
+                  handleRenderReplyMessage(message)
+                }
+              </div>
+            </div>
+          </>
         }
-        {
-          handleRenderMessage(message)
-        }
+
+        <div
+          className={classNames("message-content min-w-9 min-h-9 max-w-7/10 relative px-3 py-1.5 flex items-center justify-center", {
+            "bg-gray8 ml-2": !isCurrentUser,
+            "bg-primaryHover text-white": isCurrentUser,
+            "!p-0 !bg-transparent": message.type === TYPE_MESSAGE.IMAGE || message.type === TYPE_MESSAGE.IMAGE_LIST,
+            'bg-transparent !p-0': isOnlyEmojiMessage,
+          })}
+        >
+          {
+            handleRenderMessage(message)
+          }
+          {/* Time */}
+          {/* <p className={classNames("text-xs mt-2", {
+            "text-gray7": message.type === TYPE_MESSAGE.TEXT,
+            "text-white": message.type === TYPE_MESSAGE.IMAGE || message.type === TYPE_MESSAGE.IMAGE_LIST
+          })}>
+            {
+              formatTimeToHHMM(message.createdAt)
+            }
+          </p> */}
+          {/* Action */}
+          {
+            !isDeleted &&
+            <div
+              ref={actionRef}
+              className={classNames("absolute top-1/2 -translate-y-1/2 space-x-4 opacity-0 flex items-center justify-center group-hover:opacity-100 rounded-lg p-1.5 text-gray3 text-lg", {
+                "right-full -translate-x-4": isCurrentUser,
+                "left-full translate-x-4": !isCurrentUser
+              })}
+            >
+              <div className="cursor-pointer relative group/react">
+                <SmilePlusIcon />
+                <Reaction
+                  className="absolute bottom-4 left-1/2 -translate-x-1/2 hidden group-hover/react:flex"
+                  onClick={handleReactMessage}
+                />
+              </div>
+              {
+                message.type !== TYPE_MESSAGE.IMAGE_LIST &&
+                <div className="cursor-pointer" onClick={handleSaveReplyMessage}>
+                  <ReplyIcon />
+                </div>
+              }
+              <div className="cursor-pointer" onClick={handleFowardMessage}>
+                <ShareIcon />
+              </div>
+              <DynamicPopover
+                key={message.id}
+                ref={ popoverRef }
+                padding={20}
+                positions={[`${getPositionPopover(actionRef.current)}`]}
+                align={isCurrentUser ? 'end' : 'start'}
+                parentElement={actionRef.current}
+                triggerElm={
+                  <div className="cursor-pointer">
+                    <ThreedotIcon />
+                  </div>
+                }
+                content={
+                  <div className="py-1 bg-white rounded-lg shadow-2xl overflow-hidden">
+                    {
+                      menusAction.map((menuItem) => menuItem.isShow && (
+                        <p
+                          key={menuItem.title}
+                          className="flex items-center space-x-3 text-gray3 text-base px-4 py-1 cursor-pointer hover:bg-gray2"
+                          onClick={menuItem.onClick}
+                        >
+                          <span className="text-xl">
+                            {menuItem.icon}
+                          </span>
+                          <span className="whitespace-nowrap">{t(menuItem.title)}</span>
+                        </p>
+                      ))
+                    }
+                  </div>
+                }
+              />
+            </div>
+          }
+        </div>
+
         {/* Reactions  */}
-        <div className="group/reaction my-2 flex space-x-2">
+        <div className={classNames('group/reaction flex items-center space-x-2 ml-2', {
+          'justify-end': isCurrentUser,
+          'mb-2': isLastOfSection
+        })}>
           { isHaveReactions && !isDeleted &&
             <>
-              <div className={classNames("text-base rounded-full cursor-pointer duration-300 flex items-center space-x-2")}>
+              <div className={classNames("text-base rounded-full cursor-pointer duration-300 flex items-center space-x-2 mt-1 mb-3")}>
                 {
                   Object.entries(REACTIONS).map(([reactValue, reaction]) => {
                     if (!message.reactions[reaction.value].length) {
@@ -281,9 +377,8 @@ const Message = (props: MessageOptions) => {
                           place={'top-start'}
                         >
                           <span
-                            className={classNames("text-base bg-gray2 px-1 rounded-md cursor-pointer flex items-center justify-center space-x-1", {
-                              "!bg-black2 text-white": message.type === TYPE_MESSAGE.IMAGE,
-                              "!bg-pink2 !text-black1 border border-primaryHover": isReacted,
+                            className={classNames("text-base bg-white px-1 rounded-md cursor-pointer border flex items-center justify-center space-x-1", {
+                              // "!bg-gray2 !text-black1": isReacted,
                             })}
                             onClick={() => handleReactMessage(reaction.value)}
                           >
@@ -296,86 +391,9 @@ const Message = (props: MessageOptions) => {
                   })
                 }
               </div>
-              <div className={classNames("bg-pink1 text-base p-1 rounded-full cursor-pointer duration-300 relative group/react")}>
-                <SmilePlusIcon />
-                <Reaction
-                  className={classNames("absolute bottom-4 left-1/2 -translate-x-1/2 hidden group-hover/react:flex", {
-                    "right-0 !left-auto !translate-x-0": isCurrentUser
-                  })}
-                  onClick={handleReactMessage}
-                />
-              </div>
             </>
           }
         </div>
-        {/* Time */}
-        <p className={classNames("text-xs mt-2", {
-          "text-gray7": message.type === TYPE_MESSAGE.TEXT,
-          "text-white": message.type === TYPE_MESSAGE.IMAGE || message.type === TYPE_MESSAGE.IMAGE_LIST
-        })}>
-          {
-            formatTimeToHHMM(message.createdAt)
-          }
-        </p>
-        {/* Action */}
-        {
-          !isDeleted &&
-          <div
-            ref={actionRef}
-            className={classNames("absolute top-1/2 -translate-y-1/2 space-x-4 opacity-0 flex items-center justify-center group-hover:opacity-100 bg-gray7 rounded-lg p-1.5 text-white text-lg", {
-              "right-full -translate-x-4": isCurrentUser,
-              "left-full translate-x-4": !isCurrentUser
-            })}
-          >
-            <div className="cursor-pointer relative group/react">
-              <SmilePlusIcon />
-              <Reaction
-                className="absolute bottom-4 left-1/2 -translate-x-1/2 hidden group-hover/react:flex"
-                onClick={handleReactMessage}
-              />
-            </div>
-            {
-              message.type !== TYPE_MESSAGE.IMAGE_LIST &&
-              <div className="cursor-pointer" onClick={handleSaveReplyMessage}>
-                <ReplyIcon />
-              </div>
-            }
-            <div className="cursor-pointer" onClick={handleFowardMessage}>
-              <ShareIcon />
-            </div>
-            <DynamicPopover
-              key={message.id}
-              ref={ popoverRef }
-              padding={20}
-              positions={[`${getPositionPopover(actionRef.current)}`]}
-              align={isCurrentUser ? 'end' : 'start'}
-              parentElement={actionRef.current}
-              triggerElm={
-                <div className="cursor-pointer">
-                  <ThreedotIcon />
-                </div>
-              }
-              content={
-                <div className="py-1 bg-white rounded-lg shadow-2xl overflow-hidden">
-                  {
-                    menusAction.map((menuItem) => menuItem.isShow && (
-                      <p
-                        key={menuItem.title}
-                        className="flex items-center space-x-3 text-gray3 text-base px-4 py-1 cursor-pointer hover:bg-gray2"
-                        onClick={menuItem.onClick}
-                      >
-                        <span className="text-xl">
-                          {menuItem.icon}
-                        </span>
-                        <span className="whitespace-nowrap">{t(menuItem.title)}</span>
-                      </p>
-                    ))
-                  }
-                </div>
-              }
-            />
-          </div>
-        }
       </div>
     </div>
   );
