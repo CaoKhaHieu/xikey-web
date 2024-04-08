@@ -79,7 +79,7 @@ const Message = (props: MessageOptions) => {
           message.type === TYPE_MESSAGE.TEXT &&
           <span className={classNames({
             "text-2xl": isOnlyEmojiMessage
-          })} dangerouslySetInnerHTML={{ __html: urlify(message.content) }}>
+          })} dangerouslySetInnerHTML={{ __html: urlify(message.content, isCurrentUser) }}>
           </span>
         }
         {

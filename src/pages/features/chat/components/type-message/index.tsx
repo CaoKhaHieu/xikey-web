@@ -245,24 +245,10 @@ const TypeMessage = () => {
 
   return (
     <div className="flex flex-col mx-3 my-2.5 rounded-xl border border-gray2">
-      <div className="flex items-center space-x-2 px-2 pt-1">
-        <div className="cursor-pointer duration-300 hover:bg-gray2 p-1.5 rounded">
-          <label htmlFor='input-image' className="cursor-pointer">
-            <UploadImageIcon />
-          </label>
-          <input className='hidden' id='input-image' type='file' accept="image/png, image/jpeg, image/jpg, image/webp" onChange={(e) => handleChangeFile(e, TYPE_MESSAGE.IMAGE)}></input>
-        </div>
-        {/* <div className="cursor-pointer duration-300 hover:bg-gray2 p-1.5 rounded">
-          <label htmlFor='input-file' className="cursor-pointer">
-            <UploadFileIcon />
-          </label>
-          <input className='hidden' id='input-file' type='file'></input>
-        </div> */}
-      </div>
       {
         replyMessage &&
         <div className="p-2">
-          <div className={classNames("border-l-4 border-primary pl-2 relative", {
+          <div className={classNames("border-l-4 border-primary pl-1.5 relative", {
             "flex items-center space-x-2": replyMessage?.type === TYPE_MESSAGE.IMAGE || replyMessage?.type === TYPE_MESSAGE.IMAGE_LIST
           })}>
             {
@@ -292,6 +278,20 @@ const TypeMessage = () => {
           </div>
         </div>
       }
+      <div className="flex items-center space-x-2 px-2 pt-1">
+        <div className="cursor-pointer duration-300 hover:bg-gray2 p-1.5 rounded">
+          <label htmlFor='input-image' className="cursor-pointer">
+            <UploadImageIcon />
+          </label>
+          <input className='hidden' id='input-image' type='file' accept="image/png, image/jpeg, image/jpg, image/webp" onChange={(e) => handleChangeFile(e, TYPE_MESSAGE.IMAGE)}></input>
+        </div>
+        {/* <div className="cursor-pointer duration-300 hover:bg-gray2 p-1.5 rounded">
+          <label htmlFor='input-file' className="cursor-pointer">
+            <UploadFileIcon />
+          </label>
+          <input className='hidden' id='input-file' type='file'></input>
+        </div> */}
+      </div>
       <div className="flex items-center space-x-4 px-4">
         <Input
           ref={inputRef}

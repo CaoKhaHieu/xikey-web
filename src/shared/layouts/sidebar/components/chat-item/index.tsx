@@ -93,7 +93,7 @@ const ChatItem = (props: IUserSidebar) => {
 
         {/* bottom */}
         <div className="flex justify-between">
-          <p className="text-sm text-gray3 line-clamp-1 text-ellipsis">
+          <p className="text-sm text-gray3 line-clamp-1 text-ellipsis break-all">
             { renderLastMessage() }
           </p>
         </div>
