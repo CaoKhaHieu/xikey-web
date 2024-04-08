@@ -46,7 +46,7 @@ const ChatItem = (props: IUserSidebar) => {
       return (
         <>
           {
-            conversation?.lastMessage?.sender?.id === user.id && t('you')
+            conversation?.lastMessage?.sender?.id === user.id && t('you_last_message')
           }
           {t('deleted_message')}
         </>
@@ -55,7 +55,7 @@ const ChatItem = (props: IUserSidebar) => {
     return (
       <>
         {
-          conversation?.lastMessage?.sender?.id === user.id && t('you')
+          conversation?.lastMessage?.sender?.id === user.id && t('you_last_message')
         }
         {
           conversation.lastMessage?.type === TYPE_MESSAGE.TEXT &&
@@ -70,8 +70,9 @@ const ChatItem = (props: IUserSidebar) => {
   };
   
   return (
-    <Link onClick={handleClick} to={`/chat/${conversation.id}`} className={classNames("w-full flex items-center p-2 cursor-pointer hover:bg-pink1 duration-300", {
-      "bg-pink1": currentConversation.id === conversation.id
+    <Link onClick={handleClick} to={`/chat/${conversation.id}`} className={classNames("w-full flex items-center p-2 cursor-pointer rounded-lg duration-300", {
+      "bg-gray2 hover:bg-gray2": currentConversation.id === conversation.id,
+      "hover:bg-gray8": currentConversation.id !== conversation.id,
     })}>
       <div>
         <Avatar className="" url={(isGroupChat || isCloudChat) ? conversation.avatar : userChat?.avatar || ''} />
@@ -92,7 +93,7 @@ const ChatItem = (props: IUserSidebar) => {
 
         {/* bottom */}
         <div className="flex justify-between">
-          <p className="text-sm text-gray3 line-clamp-1 text-ellipsis">
+          <p className="text-sm text-gray3 line-clamp-1 text-ellipsis break-all">
             { renderLastMessage() }
           </p>
         </div>

@@ -2,7 +2,7 @@
   .button {
     @apply duration-300 cursor-pointer;
     &.contained {
-      @apply w-full text-xl bg-primary py-3 rounded-lg font-semibold text-black1;
+      @apply w-full text-xl bg-primary py-3 rounded-lg font-semibold text-white;
 
       &:hover {
         @apply hover:bg-primaryHover;

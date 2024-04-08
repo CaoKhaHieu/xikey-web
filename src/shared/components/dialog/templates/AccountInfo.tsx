@@ -62,17 +62,17 @@ const AccountInfo = (props: AccountInfoOptions) => {
   return (
     <Dialog {...otherProps} className='p-5 rounded-lg' closeRight close={handleClose}>
       <form onSubmit={handleSubmit(onSubmit)}>
-        <Dialog.Header className='text-4.25 text-white font-semibold'>
+        <Dialog.Header className='text-4.25 font-semibold'>
           {t('update_personal_info')}
         </Dialog.Header>
-        <Dialog.Body className='text-3.25 text-white pt-4 whitespace-break flex flex-col space-y-4'>
+        <Dialog.Body className='text-3.25 pt-4 whitespace-break flex flex-col space-y-4'>
           <Input variant='auth' type='email' label='Email' {...register('email')} error={errors.email?.message} />
           <Input variant='auth' type='name' label='Name' {...register('name')} error={errors.name?.message} />
         </Dialog.Body>
         <Dialog.Footer className='pt-5 flex justify-end'>
           <Button
             type='submit'
-            className='border border-gray2 rounded-md text-white px-10 py-1.5'
+            className='border border-gray2 rounded-md px-10 py-1.5 hover:bg-primaryHover hover:text-white'
           >
             {t('save')}
           </Button>

@@ -19,7 +19,7 @@ const ListChat = () => {
   }, [listConversations]);
 
   return (
-    <div className="flex flex-col overflow-y-scroll h-[calc(100vh-103px)]">
+    <div className="flex flex-col overflow-y-scroll h-[calc(100vh-103px)] py-1 pl-1.5">
       {
         listConversations?.length > 0 && listConversations.map(conversation => (
           <ChatItem key={conversation.id} conversation={conversation} />

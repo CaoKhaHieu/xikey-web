@@ -46,12 +46,12 @@ const ErrorDialog = (props: ErrorDialogOptions) => {
       <Dialog.Header className='text-4.25 text-red font-semibold'>
         {title}
       </Dialog.Header>
-      <Dialog.Body className='text-3.25 text-white pt-2 whitespace-break'>
+      <Dialog.Body className='text-3.25 pt-2 whitespace-break'>
         {content}
       </Dialog.Body>
       <Dialog.Footer className='pt-5 flex justify-end'>
         <Button
-          className='border border-gray2 rounded-md text-white px-10 py-1.5'
+          className='border border-gray2 rounded-md px-10 py-1.5 hover:bg-primary hover:text-white'
           onClick={handleClose}
         >
           {actionText ? actionText : t('ok')}

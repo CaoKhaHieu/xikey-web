@@ -45,7 +45,9 @@
     "yesterday": "Yesterday"
   },
   "image": "Image",
-  "you": "You: ",
+  "you_last_message": "You: ",
+  "you": "You",
+  "replied": "replied",
   "quotes": "“New friends are like new adventures. You never know what lessons they will teach you.”",
   "close": "Close",
   "no_result": "No results were found",

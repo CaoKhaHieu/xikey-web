@@ -2,9 +2,6 @@
   .input-wrapper {
     @apply flex flex-col w-full;
   }
-  .input-label {
-    @apply text-white;
-  }
   .input {
     @apply w-full outline-none decoration-transparent;
     &.search {
@@ -12,7 +9,16 @@
     }
 
     &.auth {
-      @apply border-b border-gray2 py-1.5 text-white flex bg-transparent;
+      @apply border-b border-gray2 py-1.5 flex bg-transparent;
     }
-  }  
+  }
+  .input {
+    &:-webkit-autofill,
+    &:-webkit-autofill:hover, 
+    &:-webkit-autofill:focus, 
+    &:-webkit-autofill:active{
+      -webkit-text-fill-color: black;
+      box-shadow: inset 0 0 20px 20px white;
+    }
+  }
 }

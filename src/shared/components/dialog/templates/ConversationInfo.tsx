@@ -121,10 +121,10 @@ const ConversationInfo = (props: ConversationInfoOptions) => {
 
   return (
     <Dialog {...otherProps} className='p-5 rounded-lg overflow-scroll relative' closeRight close={handleClose}>
-      <Dialog.Header className='text-lg text-center text-white font-semibold'>
+      <Dialog.Header className='text-lg text-center font-semibold'>
         {t('conversation_info')}
       </Dialog.Header>
-      <Dialog.Body className='text-3.25 text-white mt-6 whitespace-break'>
+      <Dialog.Body className='text-3.25 mt-6 whitespace-break'>
         <div className='flex items-center space-x-4'>
           <Avatar className='!w-20 !h-20' url={conversationInfo.avatar} />
           <p className='font-semibold text-xl line-clamp-1 flex items-center space-x-2'>
@@ -137,12 +137,6 @@ const ConversationInfo = (props: ConversationInfoOptions) => {
             }
           </p>
         </div>
-        <Button
-          className='w-full bg-pink1 text-lg text-primaryHover font-semibold py-2.5 mt-4 rounded-lg hover:bg-pink2'
-          onClick={handleClose}
-        >
-          {t('text_message')}
-        </Button>
         {
           !isGroupChat && !isCloudChat &&
           <div className='mt-6 mb-2 flex flex-col space-y-2'>
