@@ -4,7 +4,8 @@ import i18n from './i18n.ts';
 
 import { PASSWORD_PATTERN, VALIDATE_LENGTH } from '../constants';
 
-export const urlify = (content: string) => {
+export const urlify = (content: string, isCurrentUser: boolean) => {
+  const textColor = isCurrentUser ? 'text-white' : 'text-black1';
   if (!content) {
     return '';
   }
@@ -12,15 +13,15 @@ export const urlify = (content: string) => {
 
   //URLs starting with http://, https://, or ftp://
   const replacePattern1 = /(\b(https?|ftp):\/\/[-A-Z0-9+&@#\/%?=~_|!:,.;]*[-A-Z0-9+&@#\/%=~_|])/gim;
-  replacedText = content.replace(replacePattern1, '<a class=\'message-content-link text-blue\' href="$1" target="_blank">$1</a>');
+  replacedText = content.replace(replacePattern1, `<a class=\'message-content-link ${textColor} underline break-all\' href="$1" target="_blank">$1</a>`);
 
   //URLs starting with "www." (without // before it, or it'd re-link the ones done above).
   const replacePattern2 = /(^|[^\/])(www\.[\S]+(\b|$))/gim;
-  replacedText = replacedText.replace(replacePattern2, '$1<a class=\'message-content-link text-blue\' href="http://$2" target="_blank">$2</a>');
+  replacedText = replacedText.replace(replacePattern2, `$1<a class=\'message-content-link ${textColor} underline break-all\' href="http://$2" target="_blank">$2</a>`);
 
   //Change email addresses to mailto:: links.
   const replacePattern3 = /(([a-zA-Z0-9\-\_\.])+@[a-zA-Z\_]+?(\.[a-zA-Z]{2,6})+)/gim;
-  replacedText = replacedText.replace(replacePattern3, '<a class=\'message-content-link text-blue\' href="mailto:$1">$1</a>');
+  replacedText = replacedText.replace(replacePattern3, `<a class=\'message-content-link ${textColor} underline break-all\' href="mailto:$1">$1</a>`);
 
   return replacedText;
 };

@@ -6,10 +6,6 @@ import { useTranslation } from "react-i18next";
 import SidebarMain from "./sidebarMain";
 import Avatar from "@/shared/components/avatar";
 import { IMenuData, Menu, MenuItem } from "@/shared/components/menu";
-
-import MessageIcon from "@/assets/icons/message.svg?react";
-import CheckIcon from "@/assets/icons/check.svg?react";
-import SettingIcon from "@/assets/icons/setting.svg?react";
 import DynamicPopover from "@/shared/components/popover";
 import { logout } from "@/stores/auth/actions";
 import { getRefreshToken, removeToken } from "@/shared/utils/utils";
@@ -18,6 +14,10 @@ import { updateAvatar } from "@/stores/user/action";
 import { upload } from "@/stores/common/actions";
 import { useDialog } from "@/shared/components/dialog";
 import AccountInfo from "@/shared/components/dialog/templates/AccountInfo";
+
+import MessageIcon from "@/assets/icons/message.svg?react";
+import CheckIcon from "@/assets/icons/check.svg?react";
+import SettingIcon from "@/assets/icons/setting.svg?react";
 
 const menu: IMenuData[] = [
   {
@@ -107,8 +107,8 @@ const Sidebar = () => {
 
   return (
     <div className="flex">
-      <div className="w-16 bg-black1 h-screen flex flex-col">
-        <div className="mt-8 mb-4">
+      <div className="w-14 h-screen flex flex-col border-r border-gray2">
+        <div className="mt-4">
           <div className="hidden">
             <input
               ref={inputRef}
@@ -119,24 +119,21 @@ const Sidebar = () => {
             ></input>
           </div>
           <Avatar
-            className="mx-auto cursor-pointer"
+            className="mx-auto cursor-pointer !w-8 !h-8"
             url={avatarLocal}
-            isUpload
             onClick={handleAvatarClick}
           />
         </div>
-
         <div className="flex flex-col h-full">
-          <Menu className="flex flex-col items-center mt-4">
+          <Menu className="flex flex-col items-center space-y-2 mt-4">
             <>
               {menu.map((item: IMenuData) => (
                 <MenuItem
                   key={item.id}
                   className={classNames(
-                    "text-3xl w-full h-16 flex justify-center items-center",
+                    "text-3xl p-3 rounded-lg flex justify-center items-center hover:bg-gray8",
                     {
-                      "text-white": !item.active,
-                      "text-black1 bg-primary": item.active,
+                      "text-black1 bg-gray8": item.active,
                     }
                   )}
                   menu={item}
@@ -155,12 +152,7 @@ const Sidebar = () => {
                   triggerElm={
                     <MenuItem
                       key={item.id}
-                      className={classNames(
-                        "text-white text-3xl w-full h-16 flex justify-center items-center",
-                        {
-                          "text-black1 bg-primary": item.active,
-                        }
-                      )}
+                      className='p-3 rounded-lg flex justify-center items-center hover:bg-gray8'
                       menu={item}
                     />
                   }

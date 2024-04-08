@@ -21,6 +21,8 @@ export default {
         gray4: '#fff',
         gray5: '#8a8787',
         gray7: '#383838',
+        gray8: '#f0f0f0',
+        gray9: '#f7f7f7',
         blue: '#005ae0',
         red: '#CC0000',
         pink1: '#fde4e4',
@@ -35,6 +37,7 @@ export default {
         '7/10': '70%'
       },
       minWidth: {
+        '9': '2.25rem',
         '12': '3rem',
         '16': '4rem',
         '20': '5rem'

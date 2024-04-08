@@ -5,6 +5,7 @@ import ConversationInfo from "@/shared/components/dialog/templates/ConversationI
 
 import SearchIcon from "@/assets/icons/search.svg?react";
 import InfoIcon from "@/assets/icons/info.svg?react";
+import CallIcon from "@/assets/icons/call.svg?react";
 import CameraIcon from "@/assets/icons/camera.svg?react";
 import Icon from "@/shared/components/icon";
 
@@ -21,14 +22,14 @@ const ChatHeader = () => {
   };
 
   return (
-    <div className="flex items-center bg-white px-4 border-b border-gray2 h-20">
-      <div className="flex items-center flex-1 space-x-4">
-        <Avatar className="cursor-pointer" url={currentConversation?.avatar} onClick={handleWatchInfoConversation} />
-        <p className="font-semibold text-lg text-black1 line-clamp-1">{currentConversation?.name}</p>
+    <div className="flex items-center bg-white px-3 border-b border-gray2 h-20">
+      <div className="flex items-center flex-1 space-x-2">
+        <Avatar className="cursor-pointer !w-10 !h-10" url={currentConversation?.avatar} onClick={handleWatchInfoConversation} />
+        <p className="font-medium text-black1 line-clamp-1">{currentConversation?.name}</p>
       </div>
       <div className="flex items-center space-x-4">
         <div className="text-2xl cursor-pointer">
-          <Icon icon={<SearchIcon />} />
+          <Icon icon={<CallIcon />} />
         </div>
         <div className="text-2xl cursor-pointer">
           <Icon icon={<CameraIcon />} />
