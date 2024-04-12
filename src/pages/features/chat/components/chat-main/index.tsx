@@ -144,11 +144,10 @@ const ChatMain = () => {
             <Message
               key={message.id}
               message={message}
-              isScrollEnd={isScrollEndRef.current}
               showAvatar={listMessage[index - 1]?.sender?.id !== listMessage[index].sender.id || listMessage[index - 1]?.type === TYPE_MESSAGE.NOTIFY}
-              onScrollEnd={handleScrollToEnd}
               isShowName={currentConversation.isGroup && listMessage[index - 1]?.sender?.id !== listMessage[index].sender.id}
               isLastOfSection={listMessage[index].sender.id !== listMessage[index + 1]?.sender?.id}
+              isLast={index === listMessage.length - 1}
             />
           ))}
         {/* {

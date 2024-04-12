@@ -28,21 +28,21 @@ import ThreedotIcon from "../../../assets/icons/dot-three.svg?react";
 import PinIcon from "../../../assets/icons/pin.svg?react";
 import CopyIcon from "../../../assets/icons/copy.svg?react";
 import DeleteIcon from "../../../assets/icons/delete.svg?react";
+import CircleCheckIcon from "../../../assets/icons/circle-check.svg?react";
 
 interface MessageOptions {
   message: MessageModel;
   showAvatar: boolean;
   isShowName: boolean;
   isLastOfSection: boolean;
-  isScrollEnd: boolean;
-  onScrollEnd: () => void;
+  isLast: boolean;
 }
 
 const heightChatHeader = 60;
 const heightOfPopover = 100;
 
 const Message = (props: MessageOptions) => {
-  const { message, showAvatar, isShowName, isLastOfSection, isScrollEnd, onScrollEnd } = props;
+  const { message, showAvatar, isShowName, isLastOfSection, isLast } = props;
   const { user }: { user: User } = useSelector((state: any) => state.userReducer);
   
   const { t } = useTranslation();
@@ -85,7 +85,7 @@ const Message = (props: MessageOptions) => {
         {
           message.type === TYPE_MESSAGE.IMAGE &&
           <ImageDetail
-            className="rounded-lg object-cover min-h-96 max-h-96 max-w-xl cursor-pointer"
+            className="rounded-2xl object-cover min-h-96 max-h-96 max-w-xl cursor-pointer"
             src={message.content}
           ></ImageDetail>
         }
@@ -225,7 +225,7 @@ const Message = (props: MessageOptions) => {
   }
 
   return (
-    <div className={classNames("flex w-full", {
+    <div className={classNames("flex w-full relative", {
       "me": isCurrentUser,
       "him": !isCurrentUser,
       'last': isLastOfSection,
@@ -277,7 +277,7 @@ const Message = (props: MessageOptions) => {
             "bg-gray8 ml-2": !isCurrentUser,
             "bg-primaryHover text-white": isCurrentUser,
             "!p-0 !bg-transparent": message.type === TYPE_MESSAGE.IMAGE || message.type === TYPE_MESSAGE.IMAGE_LIST,
-            'bg-transparent !p-0': isOnlyEmojiMessage,
+            'bg-transparent !p-0 !ml-0': isOnlyEmojiMessage,
           })}
         >
           {
@@ -354,46 +354,52 @@ const Message = (props: MessageOptions) => {
         </div>
 
         {/* Reactions  */}
-        <div className={classNames('group/reaction flex items-center space-x-2 ml-2', {
-          'justify-end': isCurrentUser,
-          'mb-2': isLastOfSection
-        })}>
-          { isHaveReactions && !isDeleted &&
-            <>
-              <div className={classNames("text-base rounded-full cursor-pointer duration-300 flex items-center space-x-2 mt-1 mb-3")}>
-                {
-                  Object.entries(REACTIONS).map(([reactValue, reaction]) => {
-                    if (!message.reactions[reaction.value].length) {
-                      return null;
-                    }
-                    const tooltipContent = message.reactions[reaction.value].map(react => react.name).join(', ');
-                    // const isReacted = message.reactions[reaction.value].findIndex(react => react.id === user.id) > -1;
-                    return (
-                      <div key={reactValue}>
-                        <Tooltip
-                          className="max-w-80 z-10 !bg-black2"
-                          id={reaction.text}
-                          content={tooltipContent}
-                          place={'top-start'}
+        { isHaveReactions && !isDeleted &&
+          <div className={classNames('group/reaction flex items-center space-x-2 ml-2 mb-3  mt-1', {
+            'justify-end': isCurrentUser,
+          })}>
+            <div className={classNames("text-base rounded-full cursor-pointer duration-300 flex items-center space-x-2")}>
+              {
+                Object.entries(REACTIONS).map(([reactValue, reaction]) => {
+                  if (!message.reactions[reaction.value].length) {
+                    return null;
+                  }
+                  const tooltipContent = message.reactions[reaction.value].map(react => react.name).join(', ');
+                  // const isReacted = message.reactions[reaction.value].findIndex(react => react.id === user.id) > -1;
+                  return (
+                    <div key={reactValue}>
+                      <Tooltip
+                        className="max-w-80 z-10 !bg-black2"
+                        id={reaction.text}
+                        content={tooltipContent}
+                        place={'top-start'}
+                      >
+                        <span
+                          className={classNames("text-base bg-white px-1 rounded-md cursor-pointer border flex items-center justify-center space-x-1", {
+                            // "!bg-gray2 !text-black1": isReacted,
+                          })}
+                          onClick={() => handleReactMessage(reaction.value)}
                         >
-                          <span
-                            className={classNames("text-base bg-white px-1 rounded-md cursor-pointer border flex items-center justify-center space-x-1", {
-                              // "!bg-gray2 !text-black1": isReacted,
-                            })}
-                            onClick={() => handleReactMessage(reaction.value)}
-                          >
-                            <span>{reaction.text}</span>
-                            <span className="text-xs">{message.reactions[reaction.value].length}</span>
-                          </span>
-                        </Tooltip>
-                      </div>
-                    )
-                  })
-                }
-              </div>
-            </>
-          }
-        </div>
+                          <span>{reaction.text}</span>
+                          <span className="text-xs">{message.reactions[reaction.value].length}</span>
+                        </span>
+                      </Tooltip>
+                    </div>
+                  )
+                })
+              }
+            </div>
+          </div>
+        }
+
+        {
+          isLast && isCurrentUser && !message.isSending &&
+          <div className={classNames("text-gray1 absolute -bottom-0 -right-4", {
+            '!bottom-12': isHaveReactions,
+          })}>
+            <CircleCheckIcon />
+          </div>
+        }
       </div>
     </div>
   );

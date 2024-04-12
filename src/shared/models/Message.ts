@@ -3,6 +3,7 @@ import { User } from "./User";
 
 export interface Message {
   id: string;
+  virtualId: number;
   conversationId: string;
   sender: User;
   content: string;
@@ -16,6 +17,7 @@ export interface Message {
   reactions: {
     [key: number]: User[]
   };
+  isSending: boolean;
 }
 
 export class Message {
@@ -31,5 +33,6 @@ export class Message {
     this.type = message.type;
     this.replyMessage = message.replyMessage;
     this.reactions = message.reactions || [];
+    this.isSending = message.isSending || false;
   }
 }

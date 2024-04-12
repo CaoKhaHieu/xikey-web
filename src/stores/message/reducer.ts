@@ -44,6 +44,17 @@ const saveNewMessageByIdConversation = (state: any, payload: Message) => {
   };
 };
 
+const saveNewMessageByIdConversationWithVirtualId = (state: any, payload: Message) => {
+  const data: any = { ...state.messages };
+  data[payload.id] = payload;
+  delete data[payload.virtualId];
+
+  return {
+    ...state,
+    messages: data,
+  };
+};
+
 const updateMessageByIdConversation = (state: any, payload: Message) => {
   const data: any = { ...state.messages };
   if (data[payload.id]) {
@@ -99,6 +110,7 @@ const alertNewMessage = (state: any, payload: { type: 'INCREASE' | 'RESET' }) =>
 const messageStrategies = {
   SAVE_LIST_MESSAGE: saveListMessageByIdConversation,
   SAVE_NEW_MESSAGE: saveNewMessageByIdConversation,
+  SAVE_NEW_MESSAGE_WITH_VIRTUAL_ID: saveNewMessageByIdConversationWithVirtualId,
   UPDATE_MESSAGE: updateMessageByIdConversation,
   SAVE_REPLY_MESSAGE: saveReplyMessage,
   CLEAR_REPLY_MESSAGE: clearReplyMessage,
