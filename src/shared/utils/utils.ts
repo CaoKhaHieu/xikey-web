@@ -116,3 +116,69 @@ export const isOnlyEmoji = (inputString: string) => {
   const emojiRegex = /^[\u{1F600}-\u{1F64F}\u{1F300}-\u{1F5FF}\u{1F680}-\u{1F6FF}\u{1F700}-\u{1F77F}\u{1F780}-\u{1F7FF}\u{1F800}-\u{1F8FF}\u{1F900}-\u{1F9FF}\u{1FA00}-\u{1FA6F}\u{2600}-\u{26FF}\u{2700}-\u{27BF}]+$/u;
   return emojiRegex.test(inputString);
 };
+
+export const areTimeMessageOnSameDay = (time1: string, time2: string) => {
+  if (!time1 || !time2) {
+    return false;
+  }
+  // Create Date objects from the Unix timestamps
+  const date1 = new Date(time1);
+  const date2 = new Date(time2);
+
+  // Compare the year, month, and day components of the two dates
+  return (
+    date1.getFullYear() === date2.getFullYear() &&
+    date1.getMonth() === date2.getMonth() &&
+    date1.getDate() === date2.getDate()
+  );
+};
+
+export const formatDate = (time: string) => {
+  if (!time) {
+    return;
+  }
+
+  const { t } = i18n;
+  const currentDate = new Date();
+  const inputDate = new Date(time);
+
+  // Check if the date is today
+  if (
+    currentDate.getDate() === inputDate.getDate() &&
+    currentDate.getMonth() === inputDate.getMonth() &&
+    currentDate.getFullYear() === inputDate.getFullYear()
+  ) {
+    return t('format_time.today');
+  }
+
+  // Calculate the date for yesterday
+  const yesterday = new Date(currentDate);
+  yesterday.setDate(currentDate.getDate() - 1);
+
+  // Check if the date is yesterday
+  if (
+    yesterday.getDate() === inputDate.getDate() &&
+    yesterday.getMonth() === inputDate.getMonth() &&
+    yesterday.getFullYear() === inputDate.getFullYear()
+  ) {
+    return t('format_time.yesterday');
+  }
+
+  // If it's not today or yesterday, format it as "dd/mm/yyyy"
+  const day = String(inputDate.getDate()).padStart(2, '0');
+  const month = String(inputDate.getMonth() + 1).padStart(2, '0'); // Month is 0-based, so we add 1
+  const year = inputDate.getFullYear();
+
+  return `${day}/${month}/${year}`;
+};
+
+export const isTimeDifferenceGreaterThan5Minutes = (time1: string, time2: string) => {
+  const time5Minutes = 300000;
+
+  // Calculate the time difference in seconds
+  const timeDifference = new Date(time1).getTime() - new Date(time2).getTime();
+  console.log({timeDifference})
+
+  // Check if the time difference is greater than or equal to 5 minutes (300 seconds)
+  return timeDifference >= time5Minutes;
+};
