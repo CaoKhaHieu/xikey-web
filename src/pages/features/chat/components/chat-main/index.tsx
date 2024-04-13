@@ -10,6 +10,7 @@ import { getInfoConversation, selectConversation } from "@/stores/conversation/a
 import { Loading } from "@/shared/components/loading";
 import { Conversation } from "@/shared/models/Conversation";
 import { TYPE_MESSAGE } from "@/shared/enums";
+import { areTimeMessageOnSameDay, isTimeDifferenceGreaterThan5Minutes } from "@/shared/utils/utils";
 
 import DoubleArrowDownIcon from "@/assets/icons/double-arrow-down.svg?react";
 
@@ -144,11 +145,12 @@ const ChatMain = () => {
             <Message
               key={message.id}
               message={message}
-              isScrollEnd={isScrollEndRef.current}
               showAvatar={listMessage[index - 1]?.sender?.id !== listMessage[index].sender.id || listMessage[index - 1]?.type === TYPE_MESSAGE.NOTIFY}
-              onScrollEnd={handleScrollToEnd}
               isShowName={currentConversation.isGroup && listMessage[index - 1]?.sender?.id !== listMessage[index].sender.id}
               isLastOfSection={listMessage[index].sender.id !== listMessage[index + 1]?.sender?.id}
+              isLast={index === listMessage.length - 1}
+              isShowDayName={!areTimeMessageOnSameDay(message.createdAt, listMessage[index - 1]?.createdAt)}
+              isShowStartTime={isTimeDifferenceGreaterThan5Minutes(message.createdAt, listMessage[index - 1]?.createdAt)}
             />
           ))}
         {/* {
@@ -162,7 +164,7 @@ const ChatMain = () => {
         {
           isShowAlertNewMessage &&
           <div
-            className='sticky bottom-4 left-full right-0 flex items-center space-x-1 w-fit rounded px-3 py-1.5 border border-gray2 bg-pink2 animate-bounce duration-200 cursor-pointer'
+            className='sticky bottom-4 left-full right-0 flex items-center space-x-1 w-fit rounded px-3 py-1.5 bg-primaryHover text-white animate-bounce duration-200 cursor-pointer'
             onClick={handleClickAlertNewMessage}
           >
             <p className="text-xl"><DoubleArrowDownIcon /></p>

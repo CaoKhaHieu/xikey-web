@@ -4,7 +4,7 @@ import { useDispatch, useSelector } from 'react-redux';
 
 import { BASE_URL } from '@/shared/constants';
 import { Message } from '@/shared/models/Message';
-import { saveNewMessage, triggerAlertNewMessage, triggerScrollToEndListMessage, updateMessage } from '@/stores/message/action';
+import { saveNewMessage, saveNewMessageWithVirtualId, triggerAlertNewMessage, triggerScrollToEndListMessage, updateMessage } from '@/stores/message/action';
 import { addConversation, selectConversation, updateInfoConversation, updateLastMessageConversation } from '@/stores/conversation/action';
 import { Conversation } from '@/shared/models/Conversation';
 import { User } from '@/shared/models/User';
@@ -29,13 +29,15 @@ const SocketProvider = (props: SocketProps) => {
   const { user }: { user: User } = useSelector((state: any) => state.userReducer);
   const { currentConversation }: { currentConversation: Conversation } = conversation;
   const currentConversationRef = useRef<Conversation>(currentConversation);
+  const userRef = useRef<User>(user);
   
   const dispatch = useDispatch();
 
   useEffect(() => {
     if (user.id) {
-      socket.emit('join', user.id);
+      userRef.current = user;
 
+      socket.emit('join', user.id);
       socket.on('invite_to_group', (newConversation: Conversation) => {
         dispatch(addConversation(newConversation));
       });
@@ -50,7 +52,13 @@ const SocketProvider = (props: SocketProps) => {
         isNew: true,
       };
       if (currentConversationRef.current.id === newMessage.conversationId) {
-        dispatch(saveNewMessage(newMessage));
+        if (newMessage.sender.id === userRef.current.id) {
+          // update message
+          dispatch(saveNewMessageWithVirtualId(newMessage));
+        } else {
+          // sae new message
+          dispatch(saveNewMessage(newMessage));
+        }
         // handle scroll list message to end
         dispatch(triggerScrollToEndListMessage());
         // handle show alert new message

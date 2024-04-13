@@ -12,7 +12,7 @@ import { TYPE_MESSAGE } from "@/shared/enums";
 import { Message } from "@/shared/models/Message";
 import { BASE_URL, VALIDATE_LENGTH } from "@/shared/constants";
 import { showToast } from "@/shared/utils/utils";
-import { clearReplyMessage, createMessage } from "@/stores/message/action";
+import { clearReplyMessage, createMessage, saveNewMessage, triggerAlertNewMessage, triggerScrollToEndListMessage } from "@/stores/message/action";
 
 import LikeIcon from "@/assets/icons/like.svg?react";
 import Smile from "@/assets/icons/smile.svg?react";
@@ -203,23 +203,43 @@ const TypeMessage = () => {
 
   const handleSendMessage = (message?: string, type = TYPE_MESSAGE.TEXT) => {
     const isImageMessage = type == TYPE_MESSAGE.IMAGE;
+    const virtualId = Date.now();
     const body = {
       conversationId: id,
       sender: user.id,
       content: message || valueInput,
       type,
       replyMessage: isImageMessage ? undefined : replyMessage?.id,
+      virtualId,
     };
     if (!body.content) {
       return;
     }
-    
-    dispatch(createMessage(body, () => {
-      setValueInput('');
-      setIsOpenModalIcon(false);
-      valueInputRef.current = '';
+    const messageData = new Message({
+      id: virtualId,
+      virtualId,
+      conversationId: id,
+      sender: user,
+      content: message || valueInput,
+      isNew: true,
+      createdAt: Date.now(),
+      type,
+      isSending: true,
+      replyMessage: !isImageMessage && replyMessage?.id && new Message(replyMessage)
+    });
 
-      !isImageMessage && dispatch(clearReplyMessage({ conversationId: id }));
+    // handle send message
+    dispatch(saveNewMessage(messageData));
+    // handle scroll list message to end
+    dispatch(triggerScrollToEndListMessage());
+    // handle show alert new message
+    dispatch(triggerAlertNewMessage({ type: 'INCREASE' }));
+
+    setValueInput('');
+    setIsOpenModalIcon(false);
+    valueInputRef.current = '';
+    !isImageMessage && dispatch(clearReplyMessage({ conversationId: id }));
+    dispatch(createMessage(body, () => {
     }, () => {}));
   };
 

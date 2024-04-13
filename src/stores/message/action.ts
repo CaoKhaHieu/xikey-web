@@ -20,6 +20,11 @@ export const saveNewMessage = (payload: Message) => ({
   payload,
 });
 
+export const saveNewMessageWithVirtualId = (payload: Message) => ({
+  type: types.SAVE_NEW_MESSAGE_WITH_VIRTUAL_ID,
+  payload,
+});
+
 export const updateMessage = (payload: Message) => ({
   type: types.UPDATE_MESSAGE,
   payload,
