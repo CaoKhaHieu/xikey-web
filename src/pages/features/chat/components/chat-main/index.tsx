@@ -99,9 +99,7 @@ const ChatMain = () => {
   };
 
   const handleScrollToEnd = () => {
-    setTimeout(() => {
-      endSectionRef.current?.scrollIntoView();
-    }, 150);
+    endSectionRef.current?.scrollIntoView();
   };
 
   const handleScrollListMessage = (e: any) => {
