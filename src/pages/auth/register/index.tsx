@@ -53,7 +53,7 @@ const Register = () => {
         <div className='flex items-center justify-center text-8xl text-black1 mb-4'>
           <LogoIcon />
         </div>
-        <Input variant='auth' type='name' label='Name' {...register('name')} error={errors.name?.message} />
+        <Input variant='auth' type='name' label='Name' {...register('name')} min={6} max={30} error={errors.name?.message} />
         <Input variant='auth' type='email' label='Email' {...register('email')} error={errors.email?.message} />
         <Input variant='auth' type='password' label='Password' {...register('password')} error={errors.password?.message} />
         <Input variant='auth' type='password' label='Repeat Password' {...register('confirmPassword')} error={errors.confirmPassword?.message} />

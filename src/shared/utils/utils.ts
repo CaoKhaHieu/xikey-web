@@ -177,7 +177,6 @@ export const isTimeDifferenceGreaterThan5Minutes = (time1: string, time2: string
 
   // Calculate the time difference in seconds
   const timeDifference = new Date(time1).getTime() - new Date(time2).getTime();
-  console.log({timeDifference})
 
   // Check if the time difference is greater than or equal to 5 minutes (300 seconds)
   return timeDifference >= time5Minutes;

@@ -1,4 +1,4 @@
-import { useRef } from "react";
+import { memo, useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import classNames from "classnames";
 import { useTranslation } from "react-i18next";
@@ -425,4 +425,4 @@ const Message = (props: MessageOptions) => {
   );
 };
 
-export default Message;
+export default memo(Message);

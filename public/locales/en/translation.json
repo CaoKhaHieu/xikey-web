@@ -18,7 +18,7 @@
     "email_invalid": "Please enter a valid email",
     "email_required": "Please enter your email",
     "name_required": "Please enter your name",
-    "password_invalid": "Only letters and numbers are allowed",
+    "password_invalid": "Password must include numbers and letters",
     "password_1_number": "Contain at least 1 number",
     "password_length": "Password must be 6-32 characters",
     "password_required": "Please enter your password",
