@@ -19,6 +19,7 @@ import Smile from "@/assets/icons/smile.svg?react";
 import UploadImageIcon from "@/assets/icons/upload-image.svg?react";
 // import UploadFileIcon from "@/assets/icons/file.svg?react";
 import CloseIcon from "@/assets/icons/close.svg?react";
+import Textarea from "@/shared/components/textarea";
 
 interface ImageData {
   urlLocal: string;
@@ -313,13 +314,24 @@ const TypeMessage = () => {
         </div> */}
       </div>
       <div className="flex items-center space-x-4 px-4">
-        <Input
+        {/* <Input
           ref={inputRef}
           className="px-4 pt-2 pb-4 pl-0"
           placeholder={t('type_message')}
           value={valueInput}
           onChange={handleChange}
           onKeyPress={handleKeyPress}
+          onPaste={handlePaste}
+          autoFocus
+        /> */}
+        <Textarea
+          ref={inputRef}
+          className="px-4 pt-2 pb-4 pl-0 w-full outline-none min-h-20"
+          placeholder={t('type_message')}
+          value={valueInput}
+          onChange={(e: any) => handleChange(e)}
+          onKeyPress={handleKeyPress}
+          limitRows={10}
           onPaste={handlePaste}
           autoFocus
         />
