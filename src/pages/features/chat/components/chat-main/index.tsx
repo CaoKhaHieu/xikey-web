@@ -65,13 +65,6 @@ const ChatMain = () => {
     }
   }, [alert]);
 
-  useEffect(() => {
-    // scroll to end if have any reaction of message
-    if (isScrollEndRef.current) {
-      handleScrollToEnd();
-    }
-  }, [messageManagement.triggerScroll]);
-
   const handleGetUserChat = () => {
     dispatch(getInfoConversation(id, (conversation: Conversation) => {
       dispatch(selectConversation(conversation));

@@ -20,6 +20,7 @@ import UploadImageIcon from "@/assets/icons/upload-image.svg?react";
 // import UploadFileIcon from "@/assets/icons/file.svg?react";
 import CloseIcon from "@/assets/icons/close.svg?react";
 import Textarea from "@/shared/components/textarea";
+import Editor from "@/shared/components/editor";
 
 interface ImageData {
   urlLocal: string;
@@ -36,6 +37,8 @@ const previewConfig = {
 };
 
 const TypeMessage = () => {
+  const typeMessageRef: any = useRef();
+
   const [uploadImage, setUploadImage] = useState<UploadImage>({});
   const listImg = Object.values(uploadImage);
   
@@ -83,6 +86,46 @@ const TypeMessage = () => {
   useEffect(() => {
     inputRef.current?.focus();
   }, [replyMessage]);
+
+  useEffect(() => {
+    // when height of input changed, scroll to end of list message
+    if (!typeMessageRef.current) return;
+    const resizeObserver = new ResizeObserver(() => {
+      dispatch(triggerScrollToEndListMessage());
+    });
+    resizeObserver.observe(typeMessageRef.current);
+    return () => resizeObserver.disconnect(); // clean up 
+  }, []);
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if(e.key == 'Enter' && !e.shiftKey){
+        const isUploadingImage = listImg.length && listImg.find((image: ImageData) => !image.url);
+        if (listImg.length > 0 && isUploadingImage) {
+          showToast(t('uploading_image'));
+          return;
+        }
+  
+        e.preventDefault();
+        handleSendMessage();
+  
+        if (listImg.length > 0) {
+          const listUrl = listImg.map((item: ImageData) => item.url);
+          const contentMessage = listUrl.join(',');
+          handleSendMessage(contentMessage, TYPE_MESSAGE.IMAGE_LIST);
+          setUploadImage({});
+        }
+      }
+    };
+
+    // Attach the event handler to the window
+    window.addEventListener('keydown', handleKeyDown);
+
+    // Cleanup the event handler
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+    };
+  }, []);
   
   const toggleOpenModalIcon = (value: boolean) => {
     setIsOpenModalIcon(value);
@@ -96,8 +139,7 @@ const TypeMessage = () => {
     inputRef.current?.focus();
   };
   
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value;
+  const handleChange = (value: string) => {
     setValueInput(value);
     valueInputRef.current = value;
   };
@@ -182,25 +224,6 @@ const TypeMessage = () => {
     }
   };
 
-  const handleKeyPress = (e: React.KeyboardEvent) => {
-    if(e.key == 'Enter' && !e.shiftKey){
-      const isUploadingImage = listImg.length && listImg.find((image: ImageData) => !image.url);
-      if (listImg.length > 0 && isUploadingImage) {
-        showToast(t('uploading_image'));
-        return;
-      }
-
-      e.preventDefault();
-      handleSendMessage();
-
-      if (listImg.length > 0) {
-        const listUrl = listImg.map((item: ImageData) => item.url);
-        const contentMessage = listUrl.join(',');
-        handleSendMessage(contentMessage, TYPE_MESSAGE.IMAGE_LIST);
-        setUploadImage({});
-      }
-    }
-  };
 
   const handleSendMessage = (message?: string, type = TYPE_MESSAGE.TEXT) => {
     const isImageMessage = type == TYPE_MESSAGE.IMAGE;
@@ -208,11 +231,12 @@ const TypeMessage = () => {
     const body = {
       conversationId: id,
       sender: user.id,
-      content: message || valueInput,
+      content: message || valueInputRef.current,
       type,
       replyMessage: isImageMessage ? undefined : replyMessage?.id,
       virtualId,
     };
+    console.log({ body, message, valueInput })
     if (!body.content) {
       return;
     }
@@ -265,7 +289,7 @@ const TypeMessage = () => {
   };
 
   return (
-    <div className="flex flex-col mx-3 my-2.5 rounded-xl border border-gray2">
+    <div ref={typeMessageRef} className="flex flex-col mx-3 my-2.5 rounded-xl border border-gray2">
       {
         replyMessage &&
         <div className="p-2">
@@ -324,7 +348,7 @@ const TypeMessage = () => {
           onPaste={handlePaste}
           autoFocus
         /> */}
-        <Textarea
+        {/* <Textarea
           ref={inputRef}
           className="px-4 pt-2 pb-4 pl-0 w-full outline-none min-h-20"
           placeholder={t('type_message')}
@@ -334,7 +358,10 @@ const TypeMessage = () => {
           limitRows={10}
           onPaste={handlePaste}
           autoFocus
-        />
+        /> */}
+
+        <Editor value={valueInput} onChange={handleChange} />
+
         <div className="flex items-center relative">
           <button onClick={() => toggleOpenModalIcon(!isOpenModalIcon)}>
             <Smile />

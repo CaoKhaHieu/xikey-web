@@ -22,7 +22,7 @@ const ChatHeader = () => {
   };
 
   return (
-    <div className="flex items-center bg-white px-3 border-b border-gray2 h-20">
+    <div className="flex items-center bg-white px-3 border-b border-gray2 min-h-16">
       <div className="flex items-center flex-1 space-x-2">
         <Avatar className="cursor-pointer !w-10 !h-10" url={currentConversation?.avatar} onClick={handleWatchInfoConversation} />
         <p className="font-medium text-black1 line-clamp-1">{currentConversation?.name}</p>
