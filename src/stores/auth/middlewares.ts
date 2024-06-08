@@ -56,11 +56,27 @@ function* getUser({ payload, resolve, reject }: AnyAction): any {
   }
 }
 
+function* getUserGMSH({ payload, resolve, reject }: AnyAction): any {
+  try {
+    const res = yield get(['v1', 'users', 'profile-gmsh', `${payload}`]);
+    const user = new User(res.data);
+    localStorage.setItem('ACCESS-TOKEN', res.data.tokens.access.token);
+    localStorage.setItem('REFRESH-TOKEN', res.data.tokens.refresh.token);
+
+    yield put(setUser(user));
+    resolve(res);
+  } catch (error: any) {
+    reject(error);
+    yield put(handleApiResponseError(error));
+  }
+}
+
 export function* watchAuth() {
   yield all([
     takeLatest(types.LOGIN, login),
     takeLatest(types.REGISTER, register),
     takeLatest(types.LOGOUT, logout),
     takeLatest(types.GET_USER, getUser),
+    takeLatest(types.GET_USER_GMSH, getUserGMSH),
   ]);
 };

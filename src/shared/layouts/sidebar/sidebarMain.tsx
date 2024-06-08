@@ -175,9 +175,9 @@ const SidebarMain = () => {
               <Tab>
                 <p>{t("all")}</p>
               </Tab>
-              <Tab>
+              {/* <Tab>
                 <p>{t("unread")}</p>
-              </Tab>
+              </Tab> */}
             </TabList>
 
             <TabPanels>
