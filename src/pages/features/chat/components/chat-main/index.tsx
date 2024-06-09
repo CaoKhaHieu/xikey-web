@@ -6,7 +6,7 @@ import { useTranslation } from "react-i18next";
 import Message from "@/shared/components/message";
 import { getListMessage, triggerAlertNewMessage} from "@/stores/message/action";
 import { Message as MessageModel } from "@/shared/models/Message";
-import { getInfoConversation, selectConversation } from "@/stores/conversation/action";
+import { clearCurrentConversation, getInfoConversation, selectConversation } from "@/stores/conversation/action";
 import { Loading } from "@/shared/components/loading";
 import { Conversation } from "@/shared/models/Conversation";
 import { TYPE_MESSAGE } from "@/shared/enums";
@@ -25,7 +25,7 @@ const ChatMain = () => {
   const { alert }: { alert: number} = messageManagement;
 
   const { t } = useTranslation();
-  const { id }: { id: string } = useParams();
+  const { id }: { id: string } = currentConversation;
   const dispatch = useDispatch();
   const history = useHistory();
   
@@ -76,7 +76,7 @@ const ChatMain = () => {
     dispatch(getInfoConversation(id, (conversation: Conversation) => {
       dispatch(selectConversation(conversation));
     }, () => {
-      history.push('/');
+      dispatch(clearCurrentConversation());
     }));
   };
   

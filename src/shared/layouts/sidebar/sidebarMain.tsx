@@ -17,7 +17,7 @@ import { Conversation } from "@/shared/models/Conversation";
 import { searchUser } from "@/stores/user/action";
 import Avatar from "@/shared/components/avatar";
 import { useDialog } from "@/shared/components/dialog";
-import { createConversation, getAllConversation, saveAllConversations } from "@/stores/conversation/action";
+import { createConversation, getAllConversation, saveAllConversations, selectConversation } from "@/stores/conversation/action";
 
 import SearchIcon from "@/assets/icons/search.svg?react";
 import GroupIcon from "@/assets/icons/group.svg?react";
@@ -86,7 +86,7 @@ const SidebarMain = () => {
 
   const handleRedirectToConversation = (conversationId: string, userSearch: User) => {
     if (conversationId) {
-      history.push(`/chat/${conversationId}`);
+      dispatch(selectConversation(new Conversation({ id: conversationId })));
       setIsFocused(false);
       return;
     }
@@ -96,7 +96,7 @@ const SidebarMain = () => {
     };
     dispatch(createConversation(body, (newConversation: Conversation) => {
       dispatch(saveAllConversations([newConversation, ...listConversations]));
-      history.push(`/chat/${newConversation.id}`);
+      dispatch(selectConversation(newConversation));
     }, () => {
     }));
   };

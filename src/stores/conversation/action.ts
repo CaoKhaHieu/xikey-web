@@ -42,3 +42,7 @@ export const selectConversation = (payload: Conversation) => ({
   type: types.SELECT_CONVERSATION,
   payload,
 });
+
+export const clearCurrentConversation = () => ({
+  type: types.CLEAR_CURRENT_CONVERSATION,
+});
