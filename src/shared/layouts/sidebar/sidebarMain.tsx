@@ -24,6 +24,7 @@ import GroupIcon from "@/assets/icons/group.svg?react";
 import CloseIcon from "@/assets/icons/close.svg?react";
 import CreateGroup from "@/shared/components/dialog/templates/CreateGroup";
 import ChatSkeleton from "@/shared/components/skeleton/chat-skeleton";
+import Tooltip from "@/shared/components/tooltip";
 
 const SidebarMain = () => {
   const [valueInput, setValueInput] = useState<string>("");
@@ -112,25 +113,34 @@ const SidebarMain = () => {
       <div className="flex flex-col">
         <div className="px-1 flex items-center space-x-1">
           <div className="flex justify-center items-center w-full border border-gray2 rounded-lg my-2 overflow-hidden">
-            <Input
-              ref={inputRef}
-              variant="search"
-              placeholder={t("search")}
-              onChange={handleChangeInput}
-              value={valueInput}
-              onFocus={() => setIsFocused(true)}
-            ></Input>
+            <Tooltip
+              className=''
+              wrapperClassName='w-full'
+              id='search_user'
+              content={t(!user.isAdmin ? 'cannot_search_user' : '')}
+            >
+              <Input
+                ref={inputRef}
+                variant='search'
+                placeholder={t("search")}
+                onChange={handleChangeInput}
+                value={valueInput}
+                onFocus={() => setIsFocused(true)}
+                disabled={!user.isAdmin}
+              ></Input>
+            </Tooltip>
             <div className="text-black1 text-2xl mr-2">
               <SearchIcon />
             </div>
           </div>
-          <div
+          <button
             className="cursor-pointer hover:bg-gray8 text-2xl p-2 rounded-full"
             hidden={isFocused}
             onClick={handleOpenDialogCreateGroup}
+            disabled={!user.isAdmin}
           >
             <GroupIcon />
-          </div>
+          </button>
           {
             isFocused &&
             <div
