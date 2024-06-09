@@ -66,6 +66,15 @@ const selectConversation = (state: any, payload: Conversation) => {
   };
 };
 
+const clearCurrentConversation = (state: any) => {
+  const data: any = { ...state };
+  data.currentConversation = new Conversation({});
+
+  return {
+    ...data,
+  };
+};
+
 const conversationStrategies = {
   SAVE_ALL_CONVERSATION: saveAllConversations,
   UPDATE_LAST_MESSAGE_CONVERSATION: updateLastMessageConversation,
@@ -73,6 +82,7 @@ const conversationStrategies = {
   REMOVE_CONVERSATION: removeConversation,
   ADD_CONVERSATION: addConversation,
   SELECT_CONVERSATION: selectConversation,
+  CLEAR_CURRENT_CONVERSATION: clearCurrentConversation,
   __default__: (state: any) => state,
 };
 

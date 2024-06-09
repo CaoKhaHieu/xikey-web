@@ -142,7 +142,7 @@ const CreateGroup = (props: CreateGroupOptions) => {
       body.ownerId = user.id;
       dispatch(createConversation(body, (newConversation: Conversation) => {
         dispatch(saveAllConversations([newConversation, ...listConversations]));
-        history.push(`/chat/${newConversation.id}`);
+        dispatch(selectConversation(newConversation));
       }, () => {
       }));
     } else if (isEdit) {

@@ -16,7 +16,7 @@ import AddIcon from "@/assets/icons/add.svg?react";
 import EditIcon from "@/assets/icons/edit.svg?react";
 import DeleteIcon from "@/assets/icons/delete.svg?react";
 import { Conversation } from '@/shared/models/Conversation';
-import { kickUser, leaveGroup, removeConversation, removeGroup, selectConversation } from '@/stores/conversation/action';
+import { clearCurrentConversation, kickUser, leaveGroup, removeConversation, removeGroup, selectConversation } from '@/stores/conversation/action';
 import { showToast } from '@/shared/utils/utils';
 
 interface ConversationInfoOptions {
@@ -91,7 +91,8 @@ const ConversationInfo = (props: ConversationInfoOptions) => {
           };
           dispatch(leaveGroup(data, (conversation: Conversation) => {
             dispatch(removeConversation(conversation));
-            history.push('/');
+            dispatch(clearCurrentConversation());
+            handleClose();
           }, () => {
           }));
         }}
@@ -110,8 +111,9 @@ const ConversationInfo = (props: ConversationInfoOptions) => {
           };
           dispatch(removeGroup(data, () => {
             dispatch(removeConversation(conversationInfo));
-            history.push('/');
             showToast(t('remove_group_success'));
+            dispatch(clearCurrentConversation());
+            handleClose();
           }, () => {
           }));
         }}
