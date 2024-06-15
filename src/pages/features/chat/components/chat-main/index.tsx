@@ -136,7 +136,7 @@ const ChatMain = () => {
   }
 
   return (
-    <div ref={listMessageRef} className="h-full p-4 overflow-y-scroll" onScroll={handleScrollListMessage}>
+    <div ref={listMessageRef} className="chat-background bg-black h-full p-4 overflow-y-scroll" onScroll={handleScrollListMessage}>
       <div className="flex flex-col space-y-0.5">
         {listMessage.length > 0 &&
           listMessage.map((message: MessageModel, index: number) => (
