@@ -104,7 +104,14 @@ const SocketProvider = (props: SocketProps) => {
 
     socket.on('link_update', (conversation: Conversation) => {
       if (currentConversationRef.current.id === conversation.id && !userRef.current.isAdmin) {
-        dispatch(selectConversation(conversation));
+        dispatch(selectConversation({ ...currentConversationRef.current, links: conversation.links }));
+      }
+      dispatch(updateInfoConversation(conversation));
+    });
+
+    socket.on('ban_user', (conversation: Conversation) => {
+      if (currentConversationRef.current.id === conversation.id) {
+        dispatch(selectConversation({ ...currentConversationRef.current, bannedMembers: conversation.bannedMembers }));
       }
       dispatch(updateInfoConversation(conversation));
     });

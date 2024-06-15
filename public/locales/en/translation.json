@@ -107,5 +107,13 @@
   "delete_link": "deleted the textlink",
   "sure_delete_link": "Do you really want to delete this link",
   "edit_link": "Edit link",
-  "links_management": "Links Management"
+  "links_management": "Links Management",
+  "ban": "Ban",
+  "unban": "Unban",
+  "ownner": "Ownner",
+  "admin": "Admin",
+  "ban_success": "Ban user success",
+  "unban_success": "Unban user success",
+  "sure_ban_user": "Do you really want to ban this user?",
+  "sure_unban_user": "Do you really want to unban this user?"
 }
