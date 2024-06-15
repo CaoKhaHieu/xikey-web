@@ -4,15 +4,16 @@ import { useTranslation } from 'react-i18next';
 import { useDispatch, useSelector } from 'react-redux';
 
 import Avatar from '@/shared/components/avatar';
+import ImageDetail from '@/shared/components/image-detail';
+import { User } from '@/shared/models/User';
 import { Message } from '@/shared/models/Message';
+import { useDialog } from '@/shared/components/dialog';
 import { TYPE_MESSAGE } from '@/shared/enums';
 import { toggleSidebarRight } from '@/stores/common/actions';
 import { getPinedMessages, unpinMessage } from '@/stores/message/action';
+import ConfirmDialog from '@/shared/components/dialog/templates/ConfirmDialog';
 
 import CloseIcon from "../../../assets/icons/close.svg?react";
-import ImageDetail from '@/shared/components/image-detail';
-import { useDialog } from '@/shared/components/dialog';
-import ConfirmDialog from '@/shared/components/dialog/templates/ConfirmDialog';
 
 const MessageContent = ({ message }: { message: Message}) => {
   const { t } = useTranslation();
@@ -54,7 +55,7 @@ const MessageContent = ({ message }: { message: Message}) => {
 };
 
 const SidebarRight = () => {
-  const { apiController } = useSelector((state: any) => state.commonReducer);
+  const { user }: { user: User } = useSelector((state: any) => state.userReducer);
   const { messageManagement } = useSelector((state: any) => state.messageReducer);
   const { conversation } = useSelector((state: any) => state.conversationReducer);
   const { currentConversation } = conversation;
@@ -121,22 +122,24 @@ const SidebarRight = () => {
         <CloseIcon />
       </div>
 
-      <h3 className='font-semibold text-center py-3'>Conversation Information</h3>
+      <h3 className='font-semibold text-center py-3'>{t('conversation_info')}</h3>
 
       <div className='px-2'>
-        <h4 className='font-medium'>Pin Messages</h4>
+        <h4 className='font-medium'>{t('pin_messages')}</h4>
 
         <div className='mt-2 flex flex-col space-y-4 overflow-auto'>
           {
             pinedMessages.length > 0 ? pinedMessages.map((message) => (
-              <div className='flex space-x-3'>
+              <div className='flex space-x-3' key={message.id}>
                 <Avatar className="cursor-pointer" url={message.sender.avatar} />
                 <div className='flex flex-col mt-1.5 flex-1'>
                   <p className='flex justify-between w-full'>
                     <span className='font-semibold'>{message.sender.name}</span>
-                    <span className='text-red cursor-pointer' onClick={() => handleRemovePinedMessage(message)}>Unpin</span>
+                    {
+                      user.isAdmin &&
+                      <span className='text-red cursor-pointer' onClick={() => handleRemovePinedMessage(message)}>{t('unpin')}</span>
+                    }
                   </p>
-
                   <div className='mt-2'>
                     <MessageContent message={message} />
                   </div>
@@ -144,7 +147,7 @@ const SidebarRight = () => {
               </div>
             )) : 
             <p className='text-center'>
-              { !isLoading && t("You don't have any pinned messages yet") }
+              { !isLoading && t("no_pined_message") }
             </p>
           }
         </div>

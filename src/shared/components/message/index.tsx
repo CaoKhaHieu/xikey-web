@@ -353,13 +353,16 @@ const Message = (props: MessageOptions) => {
                   <ShareIcon />
                 </div>
 
-                <div className="cursor-pointer" onClick={handlePinMessage}>
-                  <PinIcon />
-                </div>
+                {
+                  user.isAdmin &&
+                  <div className="cursor-pointer" onClick={handlePinMessage}>
+                    <PinIcon />
+                  </div>
+                }
                 {/* <DynamicPopover
                   key={message.id}
                   ref={ popoverRef }
-                  // padding={20}
+                  padding={20}
                   positions={[`${getPositionPopover(actionRef.current)}`]}
                   align={isCurrentUser ? 'end' : 'start'}
                   parentElement={actionRef.current}

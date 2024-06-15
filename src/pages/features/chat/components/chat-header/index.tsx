@@ -7,6 +7,7 @@ import Tooltip from "@/shared/components/tooltip";
 import { Conversation } from "@/shared/models/Conversation";
 import ConversationInfo from "@/shared/components/dialog/templates/ConversationInfo";
 import LinksDialog from "@/shared/components/dialog/templates/LinksDialog";
+import { toggleSidebarRight } from "@/stores/common/actions";
 
 import SearchIcon from "@/assets/icons/search.svg?react";
 import LinkIcon from "@/assets/icons/links.svg?react";
@@ -16,7 +17,6 @@ import CallIcon from "@/assets/icons/call.svg?react";
 import CameraIcon from "@/assets/icons/camera.svg?react";
 import Icon from "@/shared/components/icon";
 import { User } from "@/shared/models/User";
-import { toggleSidebarRight } from "@/stores/common/actions";
 
 const ChatHeader = () => {
   const { conversation } = useSelector((state: any) => state.conversationReducer);
@@ -67,7 +67,7 @@ const ChatHeader = () => {
               className=''
               wrapperClassName="w-fit"
               id='links'
-              content={t('Pin messages')}
+              content={t('pin_messages')}
             >
               <div className="cursor-pointer" onClick={handleOpenSidebarRight}>
                 <PinIcon />
