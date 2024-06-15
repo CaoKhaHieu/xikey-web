@@ -128,6 +128,47 @@ function* removeGroup({ payload, resolve, reject }: AnyAction): any {
   }
 }
 
+function* createLink({ payload, resolve, reject }: AnyAction): any {
+  const body = {
+    title: payload.title,
+    link: payload.link,
+  };
+  try {
+    const res = yield post(['v1', 'conversations', `${payload.conversationId}`, 'links'], { data: body });
+    const conversation = new Conversation(res.data);
+    resolve(conversation);
+  } catch (error: any) {
+    reject(error);
+    yield put(handleApiResponseError(error));
+  }
+}
+
+function* updateLink({ payload, resolve, reject }: AnyAction): any {
+  const body = {
+    title: payload.title,
+    link: payload.link,
+  };
+  try {
+    const res = yield update(['v1', 'conversations', `${payload.conversationId}`, 'links', `${payload.linkId}`], { data: body });
+    const conversation = new Conversation(res.data);
+    resolve(conversation);
+  } catch (error: any) {
+    reject(error);
+    yield put(handleApiResponseError(error));
+  }
+}
+
+function* deleteLink({ payload, resolve, reject }: AnyAction): any {
+  try {
+    const res = yield remove(['v1', 'conversations', `${payload.conversationId}`, 'links', `${payload.linkId}`]);
+    const conversation = new Conversation(res.data);
+    resolve(conversation);
+  } catch (error: any) {
+    reject(error);
+    yield put(handleApiResponseError(error));
+  }
+}
+
 export function* watchConversation() {
   yield all([
     takeLatest(types.GET_ALL_CONVERSATION, getAllConversation),
@@ -139,5 +180,9 @@ export function* watchConversation() {
     takeLatest(types.KICK_USER, kickUser),
     takeLatest(types.ADD_USER, addUser),
     takeLatest(types.REMOVE_GROUP, removeGroup),
+    // GMSH
+    takeLatest(types.CREATE_LINK, createLink),
+    takeLatest(types.UPDATE_LINK, updateLink),
+    takeLatest(types.DELETE_LINK, deleteLink),
   ]);
 };

@@ -29,7 +29,9 @@
     "0": "No internet connection. \nPlease check the connection status and try again.",
     "400": "Something went wrong. \nPlease try again.",
     "500": "Server error.\nPlease try again.",
-    "401": "Session token has expired.\nPlease log in again."
+    "401": "Session token has expired.\nPlease log in again.",
+    "title_required": "Please enter your title",
+    "link_required": "Please enter your link"
   },
   "format_time": {
     "now": "Just now",
@@ -98,5 +100,12 @@
   "copy_message": "Copy message",
   "delete": "Delete",
   "deleted_message": "Message has been deleted",
-  "cannot_search_user": "You cannot use this feature"
+  "cannot_search_user": "You cannot use this feature",
+  "links": "Links",
+  "create_link": "created the textlink",
+  "update_link": "updated the textlink",
+  "delete_link": "deleted the textlink",
+  "sure_delete_link": "Do you really want to delete this link",
+  "edit_link": "Edit link",
+  "links_management": "Links Management"
 }

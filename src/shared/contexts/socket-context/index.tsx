@@ -101,6 +101,13 @@ const SocketProvider = (props: SocketProps) => {
       }
       dispatch(updateInfoConversation(conversation));
     });
+
+    socket.on('link_update', (conversation: Conversation) => {
+      if (currentConversationRef.current.id === conversation.id && !userRef.current.isAdmin) {
+        dispatch(selectConversation(conversation));
+      }
+      dispatch(updateInfoConversation(conversation));
+    });
   }, []);
 
   useEffect(() => {

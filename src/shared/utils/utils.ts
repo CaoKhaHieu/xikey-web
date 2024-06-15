@@ -41,6 +41,8 @@ export const formValidateResolver = (arrFields: string[]) => {
       .required('error.confirm_password_required')
       .oneOf([yup.ref('password'), null], 'error.confirm_password_match'),
     passwordLogin: yup.string().required('error.password_required'),
+    title: yup.string().required('error.title_required'),
+    link: yup.string().required('error.link_required'),
   };
 
   // Convert string array to key and get value from fieldsValidate
