@@ -1,6 +1,12 @@
 import { Message } from "./Message";
 import { User } from "./User";
 
+export interface Link {
+  id: string;
+  title: string;
+  link: string
+}
+
 export interface Conversation {
   id: string;
   name: string;
@@ -12,6 +18,8 @@ export interface Conversation {
   isGroup: boolean;
   isCloud: boolean;
   ownerId: string;
+  links: Link[];
+  bannedMembers: string[];
 }
 
 export class Conversation {
@@ -25,5 +33,12 @@ export class Conversation {
     this.isGroup = conversation.isGroup || this.members?.length > 2;
     this.isCloud = conversation.isCloud || false;
     this.ownerId = conversation.ownerId || '';
+    this.links = conversation.links?.map((link: any) => ({
+      id: link._id,
+      title: link.title,
+      link: link.link
+    })) || [];
+    this.bannedMembers = conversation.bannedMembers || [];
+    // this.bannedMembers = ['6659a0a5b06c11a5dca3d41f'];
   }
 }

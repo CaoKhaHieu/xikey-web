@@ -4,7 +4,7 @@ import { useDispatch, useSelector } from 'react-redux';
 
 import { BASE_URL } from '@/shared/constants';
 import { Message } from '@/shared/models/Message';
-import { saveNewMessage, triggerAlertNewMessage, triggerGetPinedMessage, triggerScrollToEndListMessage, updateMessage } from '@/stores/message/action';
+import { saveNewMessage, saveNewMessageWithVirtualId, triggerAlertNewMessage, triggerScrollToEndListMessage, updateMessage, triggerGetPinedMessage } from '@/stores/message/action';
 import { addConversation, selectConversation, updateInfoConversation, updateLastMessageConversation } from '@/stores/conversation/action';
 import { Conversation } from '@/shared/models/Conversation';
 import { User } from '@/shared/models/User';
@@ -29,13 +29,15 @@ const SocketProvider = (props: SocketProps) => {
   const { user }: { user: User } = useSelector((state: any) => state.userReducer);
   const { currentConversation }: { currentConversation: Conversation } = conversation;
   const currentConversationRef = useRef<Conversation>(currentConversation);
+  const userRef = useRef<User>(user);
   
   const dispatch = useDispatch();
 
   useEffect(() => {
     if (user.id) {
-      socket.emit('join', user.id);
+      userRef.current = user;
 
+      socket.emit('join', user.id);
       socket.on('invite_to_group', (newConversation: Conversation) => {
         dispatch(addConversation(newConversation));
       });
@@ -51,7 +53,13 @@ const SocketProvider = (props: SocketProps) => {
       };
 
       if (currentConversationRef.current.id === newMessage.conversationId) {
-        dispatch(saveNewMessage(newMessage));
+        if (newMessage.sender.id === userRef.current.id) {
+          // update message
+          dispatch(saveNewMessageWithVirtualId(newMessage));
+        } else {
+          // sae new message
+          dispatch(saveNewMessage(newMessage));
+        }
         // handle scroll list message to end
         dispatch(triggerScrollToEndListMessage());
         // handle show alert new message
@@ -100,10 +108,25 @@ const SocketProvider = (props: SocketProps) => {
         dispatch(triggerGetPinedMessage());
       }
     });
+    
     socket.on('unpin_message', (conversationId: string) => {
       if (currentConversationRef.current.id === conversationId) {
         dispatch(triggerGetPinedMessage());
       }
+    });
+
+    socket.on('link_update', (conversation: Conversation) => {
+      if (currentConversationRef.current.id === conversation.id && !userRef.current.isAdmin) {
+        dispatch(selectConversation({ ...currentConversationRef.current, links: conversation.links }));
+      }
+      dispatch(updateInfoConversation(conversation));
+    });
+
+    socket.on('ban_user', (conversation: Conversation) => {
+      if (currentConversationRef.current.id === conversation.id) {
+        dispatch(selectConversation({ ...currentConversationRef.current, bannedMembers: conversation.bannedMembers }));
+      }
+      dispatch(updateInfoConversation(conversation));
     });
   }, []);
 

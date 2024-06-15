@@ -6,10 +6,11 @@ import { useTranslation } from "react-i18next";
 import Message from "@/shared/components/message";
 import { getListMessage, triggerAlertNewMessage} from "@/stores/message/action";
 import { Message as MessageModel } from "@/shared/models/Message";
-import { getInfoConversation, selectConversation } from "@/stores/conversation/action";
+import { clearCurrentConversation, getInfoConversation, selectConversation } from "@/stores/conversation/action";
 import { Loading } from "@/shared/components/loading";
 import { Conversation } from "@/shared/models/Conversation";
 import { TYPE_MESSAGE } from "@/shared/enums";
+import { areTimeMessageOnSameDay, isTimeDifferenceGreaterThan5Minutes } from "@/shared/utils/utils";
 
 import DoubleArrowDownIcon from "@/assets/icons/double-arrow-down.svg?react";
 
@@ -24,7 +25,7 @@ const ChatMain = () => {
   const { alert }: { alert: number} = messageManagement;
 
   const { t } = useTranslation();
-  const { id }: { id: string } = useParams();
+  const { id }: { id: string } = currentConversation;
   const dispatch = useDispatch();
   const history = useHistory();
   
@@ -75,7 +76,7 @@ const ChatMain = () => {
     dispatch(getInfoConversation(id, (conversation: Conversation) => {
       dispatch(selectConversation(conversation));
     }, () => {
-      history.push('/');
+      dispatch(clearCurrentConversation());
     }));
   };
   
@@ -98,9 +99,7 @@ const ChatMain = () => {
   };
 
   const handleScrollToEnd = () => {
-    setTimeout(() => {
-      endSectionRef.current?.scrollIntoView({ behavior: 'smooth' });
-    }, 250);
+    endSectionRef.current?.scrollIntoView();
   };
 
   const handleScrollListMessage = (e: any) => {
@@ -130,24 +129,26 @@ const ChatMain = () => {
 
   if (isLoading) {
     return (
-      <div className="h-full p-4 bg-black1 flex items-center justify-center">
+      <div className="h-full p-4 flex items-center justify-center">
         <Loading />
       </div>
     );
   }
 
   return (
-    <div ref={listMessageRef} className="h-full p-4 bg-black1 overflow-y-scroll" onScroll={handleScrollListMessage}>
-      <div className="flex flex-col space-y-4">
+    <div ref={listMessageRef} className="chat-background bg-black h-full p-4 overflow-y-scroll" onScroll={handleScrollListMessage}>
+      <div className="flex flex-col space-y-0.5">
         {listMessage.length > 0 &&
           listMessage.map((message: MessageModel, index: number) => (
             <Message
               key={message.id}
               message={message}
-              isScrollEnd={isScrollEndRef.current}
               showAvatar={listMessage[index - 1]?.sender?.id !== listMessage[index].sender.id || listMessage[index - 1]?.type === TYPE_MESSAGE.NOTIFY}
-              onScrollEnd={handleScrollToEnd}
               isShowName={currentConversation.isGroup && listMessage[index - 1]?.sender?.id !== listMessage[index].sender.id}
+              isLastOfSection={listMessage[index].sender.id !== listMessage[index + 1]?.sender?.id}
+              isLast={index === listMessage.length - 1}
+              isShowDayName={!areTimeMessageOnSameDay(message.createdAt, listMessage[index - 1]?.createdAt)}
+              isShowStartTime={isTimeDifferenceGreaterThan5Minutes(message.createdAt, listMessage[index - 1]?.createdAt)}
             />
           ))}
         {/* {
@@ -161,7 +162,7 @@ const ChatMain = () => {
         {
           isShowAlertNewMessage &&
           <div
-            className='sticky bottom-4 left-full right-0 flex items-center space-x-1 w-fit rounded px-3 py-1.5 border border-gray2 bg-pink2 animate-bounce duration-200 cursor-pointer'
+            className='sticky bottom-4 left-full right-0 flex items-center space-x-1 w-fit rounded px-3 py-1.5 bg-primaryHover text-white animate-bounce duration-200 cursor-pointer'
             onClick={handleClickAlertNewMessage}
           >
             <p className="text-xl"><DoubleArrowDownIcon /></p>

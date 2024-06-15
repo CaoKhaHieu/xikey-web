@@ -18,7 +18,7 @@
     "email_invalid": "Please enter a valid email",
     "email_required": "Please enter your email",
     "name_required": "Please enter your name",
-    "password_invalid": "Only letters and numbers are allowed",
+    "password_invalid": "Password must include numbers and letters",
     "password_1_number": "Contain at least 1 number",
     "password_length": "Password must be 6-32 characters",
     "password_required": "Please enter your password",
@@ -29,7 +29,9 @@
     "0": "No internet connection. \nPlease check the connection status and try again.",
     "400": "Something went wrong. \nPlease try again.",
     "500": "Server error.\nPlease try again.",
-    "401": "Session token has expired.\nPlease log in again."
+    "401": "Session token has expired.\nPlease log in again.",
+    "title_required": "Please enter your title",
+    "link_required": "Please enter your link"
   },
   "format_time": {
     "now": "Just now",
@@ -45,7 +47,9 @@
     "yesterday": "Yesterday"
   },
   "image": "Image",
-  "you": "You: ",
+  "you_last_message": "You: ",
+  "you": "You",
+  "replied": "replied",
   "quotes": "“New friends are like new adventures. You never know what lessons they will teach you.”",
   "close": "Close",
   "no_result": "No results were found",
@@ -98,5 +102,21 @@
   "deleted_message": "Message has been deleted",
   "message": "Message",
   "pin_notify": "have pined a message",
-  "unpin_notify": "have unpined a message"
+  "unpin_notify": "have unpined a message",
+  "cannot_search_user": "You cannot use this feature",
+  "links": "Links",
+  "create_link": "created the textlink",
+  "update_link": "updated the textlink",
+  "delete_link": "deleted the textlink",
+  "sure_delete_link": "Do you really want to delete this link",
+  "edit_link": "Edit link",
+  "links_management": "Links Management",
+  "ban": "Ban",
+  "unban": "Unban",
+  "ownner": "Ownner",
+  "admin": "Admin",
+  "ban_success": "Ban user success",
+  "unban_success": "Unban user success",
+  "sure_ban_user": "Do you really want to ban this user?",
+  "sure_unban_user": "Do you really want to unban this user?"
 }

@@ -87,11 +87,11 @@ const ForwardMessage = (props: ForwardMessageOptions) => {
 
   return (
     <Dialog {...otherProps} className='p-5 rounded-lg overflow-scroll relative' closeRight close={handleClose}>
-      <Dialog.Header className='text-lg text-center text-white font-semibold'>
+      <Dialog.Header className='text-lg text-center font-semibold'>
         {t('forward')}
       </Dialog.Header>
-      <Dialog.Body className='text-3.25 text-white pt-2 whitespace-break'>
-        <div className='my-4 border border-white rounded-full flex items-center space-x-2 px-4'>
+      <Dialog.Body className='text-3.25 pt-2 whitespace-break'>
+        <div className='my-4 border border-gray2 rounded-full flex items-center space-x-2 px-4'>
           <SearchIcon />
           <Input
             className='bg-transparent py-1.5'
@@ -146,8 +146,6 @@ const ForwardMessage = (props: ForwardMessageOptions) => {
           </div>
         </div>
       </Dialog.Body>
-      <Dialog.Footer className='pt-5 flex justify-end w-full bg-black1 px-4 py-2'>
-      </Dialog.Footer>
     </Dialog>
   );
 };

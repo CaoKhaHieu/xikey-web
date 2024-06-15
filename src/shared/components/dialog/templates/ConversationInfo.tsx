@@ -16,7 +16,7 @@ import AddIcon from "@/assets/icons/add.svg?react";
 import EditIcon from "@/assets/icons/edit.svg?react";
 import DeleteIcon from "@/assets/icons/delete.svg?react";
 import { Conversation } from '@/shared/models/Conversation';
-import { kickUser, leaveGroup, removeConversation, removeGroup, selectConversation } from '@/stores/conversation/action';
+import { banUser, clearCurrentConversation, kickUser, leaveGroup, removeConversation, removeGroup, selectConversation, unbanUser } from '@/stores/conversation/action';
 import { showToast } from '@/shared/utils/utils';
 
 interface ConversationInfoOptions {
@@ -91,7 +91,8 @@ const ConversationInfo = (props: ConversationInfoOptions) => {
           };
           dispatch(leaveGroup(data, (conversation: Conversation) => {
             dispatch(removeConversation(conversation));
-            history.push('/');
+            dispatch(clearCurrentConversation());
+            handleClose();
           }, () => {
           }));
         }}
@@ -110,8 +111,51 @@ const ConversationInfo = (props: ConversationInfoOptions) => {
           };
           dispatch(removeGroup(data, () => {
             dispatch(removeConversation(conversationInfo));
-            history.push('/');
             showToast(t('remove_group_success'));
+            dispatch(clearCurrentConversation());
+            handleClose();
+          }, () => {
+          }));
+        }}
+      />
+    );
+  };
+
+  const handleBanUser = (member: User) => {
+    appendDialog(
+      <ConfirmDialog
+        title={t('are_you_sure')}
+        content={t('sure_ban_user')}
+        onClick={() => {
+          const data = {
+            conversationId: conversationInfo.id,
+            userId: member.id,
+          };
+          dispatch(banUser(data, (conversation: Conversation) => {
+            showToast(t('ban_success'));
+            dispatch(selectConversation({ ...conversationInfo, bannedMembers: conversation.bannedMembers }));
+            setConversationInfo({ ...conversationInfo, bannedMembers: conversation.bannedMembers });
+          }, () => {
+          }));
+        }}
+      />
+    );
+  };
+
+  const handleUnbanUser = (member: User) => {
+    appendDialog(
+      <ConfirmDialog
+        title={t('are_you_sure')}
+        content={t('sure_unban_user')}
+        onClick={() => {
+          const data = {
+            conversationId: conversationInfo.id,
+            userId: member.id,
+          };
+          dispatch(unbanUser(data, (conversation: Conversation) => {
+            showToast(t('unban_success'));
+            dispatch(selectConversation({ ...conversationInfo, bannedMembers: conversation.bannedMembers }));
+            setConversationInfo({ ...conversationInfo, bannedMembers: conversation.bannedMembers });
           }, () => {
           }));
         }}
@@ -121,10 +165,10 @@ const ConversationInfo = (props: ConversationInfoOptions) => {
 
   return (
     <Dialog {...otherProps} className='p-5 rounded-lg overflow-scroll relative' closeRight close={handleClose}>
-      <Dialog.Header className='text-lg text-center text-white font-semibold'>
+      <Dialog.Header className='text-lg text-center font-semibold'>
         {t('conversation_info')}
       </Dialog.Header>
-      <Dialog.Body className='text-3.25 text-white mt-6 whitespace-break'>
+      <Dialog.Body className='text-3.25 mt-6 whitespace-break'>
         <div className='flex items-center space-x-4'>
           <Avatar className='!w-20 !h-20' url={conversationInfo.avatar} />
           <p className='font-semibold text-xl line-clamp-1 flex items-center space-x-2'>
@@ -137,12 +181,6 @@ const ConversationInfo = (props: ConversationInfoOptions) => {
             }
           </p>
         </div>
-        <Button
-          className='w-full bg-pink1 text-lg text-primaryHover font-semibold py-2.5 mt-4 rounded-lg hover:bg-pink2'
-          onClick={handleClose}
-        >
-          {t('text_message')}
-        </Button>
         {
           !isGroupChat && !isCloudChat &&
           <div className='mt-6 mb-2 flex flex-col space-y-2'>
@@ -184,12 +222,22 @@ const ConversationInfo = (props: ConversationInfoOptions) => {
                   <div className='flex items-center space-x-4 justify-between cursor-pointer group' key={member.id}>
                     <div className='flex items-center space-x-4'>
                       <Avatar className='' url={member.avatar} />
-                      <p className='line-clamp-1'>{member.name}</p>
+                      <p className='line-clamp-1'>{member.name} {member.id === conversationInfo.ownerId && '(' + t('admin') + ')'}</p>
                     </div>
-                    {
-                      isOwner && member.id !== conversationInfo.ownerId &&
-                      <Button className='text-red hidden group-hover:flex px-2' onClick={() => handleKickUser(member)}>{t('kick')}</Button>
-                    }
+                    <div className='flex space-x-2'>
+                      {
+                        isOwner && member.id !== conversationInfo.ownerId &&
+                        <Button className='text-red hidden group-hover:flex px-2' onClick={() => handleKickUser(member)}>{t('kick')}</Button>
+                      }
+                      {
+                        isOwner && conversationInfo.bannedMembers.includes(member.id) && member.id !== conversationInfo.ownerId &&
+                        <Button className='text-red hidden group-hover:flex px-2' onClick={() => handleUnbanUser(member)}>{t('unban')}</Button>
+                      }
+                      {
+                        isOwner && !conversationInfo.bannedMembers.includes(member.id) && member.id !== conversationInfo.ownerId &&
+                        <Button className='text-red hidden group-hover:flex px-2' onClick={() => handleBanUser(member)}>{t('ban')}</Button>
+                      }
+                    </div>
                   </div>
                 ))
               }

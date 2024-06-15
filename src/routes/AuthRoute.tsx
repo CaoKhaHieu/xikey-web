@@ -4,7 +4,7 @@ import { Route, Redirect } from 'react-router-dom';
 import { getToken } from '@/shared/utils/utils';
 
 const AuthRoute = ({ component: Component, ...rest }: any) => {
-  const token = getToken();
+  const token = getToken() || localStorage.getItem('encryptedUserId');
 
   return token ? (
     <Route {...rest} render={(matchProps) => <Component {...matchProps} />} />

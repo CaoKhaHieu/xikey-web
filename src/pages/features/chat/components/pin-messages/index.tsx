@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { useParams } from "react-router-dom";
 import { useTranslation } from 'react-i18next';
 import classNames from "classnames";
 
@@ -28,13 +27,16 @@ const MessageContent = ({ message }: { message: Message}) => {
 };
 
 const PinMessages = () => {
-  const { id }: { id: string } = useParams();
-  const { t } = useTranslation();
-  const dispatch = useDispatch();
-
   const { messageManagement } = useSelector((state: any) => state.messageReducer);
+  const { conversation } = useSelector((state: any) => state.conversationReducer);
+  const { currentConversation } = conversation;
+
   const [pinedMessages, setPinedMessages] = useState<Message[]>([]);
   const [isShowMore, setIsShowMore] = useState<boolean>(false);
+
+  const { id } = currentConversation;
+  const { t } = useTranslation();
+  const dispatch = useDispatch();
 
   useEffect(() => {
     handleGetListPinedMessages();

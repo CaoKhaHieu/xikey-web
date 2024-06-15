@@ -158,7 +158,7 @@ const Dialog = (props: any) => {
     >
       {showCloseBtn && (
         <button
-          className={classNames('btn-close z-20 absolute text-white text-sm top-4',
+          className={classNames('btn-close z-20 absolute text-sm top-4',
             closeRight ? 'right-4' : 'left-4',
           )}
           onClick={close}

@@ -4,8 +4,9 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "vite --mode development",
-    "build:stg": "vite build --mode staging",
+    "dev": "vite --mode local_env",
+    "build:dev": "vite build --mode development",
+    "build:stg": "tsc && vite build --mode staging",
     "build:prod": "tsc && vite build --mode production",
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
     "preview": "vite preview"
@@ -22,6 +23,7 @@
     "path": "^0.12.7",
     "qs": "^6.11.2",
     "react": "^17.0.2",
+    "react-content-loader": "^7.0.0",
     "react-dom": "^17.0.2",
     "react-hook-form": "^7.49.3",
     "react-hot-toast": "^2.4.1",

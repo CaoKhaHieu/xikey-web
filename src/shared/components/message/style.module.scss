@@ -1,0 +1,49 @@
+:global {
+  .message-content {
+    @apply rounded-3xl;
+  }
+
+  // middle him
+  .him + .him {
+    .message-content {
+      border-top-left-radius: 5px;
+      border-bottom-left-radius: 5px;
+    }
+  }
+  // end him 
+  .him {
+    &.last {
+      .message-content {
+        border-bottom-left-radius: 30px;
+      }
+    }
+  }
+  // start him
+  .me + .him {
+    .message-content {
+      border-bottom-left-radius: 5px;
+    }
+  }
+
+  // middle me
+  .me + .me {
+    .message-content {
+      border-top-right-radius: 5px;
+      border-bottom-right-radius: 5px;
+    }
+  }
+  // last me
+  .me {
+    &.last {
+      .message-content {
+        border-bottom-right-radius: 30px;
+      }
+    }
+  }
+  // start me
+  .him + .me {
+    .message-content {
+      border-bottom-right-radius: 5px;
+    }
+  }
+}
