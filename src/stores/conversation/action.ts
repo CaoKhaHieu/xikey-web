@@ -17,6 +17,8 @@ export const getAllGroupConversation = generateAPIAction(types.GET_GROUP_CONVERS
 export const createLink = generateAPIAction(types.CREATE_LINK);
 export const updateLink = generateAPIAction(types.UPDATE_LINK);
 export const deleteLink = generateAPIAction(types.DELETE_LINK);
+export const banUser = generateAPIAction(types.BAN_USER);
+export const unbanUser = generateAPIAction(types.UNBAN_USER);
 
 export const saveAllConversations = (payload: Conversation[]) => ({
   type: types.SAVE_ALL_CONVERSATION,

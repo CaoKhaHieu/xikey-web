@@ -18,6 +18,7 @@ export interface Conversation {
   isCloud: boolean;
   ownerId: string;
   links: Link[];
+  bannedMembers: string[];
 }
 
 export class Conversation {
@@ -36,5 +37,7 @@ export class Conversation {
       title: link.title,
       link: link.link
     })) || [];
+    this.bannedMembers = conversation.bannedMembers || [];
+    // this.bannedMembers = ['6659a0a5b06c11a5dca3d41f'];
   }
 }

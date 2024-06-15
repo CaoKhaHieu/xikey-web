@@ -16,7 +16,7 @@ import AddIcon from "@/assets/icons/add.svg?react";
 import EditIcon from "@/assets/icons/edit.svg?react";
 import DeleteIcon from "@/assets/icons/delete.svg?react";
 import { Conversation } from '@/shared/models/Conversation';
-import { clearCurrentConversation, kickUser, leaveGroup, removeConversation, removeGroup, selectConversation } from '@/stores/conversation/action';
+import { banUser, clearCurrentConversation, kickUser, leaveGroup, removeConversation, removeGroup, selectConversation, unbanUser } from '@/stores/conversation/action';
 import { showToast } from '@/shared/utils/utils';
 
 interface ConversationInfoOptions {
@@ -121,6 +121,48 @@ const ConversationInfo = (props: ConversationInfoOptions) => {
     );
   };
 
+  const handleBanUser = (member: User) => {
+    appendDialog(
+      <ConfirmDialog
+        title={t('are_you_sure')}
+        content={t('sure_ban_user')}
+        onClick={() => {
+          const data = {
+            conversationId: conversationInfo.id,
+            userId: member.id,
+          };
+          dispatch(banUser(data, (conversation: Conversation) => {
+            showToast(t('ban_success'));
+            dispatch(selectConversation({ ...conversationInfo, bannedMembers: conversation.bannedMembers }));
+            setConversationInfo({ ...conversationInfo, bannedMembers: conversation.bannedMembers });
+          }, () => {
+          }));
+        }}
+      />
+    );
+  };
+
+  const handleUnbanUser = (member: User) => {
+    appendDialog(
+      <ConfirmDialog
+        title={t('are_you_sure')}
+        content={t('sure_unban_user')}
+        onClick={() => {
+          const data = {
+            conversationId: conversationInfo.id,
+            userId: member.id,
+          };
+          dispatch(unbanUser(data, (conversation: Conversation) => {
+            showToast(t('unban_success'));
+            dispatch(selectConversation({ ...conversationInfo, bannedMembers: conversation.bannedMembers }));
+            setConversationInfo({ ...conversationInfo, bannedMembers: conversation.bannedMembers });
+          }, () => {
+          }));
+        }}
+      />
+    );
+  };
+
   return (
     <Dialog {...otherProps} className='p-5 rounded-lg overflow-scroll relative' closeRight close={handleClose}>
       <Dialog.Header className='text-lg text-center font-semibold'>
@@ -180,12 +222,22 @@ const ConversationInfo = (props: ConversationInfoOptions) => {
                   <div className='flex items-center space-x-4 justify-between cursor-pointer group' key={member.id}>
                     <div className='flex items-center space-x-4'>
                       <Avatar className='' url={member.avatar} />
-                      <p className='line-clamp-1'>{member.name}</p>
+                      <p className='line-clamp-1'>{member.name} {member.id === conversationInfo.ownerId && '(' + t('admin') + ')'}</p>
                     </div>
-                    {
-                      isOwner && member.id !== conversationInfo.ownerId &&
-                      <Button className='text-red hidden group-hover:flex px-2' onClick={() => handleKickUser(member)}>{t('kick')}</Button>
-                    }
+                    <div className='flex space-x-2'>
+                      {
+                        isOwner && member.id !== conversationInfo.ownerId &&
+                        <Button className='text-red hidden group-hover:flex px-2' onClick={() => handleKickUser(member)}>{t('kick')}</Button>
+                      }
+                      {
+                        isOwner && conversationInfo.bannedMembers.includes(member.id) && member.id !== conversationInfo.ownerId &&
+                        <Button className='text-red hidden group-hover:flex px-2' onClick={() => handleUnbanUser(member)}>{t('unban')}</Button>
+                      }
+                      {
+                        isOwner && !conversationInfo.bannedMembers.includes(member.id) && member.id !== conversationInfo.ownerId &&
+                        <Button className='text-red hidden group-hover:flex px-2' onClick={() => handleBanUser(member)}>{t('ban')}</Button>
+                      }
+                    </div>
                   </div>
                 ))
               }

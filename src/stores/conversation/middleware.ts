@@ -169,6 +169,28 @@ function* deleteLink({ payload, resolve, reject }: AnyAction): any {
   }
 }
 
+function* banUser({ payload, resolve, reject }: AnyAction): any {
+  try {
+    const res = yield post(['v1', 'conversations', `${payload.conversationId}`, 'ban-user', `${payload.userId}`]);
+    const conversation = new Conversation(res.data);
+    resolve(conversation);
+  } catch (error: any) {
+    reject(error);
+    yield put(handleApiResponseError(error));
+  }
+}
+
+function* unBanUser({ payload, resolve, reject }: AnyAction): any {
+  try {
+    const res = yield post(['v1', 'conversations', `${payload.conversationId}`, 'unban-user', `${payload.userId}`]);
+    const conversation = new Conversation(res.data);
+    resolve(conversation);
+  } catch (error: any) {
+    reject(error);
+    yield put(handleApiResponseError(error));
+  }
+}
+
 export function* watchConversation() {
   yield all([
     takeLatest(types.GET_ALL_CONVERSATION, getAllConversation),
@@ -184,5 +206,7 @@ export function* watchConversation() {
     takeLatest(types.CREATE_LINK, createLink),
     takeLatest(types.UPDATE_LINK, updateLink),
     takeLatest(types.DELETE_LINK, deleteLink),
+    takeLatest(types.BAN_USER, banUser),
+    takeLatest(types.UNBAN_USER, unBanUser),
   ]);
 };
