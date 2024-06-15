@@ -66,32 +66,30 @@ function App() {
 
   const getUserId = async () => {
     const userIdLocal = localStorage.getItem('encryptedUserId');
-  
     if (!userIdLocal) {
       return null;
     }
-    const url = `${AUTH_URL}${userIdLocal}?t=${Date.now()}`;
-    const response = await fetch(url, {
-      headers: {
-        'crossOrigin': 'anonymous'
-      }
-    });
-    const userId = await response.json();
-    return userId;
+    const url = `${AUTH_URL}${userIdLocal}`;
+    const response = await fetch(url);
+    const data = await response.json();
+    return data['user_id'];
   }
 
   useEffect(() => {
     const userId = localStorage.getItem('encryptedUserId');
     if (userId) {
       (async () => {
-        // const data = await getUserId();
-        const userInfo = await getUserProfileGMSH('1');
-        console.log({ userInfo });
-      })()
+        const userIdGmsh = await getUserId();
+        if (userIdGmsh) {
+          await getUserProfileGMSH(userIdGmsh);
+        }
+      })();
       return;
     }
-    const userInfo = 'def50200afb3d1c80201661cdd639d789ed8df18ded46ee9d2ef058c2a1108102eae7e09bc04c2885ec0f11328d46d089009c9c872f2ba26a378ad952a56fd697e3f5eda685ff2a3ff3884530e35c857aeee39f71b';
-    localStorage.setItem('encryptedUserId', userInfo)
+    
+    // test set localStorage user id
+    // const userInfo = 'def50200b3227a1c2dad0b4fb964fcb7cad0bb75c941b3384f1cc6ddee1c7e85ef98388c66e58804a9104f1d94fd5d13510333b84f5eaf8fa36c9b0c2fef0b66d20dd54fa8d2a0b1e39e9a9033a8fb652287cae029'
+    // localStorage.setItem('encryptedUserId', userInfo)
   }, []);
 
   return (
