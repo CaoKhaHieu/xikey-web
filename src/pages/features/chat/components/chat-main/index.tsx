@@ -33,13 +33,15 @@ const ChatMain = () => {
   const idConversationRef = useRef<string>(id);
   const listMessageRef = useRef<HTMLDivElement>(null);
   const previousScrollHeightRef = useRef<number>(0);
-  const isScrollEndRef = useRef<boolean>(false);
+  const isScrollEndRef = useRef<boolean>(true);
+  const isHasMoreRef = useRef<boolean>(true);
 
   useEffect(() => {
     if (id) {
       handleGetUserChat();
       handleGetMessage();
       idConversationRef.current = id;
+      isHasMoreRef.current = true;
     }
     return () => {
       setIsLoading(true);
@@ -47,10 +49,7 @@ const ChatMain = () => {
   }, [id]);
 
   useEffect(() => {
-    // scroll to end if have any reaction of message
-    if (isScrollEndRef.current) {
-      handleScrollToEnd();
-    }
+    handleScrollToEnd();
   }, [messageManagement.triggerScroll]);
 
   useEffect(() => {
@@ -85,13 +84,13 @@ const ChatMain = () => {
       conversationId: id,
       messageId: messageId || null,
     };
-    dispatch(getListMessage(body, () => {
+    dispatch(getListMessage(body, (messages: MessageModel[]) => {
       if (listMessageRef.current) {
-        listMessageRef.current.scrollTop = listMessageRef.current.scrollHeight - previousScrollHeightRef.current;
+        listMessageRef.current.scrollTop = previousScrollHeightRef.current;
       }
       setIsLoading(false);
-      if (!body.messageId) {
-        handleScrollToEnd();
+      if (!messages.length) {
+        isHasMoreRef.current = false;
       }
     }, () => {
       setIsLoading(false);
@@ -100,6 +99,11 @@ const ChatMain = () => {
 
   const handleScrollToEnd = () => {
     endSectionRef.current?.scrollIntoView();
+
+    // run after scroll event 
+    setTimeout(() => {
+      isScrollEndRef.current = true;
+    }, 10);
   };
 
   const handleScrollListMessage = (e: any) => {
@@ -112,13 +116,13 @@ const ChatMain = () => {
       if (isScrollEndList) {
         dispatch(triggerAlertNewMessage({ type: 'RESET' }));
       }
-    }
-    // handle load more message
-    if (scrollTop === 0) {
-      const currentScrollHeight = listMessageRef.current ? listMessageRef.current.scrollHeight : 0;
-      previousScrollHeightRef.current = currentScrollHeight;
+      // handle load more message
+      const isScrollToTop = -1*listMessageRef.current.scrollTop + listMessageRef.current.clientHeight === listMessageRef.current.scrollHeight;
+      if (isScrollToTop && isHasMoreRef.current) {        
+        previousScrollHeightRef.current = scrollTop
 
-      handleGetMessage(listMessage[0].id);
+        handleGetMessage(listMessage[0].id);
+      }
     }
   };
 
@@ -136,7 +140,7 @@ const ChatMain = () => {
   }
 
   return (
-    <div ref={listMessageRef} className="chat-background bg-black h-full p-4 overflow-y-scroll" onScroll={handleScrollListMessage}>
+    <div key={id} ref={listMessageRef} className="chat-background bg-black h-full p-4 overflow-y-scroll flex flex-col-reverse" onScroll={handleScrollListMessage}>
       <div className="flex flex-col space-y-0.5">
         {listMessage.length > 0 &&
           listMessage.map((message: MessageModel, index: number) => (
@@ -169,8 +173,8 @@ const ChatMain = () => {
             <span>{t('alert_new_message')}</span>
           </div>
         }
+        <div className="end-list-message" ref={endSectionRef}></div>
       </div>
-      <div ref={endSectionRef}></div>
     </div>
   );
 };

@@ -237,8 +237,6 @@ const TypeMessage = () => {
     dispatch(saveNewMessage(messageData));
     // handle scroll list message to end
     dispatch(triggerScrollToEndListMessage());
-    // handle show alert new message
-    dispatch(triggerAlertNewMessage({ type: 'INCREASE' }));
 
     setValueInput('');
     setIsOpenModalIcon(false);

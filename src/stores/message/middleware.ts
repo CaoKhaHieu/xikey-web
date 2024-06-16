@@ -38,7 +38,7 @@ function* getListMessage({ payload, resolve, reject }: AnyAction): any {
       conversationId,
       messages: mappingMessage,
     }));
-    resolve();
+    resolve(mappingMessage);
   } catch (error: any) {
     reject(error);
     yield put(handleApiResponseError(error));
