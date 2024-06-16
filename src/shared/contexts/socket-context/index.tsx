@@ -57,13 +57,11 @@ const SocketProvider = (props: SocketProps) => {
           // update message
           dispatch(saveNewMessageWithVirtualId(newMessage));
         } else {
-          // sae new message
+          // save new message
           dispatch(saveNewMessage(newMessage));
+          //handle show alert new message
+          dispatch(triggerAlertNewMessage({ type: 'INCREASE' }));
         }
-        // handle scroll list message to end
-        dispatch(triggerScrollToEndListMessage());
-        // handle show alert new message
-        dispatch(triggerAlertNewMessage({ type: 'INCREASE' }));
       }
       dispatch(updateLastMessageConversation(newMessage));
     });
