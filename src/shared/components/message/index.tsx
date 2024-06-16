@@ -14,12 +14,14 @@ import { useDialog } from "../dialog";
 import DynamicPopover from "../popover";
 import ImageDetail from "../image-detail";
 import ForwardMessage from "../dialog/templates/ForwardMessage";
-import { deleteMessage, reactMessage, saveReplyMessage } from "@/stores/message/action";
+import { deleteMessage, pinMessage, reactMessage, saveReplyMessage } from "@/stores/message/action";
 
 import { TYPE_MESSAGE } from "@/shared/enums";
 import { REACTIONS } from "@/shared/constants";
 import { Message as MessageModel } from "@/shared/models/Message";
 import { formatDate, formatTimeToHHMM, isOnlyEmoji, showToast, urlify } from "@/shared/utils/utils";
+import { Conversation } from "@/shared/models/Conversation";
+import { updateInfoConversation } from "@/stores/conversation/action";
 
 import ReplyIcon from "../../../assets/icons/reply.svg?react";
 import SmilePlusIcon from "../../../assets/icons/smile-plus.svg?react";
@@ -196,11 +198,24 @@ const Message = (props: MessageOptions) => {
     handleClosePopover();
   };
 
+  const handlePinMessage = () => {
+    const body = {
+      messageId: message.id,
+      conversationId: message.conversationId,
+    };
+    dispatch(pinMessage(body, (conversation: Conversation) => {
+      dispatch(updateInfoConversation(conversation));
+      handleClosePopover();
+    }, () => {
+    }));
+  };
+
   const menusAction = [
     {
       title: 'pin',
       isShow: true,
       icon: <PinIcon />,
+      onClick: handlePinMessage,
     },
     {
       title: 'copy_message',
@@ -223,7 +238,7 @@ const Message = (props: MessageOptions) => {
 
   if (message.type === TYPE_MESSAGE.NOTIFY) {
     return (
-      <div className="flex justify-center items-center space-x-2">
+      <div className="flex justify-center items-center space-x-2 py-2">
         <Avatar className="w-6 h-6" url={message.sender.avatar} />
         <p className="flex items-center space-x-1 text-gray3">
           <span>{message.sender.name}</span>
@@ -337,6 +352,13 @@ const Message = (props: MessageOptions) => {
                 <div className="cursor-pointer" onClick={handleFowardMessage}>
                   <ShareIcon />
                 </div>
+
+                {
+                  user.isAdmin &&
+                  <div className="cursor-pointer" onClick={handlePinMessage}>
+                    <PinIcon />
+                  </div>
+                }
                 {/* <DynamicPopover
                   key={message.id}
                   ref={ popoverRef }

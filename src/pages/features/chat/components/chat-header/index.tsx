@@ -1,4 +1,4 @@
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { useTranslation } from "react-i18next";
 
 import { useDialog } from "@/shared/components/dialog";
@@ -7,9 +7,11 @@ import Tooltip from "@/shared/components/tooltip";
 import { Conversation } from "@/shared/models/Conversation";
 import ConversationInfo from "@/shared/components/dialog/templates/ConversationInfo";
 import LinksDialog from "@/shared/components/dialog/templates/LinksDialog";
+import { toggleSidebarRight } from "@/stores/common/actions";
 
 import SearchIcon from "@/assets/icons/search.svg?react";
 import LinkIcon from "@/assets/icons/links.svg?react";
+import PinIcon from "@/assets/icons/pin.svg?react";
 import InfoIcon from "@/assets/icons/info.svg?react";
 import CallIcon from "@/assets/icons/call.svg?react";
 import CameraIcon from "@/assets/icons/camera.svg?react";
@@ -23,6 +25,7 @@ const ChatHeader = () => {
 
   const { appendDialog } = useDialog();
   const { t } = useTranslation();
+  const dispatch = useDispatch();
 
   const handleWatchInfoConversation = () => {
     appendDialog(
@@ -36,28 +39,44 @@ const ChatHeader = () => {
     );
   };
 
+  const handleOpenSidebarRight = () => {
+    dispatch(toggleSidebarRight(true));
+  };
+
   return (
-    <div className="flex items-center bg-white px-3 border-b border-gray2 h-20">
-      <div className="flex items-center flex-1 space-x-2">
-        <Avatar className="cursor-pointer !w-10 !h-10" url={currentConversation?.avatar} onClick={handleWatchInfoConversation} />
+    <div className="flex items-center bg-white px-3 border-b border-gray2 min-h-16">
+      <div className="flex items-center flex-1 space-x-4">
+        <Avatar className="cursor-pointer" url={currentConversation?.avatar} onClick={handleWatchInfoConversation} />
         <div className="flex flex-col">
-          <p className="font-medium text-black1 line-clamp-1">{currentConversation?.name}</p>
-          {
-            user.isAdmin &&
+          <p className="font-semibold text-lg text-black1 line-clamp-1">{currentConversation?.name}</p>
+          <div className="flex space-x-2">
+            {
+              user.isAdmin &&
+                <Tooltip
+                  className=''
+                  wrapperClassName="w-fit"
+                  id='links'
+                  content={t('links')}
+                >
+                  <p className="text-black flex items-center space-x-1 w-fit cursor-pointer font-bold" onClick={handleOpenLinksDialog}>
+                    <LinkIcon />
+                  </p>
+                </Tooltip>
+            }
             <Tooltip
               className=''
               wrapperClassName="w-fit"
               id='links'
-              content={t('links')}
+              content={t('pin_messages')}
             >
-              <p className="text-black flex items-center space-x-1 w-fit cursor-pointer font-bold" onClick={handleOpenLinksDialog}>
-                <LinkIcon />
-              </p>
+              <div className="cursor-pointer" onClick={handleOpenSidebarRight}>
+                <PinIcon />
+              </div>
             </Tooltip>
-          }
+          </div>
         </div>
       </div>
-      <div className="flex items-center space-x-4">
+      {/* <div className="flex items-center space-x-4">
         <div className="text-2xl cursor-pointer">
           <Icon icon={<CallIcon />} />
         </div>
@@ -67,7 +86,7 @@ const ChatHeader = () => {
         <div className="text-2xl cursor-pointer">
           <Icon icon={<InfoIcon />} />
         </div>
-      </div>
+      </div> */}
     </div>
   );
 };

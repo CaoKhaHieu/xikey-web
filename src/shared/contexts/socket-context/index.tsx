@@ -1,10 +1,10 @@
-import { ReactElement, createContext, useContext, useEffect, useRef } from 'react';
+import { ReactElement, createContext, useContext, useEffect, useRef, useState } from 'react';
 import { io } from "socket.io-client";
 import { useDispatch, useSelector } from 'react-redux';
 
 import { BASE_URL } from '@/shared/constants';
 import { Message } from '@/shared/models/Message';
-import { saveNewMessage, saveNewMessageWithVirtualId, triggerAlertNewMessage, triggerScrollToEndListMessage, updateMessage } from '@/stores/message/action';
+import { saveNewMessage, saveNewMessageWithVirtualId, triggerAlertNewMessage, triggerScrollToEndListMessage, updateMessage, triggerGetPinedMessage } from '@/stores/message/action';
 import { addConversation, selectConversation, updateInfoConversation, updateLastMessageConversation } from '@/stores/conversation/action';
 import { Conversation } from '@/shared/models/Conversation';
 import { User } from '@/shared/models/User';
@@ -51,6 +51,7 @@ const SocketProvider = (props: SocketProps) => {
         // isNew to know message is receive by socket
         isNew: true,
       };
+
       if (currentConversationRef.current.id === newMessage.conversationId) {
         if (newMessage.sender.id === userRef.current.id) {
           // update message
@@ -100,6 +101,18 @@ const SocketProvider = (props: SocketProps) => {
         dispatch(selectConversation(conversation));
       }
       dispatch(updateInfoConversation(conversation));
+    });
+
+    socket.on('pin_message', (conversationId: string) => {
+      if (currentConversationRef.current.id === conversationId) {
+        dispatch(triggerGetPinedMessage());
+      }
+    });
+    
+    socket.on('unpin_message', (conversationId: string) => {
+      if (currentConversationRef.current.id === conversationId) {
+        dispatch(triggerGetPinedMessage());
+      }
     });
 
     socket.on('link_update', (conversation: Conversation) => {

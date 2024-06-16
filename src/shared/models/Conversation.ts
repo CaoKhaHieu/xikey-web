@@ -13,6 +13,7 @@ export interface Conversation {
   avatar: string;
   members: User[];
   lastMessage: Message;
+  pinedMessages: Message[];
   updatedAt: string;
   isGroup: boolean;
   isCloud: boolean;

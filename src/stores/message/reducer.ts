@@ -11,6 +11,8 @@ const messageInitialState = {
   triggerScroll: 1,
   // use to trigger show alert new message incase user not scroll to end list message
   alert: 0,
+  // use to trigger call api get pined message
+  triggerGetPinedMessage: 0,
 };
 const saveListMessageByIdConversation = (state: any, payload: {
   messages: Message[],
@@ -107,6 +109,13 @@ const alertNewMessage = (state: any, payload: { type: 'INCREASE' | 'RESET' }) =>
   };
 };
 
+const triggerGetPinedMessage = (state: any) => {
+  return {
+    ...state,
+    triggerGetPinedMessage: state.triggerGetPinedMessage + 1,
+  };
+};
+
 const messageStrategies = {
   SAVE_LIST_MESSAGE: saveListMessageByIdConversation,
   SAVE_NEW_MESSAGE: saveNewMessageByIdConversation,
@@ -116,6 +125,7 @@ const messageStrategies = {
   CLEAR_REPLY_MESSAGE: clearReplyMessage,
   SCROLL_TO_END_LIST_MESSAGE: scrollToEndListMessage,
   ALERT_NEW_MESSAGE: alertNewMessage,
+  TRIGGER_GET_PINED_MESSAGE: triggerGetPinedMessage,
   __default__: (state: any) => state,
 };
 

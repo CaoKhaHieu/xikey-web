@@ -6,6 +6,9 @@ export const createMessage = generateAPIAction(types.CREATE_MESSAGE);
 export const deleteMessage = generateAPIAction(types.DELETE_MESSAGE);
 export const getListMessage = generateAPIAction(types.GET_LIST_MESSAGE);
 export const reactMessage = generateAPIAction(types.REACT_MESSAGE);
+export const pinMessage = generateAPIAction(types.PIN_MESSAGE);
+export const unpinMessage = generateAPIAction(types.UNPIN_MESSAGE);
+export const getPinedMessages = generateAPIAction(types.GET_PINED_MESSAGES);
 
 export const saveListMessage = (payload: {
   messages: Message[],
@@ -48,3 +51,8 @@ export const triggerAlertNewMessage = (payload: { type: 'INCREASE' | 'RESET' }) 
   type: types.ALERT_NEW_MESSAGE,
   payload
 });
+
+export const triggerGetPinedMessage = () => ({
+  type: types.TRIGGER_GET_PINED_MESSAGE,
+});
+
