@@ -1,22 +1,13 @@
 import { useEffect, useRef, useState } from 'react';
+import { useForm } from 'react-hook-form';
 import { useSelector } from 'react-redux';
 
 import DynamicPopover from '@/shared/components/popover';
+import { showToast } from '@/shared/utils/utils';
+import Input from '@/shared/components/input';
+import { Tab, TabList, TabPanel, TabPanels, Tabs } from '@/shared/components/tabs';
 
 import CloseIcon from "@/assets/icons/close.svg?react";
-import { Tab, TabList, TabPanel, TabPanels, Tabs } from '@/shared/components/tabs';
-import { useForm } from 'react-hook-form';
-import Input from '@/shared/components/input';
-import { showToast } from '@/shared/utils/utils';
-
-// function generateNumberStrings() {
-//   return Array.from({ length: 100 }, (_, i) => i.toString().padStart(2, '0'));
-// }
-
-// const extractNumber = (text: string) => {
-//   const matches = text.match(/\d/g);
-//   return matches ? matches : [];
-// };
 
 function extractNumber(text: string): string[] {
   const matches = text.match(/\d/g);
@@ -35,10 +26,7 @@ function generateNumberStrings(): string[] {
 export const ChamContent = () => {
   const {
     register,
-    reset,
-    handleSubmit,
     watch,
-    formState: { errors },
   } = useForm<any>({
     mode: 'onBlur',
   });
@@ -47,18 +35,20 @@ export const ChamContent = () => {
 
   useEffect(() => {
     const subscription = watch((data) => {
-      const result = filterNumbers(data.cham, data.dau, data.duoi, data.tong);
-      const resultText = result.join(',');
+      const result = filterNumbers(data.cham, data.dau, data.duoi, data.tong, data.them, data.bo);
+      const resultText = result.join(', ');
 
       setValue(resultText);
     });
     return () => subscription.unsubscribe()
   }, [watch]);
 
-  function filterNumbers(cham: string, dau: string, duoi: string, tong: string,) {
+  function filterNumbers(cham: string, dau: string, duoi: string, tong: string, them: string, bo: string) {
     const chamNumber = extractNumber(cham);
     const dauNumber = extractNumber(dau);
     const duoiNumber = extractNumber(duoi);
+    const themNumber = them.trim().split(',').filter(number => !isNaN(+number)).map(number => number.trim().padStart(2, '0'));
+    const boNumber = bo.trim().split(',').filter(number => !isNaN(+number)).map(number => number.trim().padStart(2, '0'));
     const numberStrings = generateNumberStrings();
     
     let filterNumbers = numberStrings.filter(numString =>
@@ -85,7 +75,17 @@ export const ChamContent = () => {
       );
     }
 
-    return filterNumbers;
+    if (them) {
+      filterNumbers = [...filterNumbers, ...themNumber];
+    }
+
+    if (bo) {
+      filterNumbers = filterNumbers.filter(numString =>
+        !boNumber.includes(numString)
+      );
+    }
+
+    return [...new Set(filterNumbers)];
   }
 
   const handleCopy = () => {
@@ -108,7 +108,7 @@ export const ChamContent = () => {
       </div>
 
       <div className='mt-2'>
-        <textarea className='w-full outline-none border border-gray2 p-1' value={value} disabled placeholder='Kết quả ...'></textarea>
+        <textarea className='w-full h-20 outline-none border border-gray2 p-1' value={value} disabled placeholder='Kết quả ...'></textarea>
       </div>
 
       <div className='border border-gray2 rounded-md text-center p-1 cursor-pointer duration-300 text-white bg-primary hover:bg-primaryHover' onClick={handleCopy}>
@@ -157,7 +157,7 @@ export const KepContent = () => {
       </div>
 
       <div className='mt-2'>
-        <textarea className='w-full outline-none border border-gray2 p-1' value={value} disabled placeholder='Kết quả ...'></textarea>
+        <textarea className='w-full h-20 outline-none border border-gray2 p-1' value={value} disabled placeholder='Kết quả ...'></textarea>
       </div>
 
       <div className='border border-gray2 rounded-md text-center p-1 cursor-pointer duration-300 text-white bg-primary hover:bg-primaryHover' onClick={handleCopy}>
@@ -170,30 +170,110 @@ export const KepContent = () => {
 export const BoContent = () => {
   const {
     register,
-    reset,
-    handleSubmit,
-    formState: { errors },
+    watch,
   } = useForm<any>({
     mode: 'onBlur',
   });
 
+  const [value, setValue] = useState<string>('');
+
+  const pairs: { [key: number]: number } = {
+    0: 5,
+    1: 6,
+    2: 7,
+    3: 8,
+    4: 9,
+    5: 0,
+    6: 1,
+    7: 2,
+    8: 3,
+    9: 4
+  };
+
+  useEffect(() => {
+    const subscription = watch((data) => {
+      const result = generatePairs(data.bo1, data.tong, data.them, data.bo);
+      setValue(result);
+    });
+    return () => subscription.unsubscribe()
+  }, [watch]);
+
+  function generatePairs(bo1: string, tong: string, them: string, bo: string) {
+    const bo1Numbers = bo1.split(',');
+    const themNumber = them.trim().split(',').filter(number => !isNaN(+number) && number !== '').map(number => number.trim().padStart(2, '0'));
+    const boNumber = bo.trim().split(',').filter(number => !isNaN(+number) && number !== '').map(number => number.trim().padStart(2, '0'));
+
+    let allPairs: string[] = [];
+
+    for (const number of bo1Numbers) {
+      // Kiểm tra đầu vào
+      if (number.length !== 2 || isNaN(+number)) {
+        return '';
+      }
+
+      const num1 = +number[0];
+      const num2 = +number[1];
+
+      // Lấy các số liên quan
+      const relatedNum1 = pairs[num1];
+      const relatedNum2 = pairs[num2];
+
+      // Tạo các cặp số liên quan
+      const resultPairs = [
+        `${relatedNum1}${num2}`,
+        `${num2}${relatedNum1}`,
+        `${relatedNum1}${relatedNum2}`,
+        `${relatedNum2}${relatedNum1}`,
+        `${num1}${relatedNum2}`,
+        `${relatedNum2}${num1}`,
+        `${num1}${num2}`,
+        `${num2}${num1}`
+      ];
+
+      allPairs = [...allPairs, ...resultPairs];
+    }
+
+    if (tong) {
+      allPairs = allPairs.filter(numString =>
+        sumOfDigits(numString) === +tong
+      );
+    }
+
+    if (them) {
+      allPairs = [...allPairs, ...themNumber];
+    }
+
+    if (bo) {
+      allPairs = allPairs.filter(numString =>
+        !boNumber.includes(numString)
+      );
+    }
+
+    return [...new Set(allPairs)].join(', ');
+  }
+
+  const handleCopy = () => {
+    navigator.clipboard.writeText(value);
+    showToast('Copied successfully');
+  };
+
   return (
     <form className='px-2 py-1'>
       <div className='flex space-x-2'>
-        <Input className='border border-gray2 p-1' type='number' label='Bộ' {...register('name')} />
-        <Input className='border border-gray2 p-1' type='number' label='Tổng' {...register('name')} />
+        <Input className='border border-gray2 p-1' type='text' label='Bộ' {...register('bo1')} />
+        <Input className='border border-gray2 p-1' type='text' label='Tổng' {...register('tong')} />
       </div>
 
       <div className='flex space-x-2 mt-2'>
-        <Input className='border border-gray2 p-1' type='number' label='Thêm' {...register('name')} />
-        <Input className='border border-gray2 p-1' type='number' label='Bỏ' {...register('name')} />
+        <Input className='border border-gray2 p-1' type='text' label='Thêm' {...register('them')} />
+        <Input className='border border-gray2 p-1' type='text' label='Bỏ' {...register('bo')} />
       </div>
 
       <div className='mt-2'>
-        <textarea className='w-full outline-none border border-gray2 p-1' disabled placeholder='Kết quả ...'></textarea>
+        <textarea className='w-full h-20 outline-none border border-gray2 p-1' value={value} disabled placeholder='Kết quả ...'></textarea>
       </div>
 
-      <div className='border border-gray2 rounded-md text-center p-1 cursor-pointer duration-300 text-white bg-primary hover:bg-primaryHover'>
+      <div className='border border-gray2 rounded-md text-center p-1 cursor-pointer duration-300 text-white bg-primary hover:bg-primaryHover' onClick={handleCopy}>
         Sao chép
       </div>
     </form>
