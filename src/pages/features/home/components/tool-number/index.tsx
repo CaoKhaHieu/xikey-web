@@ -530,6 +530,7 @@ const ToolNumber = () => {
   const handleCloseAllPopover = () => {
     popoverRef.current.closePopover();
     popoverRef2.current.closePopover();
+    popoverRef3.current.closePopover();
   };
 
   return (
