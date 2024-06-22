@@ -280,14 +280,99 @@ export const BoContent = () => {
   )
 };
 
+export const ThreeDNumber = () => {
+  const [value, setValue] = useState<string>('');
+
+  const {
+    register,
+    watch,
+  } = useForm<any>({
+    mode: 'onBlur',
+  });
+
+  useEffect(() => {
+    const subscription = watch((data) => {
+      const result = generateNumberStrings(data.cang, data.dan, data.them, data.bo)
+      setValue(result);
+    });
+    return () => subscription.unsubscribe()
+  }, [watch]);
+
+  const generateNumberStrings = (cang: string, dan: string, them: string, bo: string) => {
+    const cangNumber = cang.trim().split(',').filter(number => !isNaN(+number) && number !== '').map(number => number.trim());
+    const danNumber = dan.trim().split(',').filter(number => !isNaN(+number) && number !== '').map(number => number.trim());
+    const themNumber = them.trim().split(',').filter(number => !isNaN(+number)).map(number => number.trim().padStart(2, '0'));
+    const boNumber = bo.trim().split(',').filter(number => !isNaN(+number)).map(number => number.trim().padStart(2, '0'));
+
+    let result = [];
+
+    for (let i = 0; i < cangNumber.length; i++) {
+      for (let j = 0; j < danNumber.length; j++) {
+        result.push(`${cangNumber[i]}${danNumber[j]}`);
+      }
+    }
+
+    if (them) {
+      result = [...result, ...themNumber];
+    }
+
+    if (bo) {
+      result = result.filter(numString =>
+        !boNumber.includes(numString)
+      );
+    }
+
+    return [...new Set(result)].join(', ');
+  };
+
+  const handleCopy = () => {
+    navigator.clipboard.writeText(value);
+    showToast('Copied successfully');
+  };
+
+  return (
+    <form className='px-2 py-1'>
+      <div className='flex space-x-2'>
+        <div className='w-1/3'>
+          <Input className='border border-gray2 p-1' type='text' label='Càng' {...register('cang')} />
+        </div>
+        <Input className='border border-gray2 p-1' type='text' label='Dàn 2D - 3D' {...register('dan')} />
+      </div>
+
+      <div className='flex space-x-2 mt-2'>
+        <Input className='border border-gray2 p-1' type='text' label='Thêm' {...register('them')} />
+        <Input className='border border-gray2 p-1' type='text' label='Bỏ' {...register('bo')} />
+      </div>
+
+      <div className='mt-2'>
+        <textarea className='w-full h-20 outline-none border border-gray2 p-1' value={value} disabled placeholder='Kết quả ...'></textarea>
+      </div>
+
+      <div className='border border-gray2 rounded-md text-center p-1 cursor-pointer duration-300 text-white bg-primary hover:bg-primaryHover' onClick={handleCopy}>
+        Sao chép
+      </div>
+    </form>
+  );
+};
+
 const ToolNumber = () => {
   const { conversation } = useSelector((state: any) => state.conversationReducer);
   const { currentConversation } = conversation;
 
   const popoverRef: any = useRef();
+  const popoverRef2: any = useRef();
 
   const handleClose = () => {
     popoverRef.current.closePopover();
+  };
+
+  const handleClose2D = () => {
+    popoverRef2.current.closePopover();
+  };
+
+  const handleCloseAllPopover = () => {
+    popoverRef.current.closePopover();
+    popoverRef2.current.closePopover();
   };
 
   return (
@@ -300,7 +385,7 @@ const ToolNumber = () => {
             padding={10}
             positions={['left', 'top']}
             triggerElm={
-              <div className='bg-gray2 rounded-full flex items-center justify-center w-10 h-10 font-semibold cursor-pointer hover:text-white hover:bg-primaryHover duration-150'>
+              <div className='bg-gray2 rounded-full flex items-center justify-center w-10 h-10 font-semibold cursor-pointer hover:text-white hover:bg-primaryHover duration-150' onClick={handleCloseAllPopover}>
                 2D
               </div>
             }
@@ -341,21 +426,29 @@ const ToolNumber = () => {
               </div>
             }
           />
-          {/* <DynamicPopover
-            ref={ popoverRef }
+          <DynamicPopover
+            key={2}
+            ref={ popoverRef2 }
+            padding={10}
             positions={['left', 'top']}
             triggerElm={
-              <div className='bg-gray2 rounded-full flex items-center justify-center w-10 h-10 font-semibold cursor-pointer hover:text-white hover:bg-primaryHover duration-150'>
+              <div className='bg-gray2 rounded-full flex items-center justify-center w-10 h-10 font-semibold cursor-pointer hover:text-white hover:bg-primaryHover duration-150' onClick={handleCloseAllPopover}>
                 3D
               </div>
             }
             content={
-              <div className="shadow-2xl bg-white px-8 py-3 w-44 border border-gray2 rounded-md flex flex-col space-y-2">
-                cdcas
+              <div className="shadow-2xl bg-white p-1 w-[315px] border border-gray2 rounded-md flex flex-col">
+                <div className='flex items-center justify-between px-1'>
+                  <p className='font-semibold'>Ghép dàn 3D/4D</p>
+                  <div className='text-xs cursor-pointer' onClick={handleClose2D}>
+                    <CloseIcon />
+                  </div>
+                </div>
+                <ThreeDNumber />
               </div>
             }
           />
-          <DynamicPopover
+          {/* <DynamicPopover
             ref={ popoverRef }
             positions={['left']}
             triggerElm={
