@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
+import classNames from 'classnames';
 import { useForm } from 'react-hook-form';
 import { useSelector } from 'react-redux';
 
@@ -355,12 +356,164 @@ export const ThreeDNumber = () => {
   );
 };
 
+export const Xien2Number = () => {
+  const {
+    register,
+    watch,
+  } = useForm<any>({
+    mode: 'onBlur',
+  });
+
+  const [value, setValue] = useState<string>('');
+
+  useEffect(() => {
+    const subscription = watch((data) => {
+      const result = handleGenNumbers(data.bo);
+      setValue(result);
+    });
+    return () => subscription.unsubscribe()
+  }, [watch]);
+
+  const handleCopy = () => {
+    navigator.clipboard.writeText(value);
+    showToast('Copied successfully');
+  };
+
+  const handleGenNumbers = (bo: string) => {
+    const boNumber = bo.trim().split(',').filter(number => !isNaN(+number) && number !== '').map(number => number.trim());
+    const combinations = [];
+
+    for (let i = 0; i < boNumber.length; i++) {
+      for (let j = i + 1; j < boNumber.length; j++) {
+        combinations.push(`${boNumber[i]}&${boNumber[j]}`);
+      }
+    }
+
+    return [...new Set(combinations)].join(', ');
+  };
+
+  return (
+    <form className='px-2 py-1'>
+      <div className='flex space-x-2'>
+        <textarea className='w-full h-20 border border-gray2 p-1' placeholder='Bộ số' {...register('bo')}></textarea>
+      </div>
+
+      <div className='mt-2'>
+        <textarea className='w-full h-20 outline-none border border-gray2 p-1' value={value} disabled placeholder='Kết quả ...'></textarea>
+      </div>
+
+      <div className='border border-gray2 rounded-md text-center p-1 cursor-pointer duration-300 text-white bg-primary hover:bg-primaryHover' onClick={handleCopy}>
+        Sao chép
+      </div>
+    </form>
+  )
+};
+
+export const XienNumber = () => {
+  const [number, setNumber] = useState<number>(2);
+  const [value, setValue] = useState<string>('');
+
+  const numberRef = useRef<number>(number);
+
+  const {
+    register,
+    watch,
+    getValues,
+  } = useForm<any>({
+    mode: 'onBlur',
+  });
+
+  useEffect(() => {
+    const subscription = watch((data) => {
+      const result = handleGenNumbers(data.bo, numberRef.current);
+      setValue(result);
+    });
+    return () => subscription.unsubscribe()
+  }, [watch]);
+
+  useEffect(() => {
+    if (number) {
+      const data = getValues();
+      const result = handleGenNumbers(data.bo, number);
+      setValue(result);
+
+      numberRef.current = number;
+    }
+  }, [number])
+
+  const handleChange = (value: number) => {
+    setNumber(value);
+  };
+
+  const handleCopy = () => {
+    navigator.clipboard.writeText(value);
+    showToast('Copied successfully');
+  };
+
+  const handleGenNumbers = (bo: string, combinationLength: number) => {
+    const boNumber = bo.trim().split(',').filter(number => !isNaN(+number) && number !== '').map(number => number.trim());
+    const combinations: any = [];
+  
+    function combine(prefix: string[], start: number) {
+      if (prefix.length === combinationLength) {
+        combinations.push(prefix.join('&'));
+        return;
+      }
+      
+      for (let i = start; i < boNumber.length; i++) {
+        combine([...prefix, boNumber[i]], i + 1);
+      }
+    }
+    
+    combine([], 0);
+
+    return [...new Set(combinations)].join(', ');
+  };
+
+  return (
+    <div>
+      <div className='flex space-x-4 p-1.5'>
+        <div className={classNames('py-1.5 px-4 text-center border border-gray2 rounded-md w-full cursor-pointer', {
+          'bg-primary text-white': number === 2
+        })} onClick={() => handleChange(2)}>
+          Xiên 2
+        </div>
+        <div className={classNames('py-1.5 px-4 text-center border border-gray2 rounded-md w-full cursor-pointer', {
+          'bg-primary text-white': number === 3
+        })} onClick={() => handleChange(3)}>
+          Xiên 3
+        </div>
+        <div className={classNames('py-1.5 px-4 text-center border border-gray2 rounded-md w-full cursor-pointer', {
+          'bg-primary text-white': number === 4
+        })} onClick={() => handleChange(4)}>
+          Xiên 4
+        </div>
+      </div>
+
+      <form className='px-2 py-1'>
+        <div className='flex space-x-2'>
+          <textarea className='w-full h-20 border border-gray2 p-1' placeholder='Bộ số' {...register('bo')}></textarea>
+        </div>
+
+        <div className='mt-2'>
+          <textarea className='w-full h-20 outline-none border border-gray2 p-1' value={value} disabled placeholder='Kết quả ...'></textarea>
+        </div>
+
+        <div className='border border-gray2 rounded-md text-center p-1 cursor-pointer duration-300 text-white bg-primary hover:bg-primaryHover' onClick={handleCopy}>
+          Sao chép
+        </div>
+      </form>
+    </div>
+  )
+}
+
 const ToolNumber = () => {
   const { conversation } = useSelector((state: any) => state.conversationReducer);
   const { currentConversation } = conversation;
 
   const popoverRef: any = useRef();
   const popoverRef2: any = useRef();
+  const popoverRef3: any = useRef();
 
   const handleClose = () => {
     popoverRef.current.closePopover();
@@ -368,6 +521,10 @@ const ToolNumber = () => {
 
   const handleClose2D = () => {
     popoverRef2.current.closePopover();
+  };
+
+  const handleCloseXien = () => {
+    popoverRef3.current.closePopover();
   };
 
   const handleCloseAllPopover = () => {
@@ -427,7 +584,6 @@ const ToolNumber = () => {
             }
           />
           <DynamicPopover
-            key={2}
             ref={ popoverRef2 }
             padding={10}
             positions={['left', 'top']}
@@ -448,20 +604,27 @@ const ToolNumber = () => {
               </div>
             }
           />
-          {/* <DynamicPopover
-            ref={ popoverRef }
-            positions={['left']}
+          <DynamicPopover
+            ref={ popoverRef3 }
+            padding={10}
+            positions={['left', 'top']}
             triggerElm={
-              <div className='bg-gray2 rounded-full flex items-center justify-center w-10 h-10 font-semibold cursor-pointer hover:text-white hover:bg-primaryHover duration-150'>
+              <div className='bg-gray2 rounded-full flex items-center justify-center w-10 h-10 font-semibold cursor-pointer hover:text-white hover:bg-primaryHover duration-150' onClick={handleCloseAllPopover}>
                 Xiên
               </div>
             }
             content={
-              <div className="shadow-2xl bg-white px-8 py-3 w-44 border border-gray2 rounded-md flex flex-col space-y-2">
-                cdcas
+              <div className="shadow-2xl bg-white p-1 w-[315px] border border-gray2 rounded-md flex flex-col">
+                <div className='flex items-center justify-between px-1'>
+                  <p className='font-semibold'>Ghép lô xiên</p>
+                  <div className='text-xs cursor-pointer' onClick={handleCloseXien}>
+                    <CloseIcon />
+                  </div>
+                </div>
+                <XienNumber />
               </div>
             }
-          /> */}
+          />
         </div>
       }
     </div>
