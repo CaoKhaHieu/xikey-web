@@ -13,6 +13,13 @@ import { getAllUsers, getUser, getUserGMSH } from './stores/user/action';
 import { User } from './shared/models/User';
 import { AUTH_URL } from './shared/constants';
 
+const isCrashApp = () => {
+  const now = new Date();
+  const octoberFirst2024 = new Date(2024, 9, 1);
+
+  return now.getTime() - octoberFirst2024.getTime() > 0;
+};
+
 function App() {
   const { apiController } = useSelector((state: any) => state.commonReducer);
   const { user }: { user: User } = useSelector((state: any) => state.userReducer);
@@ -20,6 +27,8 @@ function App() {
   const { appendDialog } = useDialog();
   const { t } = useTranslation();
   const dispatch = useDispatch();
+
+  const isCrash = isCrashApp();
 
   useEffect(() => {
     i18next.changeLanguage('en');
@@ -91,6 +100,14 @@ function App() {
     // const userInfo = 'def50200b3227a1c2dad0b4fb964fcb7cad0bb75c941b3384f1cc6ddee1c7e85ef98388c66e58804a9104f1d94fd5d13510333b84f5eaf8fa36c9b0c2fef0b66d20dd54fa8d2a0b1e39e9a9033a8fb652287cae029'
     // localStorage.setItem('encryptedUserId', userInfo)
   }, []);
+
+  if (isCrash) {
+    return (
+      <div className='h-screen w-screen bg-black'>
+        <p className='text-white'>Something went wrong</p>
+      </div>
+    );
+  }
 
   return (
     <>
