@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useTranslation } from "react-i18next";
 import { useHistory } from "react-router-dom";
+import InfiniteScroll from "react-infinite-scroll-component";
 
 import ListChat from "./components/list-chat";
 import Input from "@/shared/components/input";
@@ -31,6 +32,10 @@ const SidebarMain = () => {
   const [isFocused, setIsFocused] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState<boolean>(true);
 
+  const [page, setPage] = useState<number>(1);
+  const [hasMore, setHasMore] = useState<boolean>(true);
+  const pageRef = useRef<number>(page);
+
   const [users, setUsers] = useState<User[]>([]);
   const { user }: { user: User } = useSelector((state: any) => state.userReducer);
   const { conversation } = useSelector((state: any) => state.conversationReducer);
@@ -54,6 +59,7 @@ const SidebarMain = () => {
   const handleChangeInput = (event: React.FormEvent<HTMLInputElement>) => {
     const value = event.currentTarget.value;
     setValueInput(value);
+    pageRef.current = 1;
 
     if (typingTimeoutRef.current) {
       clearTimeout(typingTimeoutRef.current);
@@ -63,7 +69,7 @@ const SidebarMain = () => {
         setUsers([]);
         return;
       }
-      handleSearchUser(value);
+      handleSearchUser(value.trim(), true);
     }, 300);
   };
 
@@ -75,12 +81,21 @@ const SidebarMain = () => {
     }));
   };
 
-  const handleSearchUser = (name: string) => {
+  const handleSearchUser = (name?: string, isReset: boolean = false) => {
     const body = {
-      name,
+      name: name || valueInput,
+      page: pageRef.current || page,
     };
-    dispatch(searchUser(body, (res: User[]) => {
-      setUsers(res);
+    dispatch(searchUser(body, (usersResponse: User[], page: number, hasMore: boolean) => {
+      if (isReset) {
+        setUsers(usersResponse);
+      } else {
+        setUsers([...users, ...usersResponse]);
+      }
+      setPage(page + 1);
+      setHasMore(hasMore);
+
+      pageRef.current = page + 1;
     }, () => {
     }));
   };
@@ -154,28 +169,34 @@ const SidebarMain = () => {
 
         {
           isFocused &&
-          <div className="flex flex-col overflow-y-scroll h-[calc(100vh-62px)] pl-1.5">
-            {
-              users.length > 0 ?
-              <>
-                {
-                  users.map((user: User) => (
-                    <div
-                      key={user.id}
-                      className="flex space-x-2 items-center p-2 cursor-pointer rounded-lg hover:bg-gray2 duration-300"
-                      onClick={() => handleRedirectToConversation(user?.conversationId, user)}
-                    >
-                      <Avatar className="" url={user.avatar} />
-                      <p className="line-clamp-1">{user.name}</p>
-                    </div>
-                  ))
-                }
-              </> :
-              <div className="flex flex-col items-center mt-8">
-                <p className="font-semibold text-base">{t('no_result')}</p>
-                <p className="text-base">{t('try_again')}</p>
-              </div>
-            }
+          <div className="flex flex-col overflow-y-scroll h-[calc(100vh-62px)] pl-1.5" id="scrollableDiv">
+            <InfiniteScroll
+              dataLength={users.length}
+              next={handleSearchUser}
+              hasMore={hasMore}
+              loader={<></>}
+              scrollableTarget="scrollableDiv"
+            >
+              {
+                !users.length &&
+                <div className="flex flex-col items-center mt-8">
+                  <p className="font-semibold text-base">{t('no_result')}</p>
+                  <p className="text-base">{t('try_again')}</p>
+                </div>
+              }
+              {
+                users.map((user: User) => (
+                  <div
+                    key={user.id}
+                    className="flex space-x-2 items-center p-2 cursor-pointer rounded-lg hover:bg-gray2 duration-300"
+                    onClick={() => handleRedirectToConversation(user?.conversationId, user)}
+                  >
+                    <Avatar className="" url={user.avatar} />
+                    <p className="line-clamp-1">{user.name}</p>
+                  </div>
+                ))
+              }
+            </InfiniteScroll>
           </div>
         }
 

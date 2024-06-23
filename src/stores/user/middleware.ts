@@ -31,13 +31,17 @@ function* updateAvatar({ payload, resolve, reject }: AnyAction): any {
 }
 
 function* searchUser({ payload, resolve, reject }: AnyAction): any {
+  const { name, page } = payload;
   const query = {
-    name: payload.name,
+    name,
+    page,
   };
   try {
     const res = yield get(['v1', 'users', 'search'], { ...query });
-    const mappingData: User[] = res.data.map((item: any) => new User(item));
-    resolve(mappingData);
+    const mappingData: User[] = res.data.users.map((item: any) => new User(item));
+    const hasMore: boolean = res.data.hasMore;
+    const page: number = +res.data.page;
+    resolve(mappingData, page, hasMore);
   } catch (error: any) {
     reject(error);
     yield put(handleApiResponseError(error));
