@@ -4,6 +4,7 @@ import classNames from 'classnames';
 import { useTranslation } from 'react-i18next';
 import { Controller, useForm } from 'react-hook-form';
 import { useHistory } from 'react-router-dom';
+import InfiniteScroll from 'react-infinite-scroll-component';
 
 import { Dialog } from '..';
 import Button from '../../button';
@@ -14,6 +15,7 @@ import { useLoading } from '../../loading';
 import { Conversation } from '@/shared/models/Conversation';
 import { upload } from '@/stores/common/actions';
 import { User } from '@/shared/models/User';
+import { getAllUsers, searchUser } from '@/stores/user/action';
 import { addUser, createConversation, saveAllConversations, selectConversation, updateConversation, updateInfoConversation } from '@/stores/conversation/action';
 
 import CameraIcon from "@/assets/icons/camera2.svg?react";
@@ -41,12 +43,19 @@ const CreateGroup = (props: CreateGroupOptions) => {
   const isAddUser = type === 'ADD_USER';
 
   const inputRef = useRef<HTMLInputElement>(null);
+  const typingTimeoutRef = useRef<any>(0);
+
   const [avatarLocal, setAvatarLocal] = useState<string>(conversationEdit?.avatar || '');
   const [avatarGroup, setAvatarGroup] = useState<string>(conversationEdit?.avatar || '');
   const [isDisabled, setIsDisabled] = useState<boolean>(true);
   const [allUsers, setAllUsers] = useState<User[]>([]);
 
-  const { userManagement, user } = useSelector((state: any) => state.userReducer);
+  const [page, setPage] = useState<number>(1);
+  const [hasMore, setHasMore] = useState<boolean>(true);
+  const [valueInput, setValueInput] = useState<string>("");
+  const pageRef = useRef<number>(page);
+
+  const { user } = useSelector((state: any) => state.userReducer);
   const { conversation } = useSelector((state: any) => state.conversationReducer);
   const listConversations: Conversation[] = Object.values(conversation?.allConversations);
   const listMemberIdConversationEdit = conversationEdit?.members.map((member: User) => member.id);
@@ -63,6 +72,10 @@ const CreateGroup = (props: CreateGroupOptions) => {
   } = useForm({
     mode: 'onChange',
   });
+
+  useEffect(() => {
+    getAllUser();
+  }, []);
 
   useEffect(() => {
     const subscription = watch((value) => {
@@ -88,12 +101,6 @@ const CreateGroup = (props: CreateGroupOptions) => {
     });
     return () => subscription.unsubscribe()
   }, [watch]);
-
-  useEffect(() => {
-    if (userManagement?.allUsers) {
-      setAllUsers(userManagement?.allUsers);
-    }
-  }, [userManagement]);
 
   const handleClose = () => {
     close && close();
@@ -130,8 +137,7 @@ const CreateGroup = (props: CreateGroupOptions) => {
 
   const onSubmit = (data: any) => {
     setLoading(true);
-    const members: User[] = data.groupMembers ? userManagement?.allUsers.filter((item: any, index: number) => Object.values(data.groupMembers)[index] && !!item) : [];
-    const membersIds = members.map((user: User) => user.id);
+    const membersIds = Object.keys(data.groupMembers).filter(key => data.groupMembers[key] === true);
 
     const body: any = {
       avatar: avatarGroup,
@@ -143,6 +149,7 @@ const CreateGroup = (props: CreateGroupOptions) => {
       dispatch(createConversation(body, (newConversation: Conversation) => {
         dispatch(saveAllConversations([newConversation, ...listConversations]));
         dispatch(selectConversation(newConversation));
+        handleClose();
       }, () => {
       }));
     } else if (isEdit) {
@@ -170,10 +177,50 @@ const CreateGroup = (props: CreateGroupOptions) => {
     }
   };
 
-  const handleSearchUser = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const valueInput = e.target.value.toLowerCase();
-    const usersFilter = userManagement?.allUsers?.filter((user: User) => user.name.toLowerCase().includes(valueInput));
-    setAllUsers(usersFilter);
+  const handleChangeInput = (event: React.FormEvent<HTMLInputElement>) => {
+    const value = event.currentTarget.value;
+    setValueInput(value);
+    setPage(1);
+    pageRef.current = 1;
+    setAllUsers([]);
+
+    if (typingTimeoutRef.current) {
+      clearTimeout(typingTimeoutRef.current);
+    }
+
+    typingTimeoutRef.current = setTimeout(() => {
+      if (!value) {
+        getAllUser();
+        return;
+      }
+      handleSearchUser(value);
+    }, 300);
+  };
+
+  const handleSearchUser = (name?: string) => {
+    const body = {
+      name: name || valueInput,
+      page: pageRef.current || page,
+    };
+    dispatch(searchUser(body, (usersResponse: User[], page: number, hasMore: boolean) => {
+      setAllUsers([...allUsers, ...usersResponse]);
+      setPage(page + 1);
+      setHasMore(hasMore);
+
+      pageRef.current = page + 1;
+    }, () => {
+    }));
+  };
+
+  const getAllUser = () => {
+    dispatch(getAllUsers({ page }, (usersResponse: User[], hasMore: boolean) => {
+      setAllUsers([...allUsers, ...usersResponse]);
+      setPage(page + 1);
+      setHasMore(hasMore);
+
+      pageRef.current = page + 1;
+    }, () => {
+    }));
   };
 
   return (
@@ -217,42 +264,51 @@ const CreateGroup = (props: CreateGroupOptions) => {
                 <Input
                   className='bg-transparent py-1.5'
                   placeholder={t('search_user')}
-                  onChange={handleSearchUser}
+                  onChange={handleChangeInput}
                 />
               </div>
-              <div className='flex flex-col space-y-4 min-h-88 max-h-88 overflow-y-scroll'>
+              <div className='flex flex-col space-y-4 min-h-88 max-h-88 overflow-y-scroll' id="scrollableDiv">
                 <span className='font-semibold'>{t('all_user')}</span>
-                {
-                  allUsers.map((user: User) => {
-                    const isInGroup = !isCreateGroup && conversationEdit?.members.findIndex((member: User) => member.id === user.id) !== -1;
-                    return (
-                      <div className='flex items-center' key={user.id}>
-                        <Controller
-                          control={control}
-                          name={`groupMembers[${user.id}]`}
-                          key={user.id}
-                          render={({
-                            field: { onChange, value },
-                          }) => (
-                            <Checkbox
-                              key={user.id}
-                              name={user.id}
-                              readOnly={isInGroup}
-                              isChecked={isCreateGroup ? value : isInGroup}
-                              onChange={onChange}
-                              render={() => (
-                                <div className='flex items-center space-x-2'>
-                                  <Avatar className='' url={user.avatar} />
-                                  <p>{user.name}</p>
-                                </div>
-                              )}
-                            />
-                          )}
-                        />
-                      </div>
-                    );
-                  })
-                }
+                <InfiniteScroll
+                  className='flex flex-col space-y-4'
+                  dataLength={allUsers.length}
+                  next={valueInput ? handleSearchUser : getAllUser}
+                  hasMore={hasMore}
+                  loader={<></>}
+                  scrollableTarget="scrollableDiv"
+                >
+                  {
+                    allUsers.map((user: User) => {
+                      const isInGroup = !isCreateGroup && conversationEdit?.members.findIndex((member: User) => member.id === user.id) !== -1;
+                      return (
+                        <div className='flex items-center' key={user.id}>
+                          <Controller
+                            control={control}
+                            name={`groupMembers[${user.id}]`}
+                            key={user.id}
+                            render={({
+                              field: { onChange, value },
+                            }) => (
+                              <Checkbox
+                                key={user.id}
+                                name={user.id}
+                                readOnly={isInGroup}
+                                isChecked={isCreateGroup ? value : isInGroup}
+                                onChange={onChange}
+                                render={() => (
+                                  <div className='flex items-center space-x-2'>
+                                    <Avatar className='' url={user.avatar} />
+                                    <p>{user.name}</p>
+                                  </div>
+                                )}
+                              />
+                            )}
+                          />
+                        </div>
+                      );
+                    })
+                  }
+                </InfiniteScroll>
               </div>
             </>
           }
