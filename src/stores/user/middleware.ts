@@ -5,15 +5,16 @@ import { get, patch, post } from '../saga';
 import { all, put, takeLatest } from 'redux-saga/effects';
 import { handleApiResponseError } from '../common/actions';
 import { User } from '@/shared/models/User';
-import { saveAllUsers, setUser } from './action';
+import { setUser } from './action';
 
-function* getAllUser({ resolve, reject }: AnyAction): any {
+function* getAllUser({ payload, resolve, reject }: AnyAction): any {
+  const { page } = payload;
   try {
-    const res = yield get(['v1', 'users']);
-    const mappingData = res.data.map((user: any) => new User(user));
+    const res = yield get(['v1', 'users'], { page });
+    const mappingData = res.data.users.map((user: any) => new User(user));
+    const hasMore: boolean = res.data.hasMore;
     
-    yield put(saveAllUsers(mappingData));
-    resolve(mappingData);
+    resolve(mappingData, hasMore);
   } catch (error: any) {
     reject(error);
     yield put(handleApiResponseError(error));

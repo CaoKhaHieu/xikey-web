@@ -9,7 +9,7 @@ import Routes from './routes/index.routes';
 import { useDialog } from './shared/components/dialog';
 import ErrorDialog from './shared/components/dialog/templates/ErrorDialog';
 import { getToken } from './shared/utils/utils';
-import { getAllUsers, getUser, getUserGMSH } from './stores/user/action';
+import { getUser, getUserGMSH } from './stores/user/action';
 import { User } from './shared/models/User';
 import { AUTH_URL } from './shared/constants';
 
@@ -35,13 +35,6 @@ function App() {
   }, []);
 
   useEffect(() => {
-    if (!user.id) {
-      return;
-    }
-    getAllUser();
-  }, [user.id]);
-
-  useEffect(() => {
     if (getToken()) {
       getUserProfile();
     }
@@ -58,12 +51,6 @@ function App() {
     dispatch(getUser(null, () => {
     }, () => {
     }))
-  };
-
-  const getAllUser = () => {
-    dispatch(getAllUsers(() => {
-    }, () => {
-    }));
   };
 
   // GMSH

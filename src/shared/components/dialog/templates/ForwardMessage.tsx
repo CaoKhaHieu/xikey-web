@@ -27,6 +27,7 @@ const ForwardMessage = (props: ForwardMessageOptions) => {
   const [allGroups, setAllGroups] = useState<Conversation[]>([]);
   const { userManagement, user } = useSelector((state: any) => state.userReducer);
   const { conversation } = useSelector((state: any) => state.conversationReducer);
+  
   const listConversations: Conversation[] = Object.values(conversation?.allConversations);
   const groupConversations: Conversation[] = listConversations.filter((conversation: Conversation) => conversation.isGroup);
 
