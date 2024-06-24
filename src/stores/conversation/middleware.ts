@@ -106,6 +106,21 @@ function* kickUser({ payload, resolve, reject }: AnyAction): any {
   }
 }
 
+function* getMembers({ payload, resolve, reject }: AnyAction): any {
+  const { conversationId, page } = payload;
+  try {
+    const res = yield get(['v1', 'conversations',  `${conversationId}`, 'users'], { page });
+    const members = res.data.members.map((member: any) => new User(member));
+    const hasMore = res.data.hasMore;
+    const total = res.data.total;
+
+    resolve(members, hasMore, total);
+  } catch (error: any) {
+    reject(error);
+    yield put(handleApiResponseError(error));
+  }
+}
+
 function* addUser({ payload, resolve, reject }: AnyAction): any {
   const { conversationId, listUserId } = payload;
   try {
@@ -201,6 +216,7 @@ export function* watchConversation() {
     takeLatest(types.LEAVE_GROUP, leaveGroup),
     takeLatest(types.KICK_USER, kickUser),
     takeLatest(types.ADD_USER, addUser),
+    takeLatest(types.GET_MEMBERS, getMembers),
     takeLatest(types.REMOVE_GROUP, removeGroup),
     // GMSH
     takeLatest(types.CREATE_LINK, createLink),

@@ -1,7 +1,8 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useHistory } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useDispatch, useSelector } from 'react-redux';
+import InfiniteScroll from 'react-infinite-scroll-component';
 
 import { Dialog, useDialog } from '..';
 import ConfirmDialog from './ConfirmDialog';
@@ -16,7 +17,7 @@ import AddIcon from "@/assets/icons/add.svg?react";
 import EditIcon from "@/assets/icons/edit.svg?react";
 import DeleteIcon from "@/assets/icons/delete.svg?react";
 import { Conversation } from '@/shared/models/Conversation';
-import { banUser, clearCurrentConversation, kickUser, leaveGroup, removeConversation, removeGroup, selectConversation, unbanUser } from '@/stores/conversation/action';
+import { banUser, clearCurrentConversation, getMembers, kickUser, leaveGroup, removeConversation, removeGroup, selectConversation, unbanUser } from '@/stores/conversation/action';
 import { showToast } from '@/shared/utils/utils';
 
 interface ConversationInfoOptions {
@@ -28,9 +29,13 @@ interface ConversationInfoOptions {
 const ConversationInfo = (props: ConversationInfoOptions) => {
   const { conversation, close, ...otherProps } = props;
 
+  const [members, setMembers] = useState<User[]>([]);
+  const [page, setPage] = useState<number>(1);
+  const [hasMore, setHasMore] = useState<boolean>(true);
+
   const [ conversationInfo, setConversationInfo ] = useState<Conversation>(conversation);
   const { user }: { user: User } = useSelector((state: any) => state.userReducer);
-  const userChat = conversationInfo.members.find((member: User) => member.id !== user.id);
+  const userChat = members.find((member: User) => member.id !== user.id);
   const isGroupChat = conversationInfo.isGroup;
   const isCloudChat = conversationInfo.isCloud;
   const isOwner = conversationInfo.ownerId === user.id;
@@ -39,6 +44,10 @@ const ConversationInfo = (props: ConversationInfoOptions) => {
   const history = useHistory();
   const { t } = useTranslation();
   const { appendDialog } = useDialog();
+
+  useEffect(() => {
+    handleGetMembers();
+  }, []);
 
   const handleClose = () => {
     close && close();
@@ -72,6 +81,9 @@ const ConversationInfo = (props: ConversationInfoOptions) => {
             dispatch(selectConversation(conversation));
             setConversationInfo(conversation);
             showToast(t('deleted_user'));
+
+            const newMembers = members.filter(member => member.id !== user.id);
+            setMembers(newMembers);
           }, () => {
           }));
         }}
@@ -163,6 +175,18 @@ const ConversationInfo = (props: ConversationInfoOptions) => {
     );
   };
 
+  const handleGetMembers = () => {
+    dispatch(getMembers({
+      conversationId: conversationInfo.id,
+      page,
+    }, (membersResponse: User[], hasMore: boolean, total: number) => {
+      setPage(page + 1);
+      setMembers([...members, ...membersResponse]);
+      setHasMore(hasMore);
+    }, () => {
+    }));
+  };
+
   return (
     <Dialog {...otherProps} className='p-5 rounded-lg overflow-scroll relative' closeRight close={handleClose}>
       <Dialog.Header className='text-lg text-center font-semibold'>
@@ -216,31 +240,40 @@ const ConversationInfo = (props: ConversationInfoOptions) => {
                 </Tooltip>
               }
             </div>
-            <div className='flex flex-col space-y-4 max-h-72 overflow-y-scroll'>
-              {
-                conversationInfo.members.map((member: User) => (
-                  <div className='flex items-center space-x-4 justify-between cursor-pointer group' key={member.id}>
-                    <div className='flex items-center space-x-4'>
-                      <Avatar className='' url={member.avatar} />
-                      <p className='line-clamp-1'>{member.name} {member.id === conversationInfo.ownerId && '(' + t('admin') + ')'}</p>
+            <div className='flex flex-col space-y-4 max-h-72 overflow-y-scroll' id="scrollableDiv">
+              <InfiniteScroll
+                className='flex flex-col space-y-4'
+                dataLength={members.length}
+                next={handleGetMembers}
+                hasMore={hasMore}
+                loader={<></>}
+                scrollableTarget="scrollableDiv"
+              >
+                {
+                  members.map((member: User) => (
+                    <div className='flex items-center space-x-4 justify-between cursor-pointer group' key={member.id}>
+                      <div className='flex items-center space-x-4'>
+                        <Avatar className='' url={member.avatar} />
+                        <p className='line-clamp-1'>{member.name} {member.id === conversationInfo.ownerId && '(' + t('admin') + ')'}</p>
+                      </div>
+                      <div className='flex space-x-2'>
+                        {
+                          isOwner && member.id !== conversationInfo.ownerId &&
+                          <Button className='text-red hidden group-hover:flex px-2' onClick={() => handleKickUser(member)}>{t('kick')}</Button>
+                        }
+                        {
+                          isOwner && conversationInfo.bannedMembers.includes(member.id) && member.id !== conversationInfo.ownerId &&
+                          <Button className='text-red hidden group-hover:flex px-2' onClick={() => handleUnbanUser(member)}>{t('unban')}</Button>
+                        }
+                        {
+                          isOwner && !conversationInfo.bannedMembers.includes(member.id) && member.id !== conversationInfo.ownerId &&
+                          <Button className='text-red hidden group-hover:flex px-2' onClick={() => handleBanUser(member)}>{t('ban')}</Button>
+                        }
+                      </div>
                     </div>
-                    <div className='flex space-x-2'>
-                      {
-                        isOwner && member.id !== conversationInfo.ownerId &&
-                        <Button className='text-red hidden group-hover:flex px-2' onClick={() => handleKickUser(member)}>{t('kick')}</Button>
-                      }
-                      {
-                        isOwner && conversationInfo.bannedMembers.includes(member.id) && member.id !== conversationInfo.ownerId &&
-                        <Button className='text-red hidden group-hover:flex px-2' onClick={() => handleUnbanUser(member)}>{t('unban')}</Button>
-                      }
-                      {
-                        isOwner && !conversationInfo.bannedMembers.includes(member.id) && member.id !== conversationInfo.ownerId &&
-                        <Button className='text-red hidden group-hover:flex px-2' onClick={() => handleBanUser(member)}>{t('ban')}</Button>
-                      }
-                    </div>
-                  </div>
-                ))
-              }
+                  ))
+                }
+              </InfiniteScroll>
             </div>
           </div>
         }

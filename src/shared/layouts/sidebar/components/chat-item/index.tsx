@@ -1,7 +1,6 @@
 import { useTranslation } from "react-i18next";
 import { useDispatch, useSelector } from "react-redux";
 import classNames from "classnames";
-import { Link } from "react-router-dom";
 
 import Avatar from "@/shared/components/avatar";
 import { User } from "@/shared/models/User";
@@ -20,25 +19,13 @@ const ChatItem = (props: IUserSidebar) => {
   const { user }: { user: User } = useSelector((state: any) => state.userReducer);
   const { conversation: conversationRedux } = useSelector((state: any) => state.conversationReducer);
   const { currentConversation } = conversationRedux;
-  const isGroupChat = conversation.isGroup;
   const isCloudChat = conversation.isCloud;
-  const userChat = conversation.members.find((member: User) => member.id !== user.id);
 
   const { t } = useTranslation();
   const dispatch = useDispatch();
 
-  if (!userChat && !isGroupChat && !isCloudChat) {
-    return null;
-  }
-
   const handleClick = () => {
-    const userChat = conversation.members.find((member: User) => member.id !== user.id);
-    const conversationSelected: Conversation = {
-      ...conversation,
-      name: (isGroupChat || isCloudChat) ? conversation.name : userChat?.name || '',
-      avatar: (isGroupChat || isCloudChat) ? conversation.avatar : userChat?.avatar || '',
-    };
-    dispatch(selectConversation(conversationSelected));
+    dispatch(selectConversation(conversation));
   };
 
   const renderLastMessage = () => {
@@ -75,7 +62,7 @@ const ChatItem = (props: IUserSidebar) => {
       "hover:bg-gray8": currentConversation.id !== conversation.id,
     })}>
       <div>
-        <Avatar className="" url={(isGroupChat || isCloudChat) ? conversation.avatar : userChat?.avatar || ''} />
+        <Avatar className="" url={conversation.avatar} />
       </div>
       <div className="flex-1 ml-2">
         {/* top */}
@@ -84,7 +71,7 @@ const ChatItem = (props: IUserSidebar) => {
             {
               isCloudChat && t('my_cloud')
             }
-            {isGroupChat ? conversation.name : userChat?.name}
+            {conversation.name}
           </div>
           <span className="whitespace-nowrap text-sm text-gray3">
             {timeSince(conversation.updatedAt)}

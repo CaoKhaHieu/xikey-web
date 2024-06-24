@@ -137,7 +137,7 @@ const CreateGroup = (props: CreateGroupOptions) => {
 
   const onSubmit = (data: any) => {
     setLoading(true);
-    const membersIds = Object.keys(data.groupMembers).filter(key => data.groupMembers[key] === true);
+    const membersIds = (isEdit && conversationEdit) ? conversationEdit.members : Object.keys(data.groupMembers).filter(key => data.groupMembers[key] === true);
 
     const body: any = {
       avatar: avatarGroup,
