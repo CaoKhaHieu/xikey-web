@@ -11,13 +11,7 @@ import { saveAllConversations } from './action';
 function* getAllConversation({ resolve, reject }: AnyAction): any {
   try {
     const res = yield get(['v1', 'conversations']);
-    const mappingData: Conversation[] = res.data.map((conversation: any) => {
-      const conversationModel = new Conversation(conversation);
-      return {
-        ...conversationModel,
-        members: conversationModel.members.map((member: any) => new User(member))
-      }
-    });
+    const mappingData: Conversation[] = res.data.map((conversation: any) => new Conversation(conversation));
     yield put(saveAllConversations(mappingData));
 
     resolve(mappingData);
@@ -30,13 +24,7 @@ function* getAllConversation({ resolve, reject }: AnyAction): any {
 function* getGroupConversation({ resolve, reject }: AnyAction): any {
   try {
     const res = yield get(['v1', 'conversations', 'get-group-conversation']);
-    const mappingData: Conversation[] = res.data.map((conversation: any) => {
-      const conversationModel = new Conversation(conversation);
-      return {
-        ...conversationModel,
-        members: conversationModel.members.map((member: any) => new User(member))
-      }
-    });
+    const mappingData: Conversation[] = res.data.map((conversation: any) => new Conversation(conversation));
     yield put(saveAllConversations(mappingData));
 
     resolve(mappingData);

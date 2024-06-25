@@ -1,5 +1,4 @@
 import { Message } from "./Message";
-import { User } from "./User";
 
 export interface Link {
   id: string;
@@ -11,7 +10,7 @@ export interface Conversation {
   id: string;
   name: string;
   avatar: string;
-  members: User[];
+  members: string[];
   lastMessage: Message;
   pinedMessages: Message[];
   updatedAt: string;
@@ -39,6 +38,5 @@ export class Conversation {
       link: link.link
     })) || [];
     this.bannedMembers = conversation.bannedMembers || [];
-    // this.bannedMembers = ['6659a0a5b06c11a5dca3d41f'];
   }
 }

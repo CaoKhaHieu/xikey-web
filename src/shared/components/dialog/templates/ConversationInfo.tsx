@@ -55,6 +55,7 @@ const ConversationInfo = (props: ConversationInfoOptions) => {
 
   const handleAfterUpdateConversation = (conversation: Conversation) => {
     setConversationInfo(conversation);
+    handleClose();
   };
 
   const handleOpenAddUserDialog = (type: 'CREATE' | 'ADD_USER' | 'EDIT') => {
