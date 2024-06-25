@@ -58,7 +58,6 @@ const CreateGroup = (props: CreateGroupOptions) => {
   const { user } = useSelector((state: any) => state.userReducer);
   const { conversation } = useSelector((state: any) => state.conversationReducer);
   const listConversations: Conversation[] = Object.values(conversation?.allConversations);
-  const listMemberIdConversationEdit = conversationEdit?.members.map((member: User) => member.id);
 
   const { t } = useTranslation();
   const dispatch = useDispatch();
@@ -89,14 +88,7 @@ const CreateGroup = (props: CreateGroupOptions) => {
         setIsDisabled(isDisabledBtn);
       }
       if (isAddUser) {
-        const trueIds = [user.id];
-        for (const key in value.groupMembers) {
-          if (value.groupMembers[key] === true) {
-            trueIds.push(key);
-          }
-        }
-        const isDisabledBtn = trueIds.length === listMemberIdConversationEdit?.length;
-        setIsDisabled(isDisabledBtn);
+        setIsDisabled(false);
       }
     });
     return () => subscription.unsubscribe()
@@ -137,7 +129,7 @@ const CreateGroup = (props: CreateGroupOptions) => {
 
   const onSubmit = (data: any) => {
     setLoading(true);
-    const membersIds = Object.keys(data.groupMembers).filter(key => data.groupMembers[key] === true);
+    const membersIds = (isEdit && conversationEdit) ? conversationEdit.members : Object.keys(data.groupMembers).filter(key => data.groupMembers[key] === true);
 
     const body: any = {
       avatar: avatarGroup,
@@ -203,7 +195,11 @@ const CreateGroup = (props: CreateGroupOptions) => {
       page: pageRef.current || page,
     };
     dispatch(searchUser(body, (usersResponse: User[], page: number, hasMore: boolean) => {
-      setAllUsers([...allUsers, ...usersResponse]);
+      if (page === 1) {
+        setAllUsers(usersResponse);
+      } else {
+        setAllUsers([...allUsers, ...usersResponse]);
+      }
       setPage(page + 1);
       setHasMore(hasMore);
 
@@ -267,7 +263,7 @@ const CreateGroup = (props: CreateGroupOptions) => {
                   onChange={handleChangeInput}
                 />
               </div>
-              <div className='flex flex-col space-y-4 min-h-88 max-h-88 overflow-y-scroll' id="scrollableDiv">
+              <div className='flex flex-col space-y-4 min-h-88 max-h-88 overflow-y-scroll' id="scrollDiv">
                 <span className='font-semibold'>{t('all_user')}</span>
                 <InfiniteScroll
                   className='flex flex-col space-y-4'
@@ -275,11 +271,11 @@ const CreateGroup = (props: CreateGroupOptions) => {
                   next={valueInput ? handleSearchUser : getAllUser}
                   hasMore={hasMore}
                   loader={<></>}
-                  scrollableTarget="scrollableDiv"
+                  scrollableTarget="scrollDiv"
                 >
                   {
                     allUsers.map((user: User) => {
-                      const isInGroup = !isCreateGroup && conversationEdit?.members.findIndex((member: User) => member.id === user.id) !== -1;
+                      const isInGroup = !isCreateGroup && conversationEdit?.members.includes(user.id)
                       return (
                         <div className='flex items-center' key={user.id}>
                           <Controller
