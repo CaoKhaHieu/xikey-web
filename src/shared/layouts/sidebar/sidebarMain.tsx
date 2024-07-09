@@ -18,7 +18,7 @@ import { Conversation } from "@/shared/models/Conversation";
 import { searchUser } from "@/stores/user/action";
 import Avatar from "@/shared/components/avatar";
 import { useDialog } from "@/shared/components/dialog";
-import { createConversation, getAllConversation, saveAllConversations, selectConversation } from "@/stores/conversation/action";
+import { createConversation, getAllConversation, getAllGroupConversation, saveAllConversations, selectConversation } from "@/stores/conversation/action";
 
 import SearchIcon from "@/assets/icons/search.svg?react";
 import GroupIcon from "@/assets/icons/group.svg?react";
@@ -53,7 +53,10 @@ const SidebarMain = () => {
     if (!user.id) {
       return;
     }
-    handleGetAllConversation();
+    // handleGetAllConversation();
+
+    //gmsh
+    handleGetAllGroupConversation();
   }, [user.id]);
 
   const handleChangeInput = (event: React.FormEvent<HTMLInputElement>) => {
@@ -75,6 +78,14 @@ const SidebarMain = () => {
 
   const handleGetAllConversation = () => {
     dispatch(getAllConversation(null, () => {
+      setIsLoading(false);
+    }, () => {
+      setIsLoading(false);
+    }));
+  };
+
+  const handleGetAllGroupConversation = () => {
+    dispatch(getAllGroupConversation(null, () => {
       setIsLoading(false);
     }, () => {
       setIsLoading(false);

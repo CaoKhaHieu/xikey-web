@@ -7,7 +7,7 @@ import { User } from "@/shared/models/User";
 import { Conversation } from "@/shared/models/Conversation";
 import { timeSince } from "@/shared/utils/utils";
 import { TYPE_MESSAGE } from "@/shared/enums";
-import { selectConversation } from "@/stores/conversation/action";
+import { joinGroupConversation, selectConversation } from "@/stores/conversation/action";
 
 interface IUserSidebar {
   conversation: Conversation;
@@ -25,7 +25,19 @@ const ChatItem = (props: IUserSidebar) => {
   const dispatch = useDispatch();
 
   const handleClick = () => {
-    dispatch(selectConversation(conversation));
+    if (conversation.members.includes(user.id)) {
+      dispatch(selectConversation(conversation));
+    } else {
+      // handle join conversation
+      const data = {
+        conversationId: conversation.id,
+        userId: user.id
+      };
+      dispatch(joinGroupConversation(data, (conversationRes: Conversation) => {
+        dispatch(selectConversation(conversationRes));
+      }, () => {
+      }));
+    }
   };
 
   const renderLastMessage = () => {
