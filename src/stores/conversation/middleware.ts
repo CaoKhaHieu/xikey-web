@@ -23,7 +23,7 @@ function* getAllConversation({ resolve, reject }: AnyAction): any {
 
 function* getGroupConversation({ resolve, reject }: AnyAction): any {
   try {
-    const res = yield get(['v1', 'conversations', 'get-group-conversation']);
+    const res = yield get(['v1', 'conversations', 'groups']);
     const mappingData: Conversation[] = res.data.map((conversation: any) => new Conversation(conversation));
     yield put(saveAllConversations(mappingData));
 
@@ -194,6 +194,18 @@ function* unBanUser({ payload, resolve, reject }: AnyAction): any {
   }
 }
 
+function* joinGroupConversation({ payload, resolve, reject }: AnyAction): any {
+  const { conversationId, userId } = payload;
+  try {
+    const res = yield patch(['v1', 'conversations', `${conversationId}`, 'join'], { data: { userId } });
+    const conversation = new Conversation(res.data);
+    resolve(conversation);
+  } catch (error: any) {
+    reject(error);
+    yield put(handleApiResponseError(error));
+  }
+}
+
 export function* watchConversation() {
   yield all([
     takeLatest(types.GET_ALL_CONVERSATION, getAllConversation),
@@ -212,5 +224,6 @@ export function* watchConversation() {
     takeLatest(types.DELETE_LINK, deleteLink),
     takeLatest(types.BAN_USER, banUser),
     takeLatest(types.UNBAN_USER, unBanUser),
+    takeLatest(types.JOIN_GROUP_CONVERSATION, joinGroupConversation),
   ]);
 };
