@@ -338,7 +338,7 @@ const TypeMessage = () => {
             </button>
             {
               isOpenModalIcon &&
-              <div className='absolute bottom-12 right-0 z-10' ref={emojiRef}>
+              <div className='absolute bottom-12 -right-10 z-10 md-right-0' ref={emojiRef}>
                 <EmojiPicker onEmojiClick={onEmojiClick} searchDisabled previewConfig={previewConfig} height={350} />
               </div>
             }
