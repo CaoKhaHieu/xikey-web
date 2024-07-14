@@ -9,7 +9,6 @@ import ConversationInfo from "@/shared/components/dialog/templates/ConversationI
 import LinksDialog from "@/shared/components/dialog/templates/LinksDialog";
 import { toggleSidebarRight } from "@/stores/common/actions";
 import { User } from "@/shared/models/User";
-import { isMobile } from "@/shared/utils/utils";
 import { clearCurrentConversation } from "@/stores/conversation/action";
 
 import SearchIcon from "@/assets/icons/search.svg?react";
@@ -20,6 +19,7 @@ import CallIcon from "@/assets/icons/call.svg?react";
 import CameraIcon from "@/assets/icons/camera.svg?react";
 import Icon from "@/shared/components/icon";
 import BackIcon from "@/assets/icons/back.svg?react";
+import { useDevice } from "@/shared/contexts/device-context";
 
 const ChatHeader = () => {
   const { conversation } = useSelector((state: any) => state.conversationReducer);
@@ -28,6 +28,7 @@ const ChatHeader = () => {
 
   const { appendDialog } = useDialog();
   const { t } = useTranslation();
+  const { isMobile } = useDevice();
   const dispatch = useDispatch();
 
   const handleWatchInfoConversation = () => {
@@ -53,7 +54,7 @@ const ChatHeader = () => {
   return (
     <div className="flex items-center bg-white px-3 border-b border-gray2 min-h-16">
       {
-        isMobile() &&
+        isMobile &&
         <div className="text-x mr-2" onClick={handleBackToListConversation}>
           <BackIcon />
         </div>

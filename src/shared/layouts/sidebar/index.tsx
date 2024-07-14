@@ -8,7 +8,7 @@ import Avatar from "@/shared/components/avatar";
 import { IMenuData, Menu, MenuItem } from "@/shared/components/menu";
 import DynamicPopover from "@/shared/components/popover";
 import { logout } from "@/stores/auth/actions";
-import { getRefreshToken, isMobile, removeToken } from "@/shared/utils/utils";
+import { getRefreshToken, removeToken } from "@/shared/utils/utils";
 import { updateAvatar } from "@/stores/user/action";
 import { upload } from "@/stores/common/actions";
 import { useDialog } from "@/shared/components/dialog";
@@ -20,6 +20,7 @@ import { Conversation } from "@/shared/models/Conversation";
 import MessageIcon from "@/assets/icons/message.svg?react";
 import CheckIcon from "@/assets/icons/check.svg?react";
 import SettingIcon from "@/assets/icons/setting.svg?react";
+import { useDevice } from "@/shared/contexts/device-context";
 
 const menu: IMenuData[] = [
   {
@@ -48,6 +49,7 @@ const Sidebar = () => {
   const dispatch = useDispatch();
   const { t } = useTranslation();
   const { appendDialog } = useDialog();
+  const { isMobile } = useDevice();
 
   useEffect(() => {
     if (user?.avatar) {
@@ -111,8 +113,8 @@ const Sidebar = () => {
 
   return (
     <div className={classNames("flex", {
-      'hidden': currentConversation.id && isMobile(),
-      'w-full': !currentConversation.id && isMobile(),
+      'hidden': currentConversation.id && isMobile,
+      'w-full': !currentConversation.id && isMobile,
     })}>
       <div className="w-14 h-screen flex flex-col border-r border-gray2">
         <div className="mt-4">
