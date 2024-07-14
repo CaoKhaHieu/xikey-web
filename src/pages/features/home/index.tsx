@@ -9,7 +9,7 @@ const Home = () => {
   const { currentConversation } = conversation;
 
   return (
-    <div className='h-screen w-full flex flex-col'>
+    <div className='h-screen-gmsh w-full flex flex-col'>
       {
         currentConversation.id ? <Chat /> : <NoData />
       }

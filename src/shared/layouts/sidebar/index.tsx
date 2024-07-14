@@ -116,7 +116,7 @@ const Sidebar = () => {
       'hidden': currentConversation.id && isMobile,
       'w-full': !currentConversation.id && isMobile,
     })}>
-      <div className="w-14 h-screen flex flex-col border-r border-gray2">
+      <div className="w-14 h-screen-gmsh flex flex-col border-r border-gray2">
         <div className="mt-4">
           <div className="hidden">
             <input
