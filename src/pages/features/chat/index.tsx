@@ -12,7 +12,7 @@ const ChatContainer = () => {
 
   return (
     <div className='flex h-full'>
-      <div className='h-screen-gmsh w-full flex flex-col relative'>
+      <div className='h-screen w-full flex flex-col relative'>
         <ChatHeader />
         <ChatLinks />
         <ChatMain />
