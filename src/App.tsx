@@ -51,7 +51,7 @@ function App() {
 
   useEffect(() => {
     window.onmessage = function(e) {
-      if (e.data) {
+      if (e.data.userId) {
         getUserProfileGMSH(e.data);
       }
     };
