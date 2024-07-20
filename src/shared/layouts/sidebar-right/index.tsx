@@ -8,6 +8,7 @@ import ImageDetail from '@/shared/components/image-detail';
 import { User } from '@/shared/models/User';
 import { Message } from '@/shared/models/Message';
 import { useDialog } from '@/shared/components/dialog';
+import { useDevice } from '@/shared/contexts/device-context';
 import { TYPE_MESSAGE } from '@/shared/enums';
 import { toggleSidebarRight } from '@/stores/common/actions';
 import { getPinedMessages, unpinMessage } from '@/stores/message/action';
@@ -66,6 +67,7 @@ const SidebarRight = () => {
   const { id } = currentConversation;
   const { t } = useTranslation();
   const { appendDialog } = useDialog();
+  const { isMobile } = useDevice();
   const dispatch = useDispatch();
 
   useEffect(() => {
@@ -117,7 +119,9 @@ const SidebarRight = () => {
   };
 
   return (
-    <div className='relative w-96 min-w-96 h-full overflow-scroll border-l border-gray2'>
+    <div className={classNames('relative w-96 min-w-96 h-full overflow-scroll border-l border-gray2', {
+      '!fixed right-0 bg-white': isMobile,
+    })}>
       <div className='absolute right-1.5 top-1.5 cursor-pointer rounded-full p-2.5 hover:bg-gray2' onClick={closeSidebarRight}>
         <CloseIcon />
       </div>

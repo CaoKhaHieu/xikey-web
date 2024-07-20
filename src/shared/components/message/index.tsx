@@ -95,7 +95,7 @@ const Message = (props: MessageOptions) => {
           {
             message.type === TYPE_MESSAGE.IMAGE &&
             <ImageDetail
-              className="rounded-2xl object-cover min-h-96 max-h-96 max-w-xl cursor-pointer"
+              className="min-h-64 max-h-64 rounded-2xl object-cover max-w-xl cursor-pointer md-min-h-96 md-max-h-96"
               src={message.content}
             ></ImageDetail>
           }
@@ -110,7 +110,7 @@ const Message = (props: MessageOptions) => {
                   })}
                 >
                   <ImageDetail
-                    className="rounded-lg min-h-96 object-cover max-h-96 max-w-xl"
+                    className="min-h-64 max-h-64 rounded-lg object-cover max-w-xl md-max-h-96 md-min-h-96"
                     src={image}
                   ></ImageDetail>
                 </div>

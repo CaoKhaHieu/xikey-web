@@ -9,15 +9,18 @@ import { IMenuData, Menu, MenuItem } from "@/shared/components/menu";
 import DynamicPopover from "@/shared/components/popover";
 import { logout } from "@/stores/auth/actions";
 import { getRefreshToken, removeToken } from "@/shared/utils/utils";
-import { User } from "@/shared/models/User";
 import { updateAvatar } from "@/stores/user/action";
 import { upload } from "@/stores/common/actions";
 import { useDialog } from "@/shared/components/dialog";
 import AccountInfo from "@/shared/components/dialog/templates/AccountInfo";
 
+import { User } from "@/shared/models/User";
+import { Conversation } from "@/shared/models/Conversation";
+
 import MessageIcon from "@/assets/icons/message.svg?react";
 import CheckIcon from "@/assets/icons/check.svg?react";
 import SettingIcon from "@/assets/icons/setting.svg?react";
+import { useDevice } from "@/shared/contexts/device-context";
 
 const menu: IMenuData[] = [
   {
@@ -38,12 +41,15 @@ const Sidebar = () => {
   const popoverRef: any = useRef();
   const inputRef = useRef<HTMLInputElement>(null);
   const { user }: { user: User } = useSelector((state: any) => state.userReducer);
+  const { conversation } = useSelector((state: any) => state.conversationReducer);
+  const { currentConversation }: { currentConversation: Conversation } = conversation;
 
   const [avatarLocal, setAvatarLocal] = useState<string>(user?.avatar);
 
   const dispatch = useDispatch();
   const { t } = useTranslation();
   const { appendDialog } = useDialog();
+  const { isMobile } = useDevice();
 
   useEffect(() => {
     if (user?.avatar) {
@@ -106,7 +112,10 @@ const Sidebar = () => {
   };
 
   return (
-    <div className="flex">
+    <div className={classNames("flex", {
+      'hidden': currentConversation.id && isMobile,
+      'w-full': !currentConversation.id && isMobile,
+    })}>
       <div className="w-14 h-screen flex flex-col border-r border-gray2">
         <div className="mt-4">
           <div className="hidden">

@@ -43,6 +43,7 @@ export default {
         '12': '3rem',
         '16': '4rem',
         '20': '5rem',
+        '64': '16rem',
         '96': '24rem'
       },
       minHeight: {
@@ -50,6 +51,7 @@ export default {
         '16': '4rem',
         '20': '5rem',
         '88': '22rem',
+        '64': '16rem',
         '96': '24rem'
       },
       maxHeight: {

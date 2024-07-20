@@ -9,7 +9,7 @@ const Chat = lazy(() => import('./chat'));
 
 const FeatureRoutes = () => {
   return (
-    <div className='flex'>
+    <div className='flex border-b border-gray2'>
       <Sidebar />
       <div className='flex-1'>
         <Suspense fallback={null}>

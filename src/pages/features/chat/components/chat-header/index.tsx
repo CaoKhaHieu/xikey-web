@@ -8,6 +8,8 @@ import { Conversation } from "@/shared/models/Conversation";
 import ConversationInfo from "@/shared/components/dialog/templates/ConversationInfo";
 import LinksDialog from "@/shared/components/dialog/templates/LinksDialog";
 import { toggleSidebarRight } from "@/stores/common/actions";
+import { User } from "@/shared/models/User";
+import { clearCurrentConversation } from "@/stores/conversation/action";
 
 import SearchIcon from "@/assets/icons/search.svg?react";
 import LinkIcon from "@/assets/icons/links.svg?react";
@@ -16,7 +18,8 @@ import InfoIcon from "@/assets/icons/info.svg?react";
 import CallIcon from "@/assets/icons/call.svg?react";
 import CameraIcon from "@/assets/icons/camera.svg?react";
 import Icon from "@/shared/components/icon";
-import { User } from "@/shared/models/User";
+import BackIcon from "@/assets/icons/back.svg?react";
+import { useDevice } from "@/shared/contexts/device-context";
 
 const ChatHeader = () => {
   const { conversation } = useSelector((state: any) => state.conversationReducer);
@@ -25,6 +28,7 @@ const ChatHeader = () => {
 
   const { appendDialog } = useDialog();
   const { t } = useTranslation();
+  const { isMobile } = useDevice();
   const dispatch = useDispatch();
 
   const handleWatchInfoConversation = () => {
@@ -43,8 +47,19 @@ const ChatHeader = () => {
     dispatch(toggleSidebarRight(true));
   };
 
+  const handleBackToListConversation = () => {
+    dispatch(clearCurrentConversation());
+  };
+
   return (
     <div className="flex items-center bg-white px-3 border-b border-gray2 min-h-16">
+      {
+        isMobile &&
+        <div className="text-x mr-2" onClick={handleBackToListConversation}>
+          <BackIcon />
+        </div>
+      }
+
       <div className="flex items-center flex-1 space-x-4">
         <Avatar className="cursor-pointer" url={currentConversation?.avatar} onClick={handleWatchInfoConversation} />
         <div className="flex flex-col">

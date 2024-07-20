@@ -10,17 +10,20 @@ import store from './stores/index.ts';
 import LoadingProvider from './shared/components/loading/index.tsx';
 import { DialogProvider } from './shared/components/dialog/index.tsx';
 import SocketProvider from './shared/contexts/socket-context/index.tsx';
+import DeviceProvider from './shared/contexts/device-context/index.tsx';
 
 ReactDOM.render(
   <React.StrictMode>
     <Provider store={store}>
       <BrowserRouter>
         <SocketProvider>
-          <DialogProvider>
-            <LoadingProvider>
-              <App />
-            </LoadingProvider>
-          </DialogProvider>
+          <DeviceProvider>
+            <DialogProvider>
+              <LoadingProvider>
+                <App />
+              </LoadingProvider>
+            </DialogProvider>
+          </DeviceProvider>
         </SocketProvider>
       </BrowserRouter>
     </Provider>

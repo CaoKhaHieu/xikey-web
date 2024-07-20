@@ -135,7 +135,7 @@ const SidebarMain = () => {
   };
 
   return (
-    <div className="w-0 border-r-none h-screen md:border-r md:border-gray2 md:w-87.5">
+    <div className="w-full border-r-none h-screen md:border-r md:border-gray2 md:w-87.5">
       <div className="flex flex-col">
         <div className="px-1 flex items-center space-x-1">
           <div className="flex justify-center items-center w-full border border-gray2 rounded-lg my-2 overflow-hidden">
