@@ -5,7 +5,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { BASE_URL } from '@/shared/constants';
 import { Message } from '@/shared/models/Message';
 import { saveNewMessage, saveNewMessageWithVirtualId, triggerAlertNewMessage, triggerScrollToEndListMessage, updateMessage, triggerGetPinedMessage } from '@/stores/message/action';
-import { addConversation, selectConversation, updateInfoConversation, updateLastMessageConversation } from '@/stores/conversation/action';
+import { removeConversation, selectConversation, updateInfoConversation, updateLastMessageConversation } from '@/stores/conversation/action';
 import { Conversation } from '@/shared/models/Conversation';
 import { User } from '@/shared/models/User';
 
@@ -38,9 +38,6 @@ const SocketProvider = (props: SocketProps) => {
       userRef.current = user;
 
       socket.emit('join', user.id);
-      socket.on('invite_to_group', (newConversation: Conversation) => {
-        dispatch(addConversation(newConversation));
-      });
     }
   }, [user.id]);
 
@@ -87,18 +84,18 @@ const SocketProvider = (props: SocketProps) => {
       dispatch(updateInfoConversation(conversation));
     });
 
+    socket.on('remove_group', (conversation: Conversation) => {
+      dispatch(removeConversation(conversation));
+    });
+
     socket.on('add_user', (conversation: Conversation) => {
-      if (currentConversationRef.current.id === conversation.id) {
-        dispatch(selectConversation(conversation));
-      }
+      // create the new conversation when user has not been added in the conversation
       dispatch(updateInfoConversation(conversation));
     });
 
     socket.on('kick_user', (conversation: Conversation) => {
-      if (currentConversationRef.current.id === conversation.id) {
-        dispatch(selectConversation(conversation));
-      }
-      dispatch(updateInfoConversation(conversation));
+      // remove the conversation when user has been kick by admin
+      dispatch(removeConversation(conversation));
     });
 
     socket.on('pin_message', (conversationId: string) => {
