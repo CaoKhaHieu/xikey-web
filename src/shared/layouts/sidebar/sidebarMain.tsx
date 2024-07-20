@@ -53,10 +53,7 @@ const SidebarMain = () => {
     if (!user.id) {
       return;
     }
-    // handleGetAllConversation();
-
-    //gmsh
-    handleGetAllGroupConversation();
+    handleGetAllConversation();
   }, [user.id]);
 
   const handleChangeInput = (event: React.FormEvent<HTMLInputElement>) => {

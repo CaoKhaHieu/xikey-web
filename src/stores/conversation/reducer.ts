@@ -29,6 +29,7 @@ const updateLastMessageConversation = (state: any, payload: Message) => {
   };
 };
 
+// this function is used to update all conversation
 const updateInfoConversation = (state: any, payload: Conversation) => {
   const data: any = { ...state.allConversations };
   data[payload.id] = payload;
