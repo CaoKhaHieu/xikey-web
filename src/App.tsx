@@ -50,10 +50,20 @@ function App() {
   };
 
   useEffect(() => {
-    window.onmessage = function(e) {
-      if (e.data.userId) {
-        getUserProfileGMSH(e.data);
+    const handleMessage = (event: any) => {
+      try {
+        const data = JSON.parse(event.data);
+        if (data.userId) {
+          getUserProfileGMSH(data.userId);
+        }
+      } catch (error) {
       }
+    };
+
+    window.addEventListener('message', handleMessage);
+
+    return () => {
+      window.removeEventListener('message', handleMessage);
     };
   }, []);
 
