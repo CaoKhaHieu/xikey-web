@@ -57,6 +57,7 @@ function App() {
           getUserProfileGMSH(data.userId);
         }
       } catch (error) {
+        console.error('Error parsing message data:', error);
       }
     };
 
