@@ -24,5 +24,13 @@ export default defineConfig({
         assetFileNames: '[name].[ext]', // currently does not work for images
       },
     }
+  },
+  server: {
+    watch: {
+      usePolling: true,
+    },
+    host: true,
+    strictPort: true,
+    port: 5173,
   }
 });
