@@ -8,12 +8,17 @@ import { saveNewMessage, saveNewMessageWithVirtualId, triggerAlertNewMessage, tr
 import { removeConversation, selectConversation, updateInfoConversation, updateLastMessageConversation } from '@/stores/conversation/action';
 import { Conversation } from '@/shared/models/Conversation';
 import { User } from '@/shared/models/User';
+import { getToken } from '@/shared/utils/utils';
 
 interface SocketProps {
   children: ReactElement;
 }
 
-const socket = io(BASE_URL);
+const socket = io(BASE_URL, {
+  auth: {
+    token: getToken(),
+  }
+});
 
 const SocketContext = createContext({
   socket,
