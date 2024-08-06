@@ -49,12 +49,21 @@ export const ChamContent = () => {
     const dauNumber = extractNumber(dau);
     const duoiNumber = extractNumber(duoi);
     const themNumber = them.trim().split(',').filter(number => !isNaN(+number)).map(number => number.trim().padStart(2, '0'));
+    const tongNumber = extractNumber(tong);
     const boNumber = bo.trim().split(',').filter(number => !isNaN(+number)).map(number => number.trim().padStart(2, '0'));
     const numberStrings = generateNumberStrings();
     
-    let filterNumbers = numberStrings.filter(numString =>
-      chamNumber.some(digit => numString.includes(digit))
-    );
+    let filterNumbers = numberStrings;
+
+    if (!chamNumber.length && !dauNumber.length && !duoiNumber.length && !tong) {
+      filterNumbers = [];
+    }
+
+    if (chamNumber.length) {
+      filterNumbers = numberStrings.filter(numString =>
+        chamNumber.some(digit => numString.includes(digit))
+      );
+    }
     
     // Further filter based on dauNumber
     if (dauNumber.length) {
@@ -70,9 +79,9 @@ export const ChamContent = () => {
       );
     }
 
-    if (tong) {
+    if (tongNumber.length) {
       filterNumbers = filterNumbers.filter(numString =>
-        sumOfDigits(numString) === +tong
+        tongNumber.some(digit => +digit === sumOfDigits(numString) % 10)
       );
     }
 
@@ -85,7 +94,6 @@ export const ChamContent = () => {
         !boNumber.includes(numString)
       );
     }
-
     return [...new Set(filterNumbers)];
   }
 
@@ -112,6 +120,8 @@ export const ChamContent = () => {
         <textarea className='w-full h-20 outline-none border border-gray2 p-1' value={value} disabled placeholder='Kết quả ...'></textarea>
       </div>
 
+      <p className='mb-1 font-semibold'>Có {value !== '' ? value.split(',').length : 0} số</p>
+
       <div className='border border-gray2 rounded-md text-center p-1 cursor-pointer duration-300 text-white bg-primary hover:bg-primaryHover' onClick={handleCopy}>
         Sao chép
       </div>
@@ -130,10 +140,10 @@ export const KepContent = () => {
   });
   const [value, setValue] = useState<string>('');
 
-  const kepbang = '00,55,11,66,22,77,33,88,44,99';
-  const keplech = '05,50,16,61,27,72,38,83,49,94';
-  const kepam = '07,70,14,41,29,92,36,63,58,85';
-  const satkep = '07,70,14,41,29,92,36,63,58,85';
+  const kepbang = '00, 55, 11, 66, 22, 77, 33, 88, 44, 99';
+  const keplech = '05, 50, 16, 61, 27, 72, 38, 83, 49, 94';
+  const kepam = '07, 70, 14, 41, 29, 92, 36, 63, 58, 85';
+  const satkep = '01, 10, 12, 21, 23, 32, 34, 43, 45, 54, 56, 65, 67, 76, 78, 87, 89, 98';
 
   const handleCopy = () => {
     navigator.clipboard.writeText(value);
@@ -143,16 +153,24 @@ export const KepContent = () => {
   return (
     <form className='px-2 py-1'>
       <div className='grid grid-cols-2 gap-2'>
-        <div className='border border-gray2 rounded-md text-center p-1 cursor-pointer duration-300 hover:bg-primaryHover hover:text-white' onClick={() => setValue(kepbang)}>
+        <div className={classNames('border border-gray2 rounded-md text-center p-1 cursor-pointer duration-300 hover:bg-primaryHover hover:text-white', {
+          'bg-primaryHover text-white': value === kepbang
+        })} onClick={() => setValue(kepbang)}>
           Kép bằng
         </div>
-        <div className='border border-gray2 rounded-md text-center p-1 cursor-pointer duration-300 hover:bg-primaryHover hover:text-white' onClick={() => setValue(kepam)}>
+        <div className={classNames('border border-gray2 rounded-md text-center p-1 cursor-pointer duration-300 hover:bg-primaryHover hover:text-white', {
+          'bg-primaryHover text-white': value === kepam
+        })} onClick={() => setValue(kepam)}>
           Kép âm
         </div>
-        <div className='border border-gray2 rounded-md text-center p-1 cursor-pointer duration-300 hover:bg-primaryHover hover:text-white' onClick={() => setValue(keplech)}>
+        <div className={classNames('border border-gray2 rounded-md text-center p-1 cursor-pointer duration-300 hover:bg-primaryHover hover:text-white', {
+          'bg-primaryHover text-white': value === keplech
+        })} onClick={() => setValue(keplech)}>
           Kép lệch
         </div>
-        <div className='border border-gray2 rounded-md text-center p-1 cursor-pointer duration-300 hover:bg-primaryHover hover:text-white' onClick={() => setValue(satkep)}>
+        <div className={classNames('border border-gray2 rounded-md text-center p-1 cursor-pointer duration-300 hover:bg-primaryHover hover:text-white', {
+          'bg-primaryHover text-white': value === satkep
+        })} onClick={() => setValue(satkep)}>
           Sát kép
         </div>
       </div>
@@ -160,6 +178,8 @@ export const KepContent = () => {
       <div className='mt-2'>
         <textarea className='w-full h-20 outline-none border border-gray2 p-1' value={value} disabled placeholder='Kết quả ...'></textarea>
       </div>
+
+      <p className='mb-1 font-semibold'>Có {value !== '' ? value.split(',').length : 0} số</p>
 
       <div className='border border-gray2 rounded-md text-center p-1 cursor-pointer duration-300 text-white bg-primary hover:bg-primaryHover' onClick={handleCopy}>
         Sao chép
@@ -274,6 +294,8 @@ export const BoContent = () => {
         <textarea className='w-full h-20 outline-none border border-gray2 p-1' value={value} disabled placeholder='Kết quả ...'></textarea>
       </div>
 
+      <p className='mb-1 font-semibold'>Có {value !== '' ? value.split(',').length : 0} số</p>
+
       <div className='border border-gray2 rounded-md text-center p-1 cursor-pointer duration-300 text-white bg-primary hover:bg-primaryHover' onClick={handleCopy}>
         Sao chép
       </div>
@@ -348,6 +370,8 @@ export const ThreeDNumber = () => {
       <div className='mt-2'>
         <textarea className='w-full h-20 outline-none border border-gray2 p-1' value={value} disabled placeholder='Kết quả ...'></textarea>
       </div>
+
+      <p className='mb-1 font-semibold'>Có {value !== '' ? value.split(',').length : 0} số</p>
 
       <div className='border border-gray2 rounded-md text-center p-1 cursor-pointer duration-300 text-white bg-primary hover:bg-primaryHover' onClick={handleCopy}>
         Sao chép
@@ -498,6 +522,8 @@ export const XienNumber = () => {
         <div className='mt-2'>
           <textarea className='w-full h-20 outline-none border border-gray2 p-1' value={value} disabled placeholder='Kết quả ...'></textarea>
         </div>
+
+        <p className='mb-1 font-semibold'>Có {value !== '' ? value.split(',').length : 0} cặp số</p>
 
         <div className='border border-gray2 rounded-md text-center p-1 cursor-pointer duration-300 text-white bg-primary hover:bg-primaryHover' onClick={handleCopy}>
           Sao chép
