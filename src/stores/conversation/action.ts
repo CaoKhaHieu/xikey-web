@@ -13,6 +13,7 @@ export const addUser = generateAPIAction(types.ADD_USER);
 export const getMembers = generateAPIAction(types.GET_MEMBERS);
 export const removeGroup = generateAPIAction(types.REMOVE_GROUP);
 export const getAllGroupConversation = generateAPIAction(types.GET_GROUP_CONVERSATION);
+export const getConversationWithAdmin = generateAPIAction(types.GET_CONVERSATION_WITH_ADMIN);
 export const joinGroupConversation = generateAPIAction(types.JOIN_GROUP_CONVERSATION);
 
 // GMSH
