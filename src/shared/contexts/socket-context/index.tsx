@@ -5,7 +5,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { BASE_URL } from '@/shared/constants';
 import { Message } from '@/shared/models/Message';
 import { saveNewMessage, saveNewMessageWithVirtualId, triggerAlertNewMessage, triggerScrollToEndListMessage, updateMessage, triggerGetPinedMessage } from '@/stores/message/action';
-import { removeConversation, selectConversation, updateInfoConversation, updateLastMessageConversation } from '@/stores/conversation/action';
+import { clearCurrentConversation, removeConversation, selectConversation, updateInfoConversation, updateLastMessageConversation } from '@/stores/conversation/action';
 import { Conversation } from '@/shared/models/Conversation';
 import { User } from '@/shared/models/User';
 
@@ -85,6 +85,9 @@ const SocketProvider = (props: SocketProps) => {
     });
 
     socket.on('remove_group', (conversation: Conversation) => {
+      if (currentConversationRef.current.id === conversation.id) {
+        dispatch(clearCurrentConversation());
+      }
       dispatch(removeConversation(conversation));
     });
 
@@ -95,6 +98,9 @@ const SocketProvider = (props: SocketProps) => {
 
     socket.on('kick_user', (conversation: Conversation) => {
       // remove the conversation when user has been kick by admin
+      if (currentConversationRef.current.id === conversation.id) {
+        dispatch(clearCurrentConversation());
+      }
       dispatch(removeConversation(conversation));
     });
 
@@ -119,7 +125,7 @@ const SocketProvider = (props: SocketProps) => {
 
     socket.on('ban_user', (conversation: Conversation) => {
       if (currentConversationRef.current.id === conversation.id) {
-        dispatch(selectConversation({ ...currentConversationRef.current, bannedMembers: conversation.bannedMembers }));
+        dispatch(clearCurrentConversation());
       }
       dispatch(updateInfoConversation(conversation));
     });
