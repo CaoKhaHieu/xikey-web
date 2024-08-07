@@ -57,7 +57,6 @@ const TypeMessage = () => {
   const dispatch = useDispatch();
 
   const replyMessage: Message = messageManagement.reply[id];
-  const isBanned: boolean = currentConversation.bannedMembers.includes(user.id);
 
   useEffect(() => {
     countUploadImagesRef.current = listImg.length;
@@ -267,108 +266,101 @@ const TypeMessage = () => {
   };
 
   return (
-    <Tooltip
-      className=''
-      id='banned'
-      content={t(isBanned ? 'You have been banned from chatting' : '')}
-    >
-      <div className="flex flex-col mx-3 my-2.5 rounded-xl border border-gray2">
-        {
-          replyMessage &&
-          <div className="p-2">
-            <div className={classNames("border-l-4 border-primary pl-1.5 relative", {
-              "flex items-center space-x-2": replyMessage?.type === TYPE_MESSAGE.IMAGE || replyMessage?.type === TYPE_MESSAGE.IMAGE_LIST
-            })}>
-              {
-                replyMessage?.type === TYPE_MESSAGE.IMAGE &&
-                <div>
-                  <img className="min-w-12 w-12 h-12 object-cover" src={replyMessage.content}></img>
-                </div>
-              }
-              {
-                replyMessage?.type === TYPE_MESSAGE.IMAGE_LIST &&
-                <div>
-                  <img className="min-w-12 w-12 h-12 object-cover" src={replyMessage.content.split(',')[0]}></img>
-                </div>
-              }
+    <div className="flex flex-col mx-3 my-2.5 rounded-xl border border-gray2">
+      {
+        replyMessage &&
+        <div className="p-2">
+          <div className={classNames("border-l-4 border-primary pl-1.5 relative", {
+            "flex items-center space-x-2": replyMessage?.type === TYPE_MESSAGE.IMAGE || replyMessage?.type === TYPE_MESSAGE.IMAGE_LIST
+          })}>
+            {
+              replyMessage?.type === TYPE_MESSAGE.IMAGE &&
               <div>
-                <p className="text-sm font-semibold">{replyMessage.sender.name}</p>
-                <p className="line-clamp-1 text-ellipsis pr-2 text-sm text-gray3">
-                  {replyMessage.type === TYPE_MESSAGE.IMAGE ? t('image') : replyMessage.content}
-                </p>
+                <img className="min-w-12 w-12 h-12 object-cover" src={replyMessage.content}></img>
               </div>
-              <div
-                className="absolute right-2 top-0 cursor-pointer text-2 text-black rounded-full w-5 h-5 flex items-center justify-center"
-                onClick={handleClearReply}
-              >
-                <CloseIcon />
+            }
+            {
+              replyMessage?.type === TYPE_MESSAGE.IMAGE_LIST &&
+              <div>
+                <img className="min-w-12 w-12 h-12 object-cover" src={replyMessage.content.split(',')[0]}></img>
               </div>
+            }
+            <div>
+              <p className="text-sm font-semibold">{replyMessage.sender.name}</p>
+              <p className="line-clamp-1 text-ellipsis pr-2 text-sm text-gray3">
+                {replyMessage.type === TYPE_MESSAGE.IMAGE ? t('image') : replyMessage.content}
+              </p>
+            </div>
+            <div
+              className="absolute right-2 top-0 cursor-pointer text-2 text-black rounded-full w-5 h-5 flex items-center justify-center"
+              onClick={handleClearReply}
+            >
+              <CloseIcon />
             </div>
           </div>
-        }
-        <div className="flex items-center space-x-2 px-2 pt-1">
-          <div className="cursor-pointer duration-300 hover:bg-gray2 p-1.5 rounded">
-            <label htmlFor='input-image' className="cursor-pointer">
-              <UploadImageIcon />
-            </label>
-            <input className='hidden' id='input-image' type='file' accept="image/png, image/jpeg, image/jpg, image/webp" onChange={(e) => handleChangeFile(e, TYPE_MESSAGE.IMAGE)} disabled={isBanned}></input>
-          </div>
-          {/* <div className="cursor-pointer duration-300 hover:bg-gray2 p-1.5 rounded">
-            <label htmlFor='input-file' className="cursor-pointer">
-              <UploadFileIcon />
-            </label>
-            <input className='hidden' id='input-file' type='file'></input>
-          </div> */}
         </div>
-        <div className="flex items-center space-x-4 px-4">
-          <Input
-            ref={inputRef}
-            className="px-4 pt-2 pb-4 pl-0"
-            placeholder={t('type_message')}
-            value={valueInput}
-            onChange={handleChange}
-            onKeyPress={handleKeyPress}
-            onPaste={handlePaste}
-            autoFocus
-            disabled={isBanned}
-          />
-          <div className="flex items-center relative">
-            <button onClick={() => toggleOpenModalIcon(!isOpenModalIcon)}>
-              <Smile />
-            </button>
-            {
-              isOpenModalIcon &&
-              <div className='absolute bottom-12 -right-10 z-10 md-right-0' ref={emojiRef}>
-                <EmojiPicker onEmojiClick={onEmojiClick} searchDisabled previewConfig={previewConfig} height={350} />
-              </div>
-            }
-          </div>
-          <div className="cursor-pointer" onClick={() => handleSendMessage('👍')}>
-            <LikeIcon />
-          </div>
+      }
+      <div className="flex items-center space-x-2 px-2 pt-1">
+        <div className="cursor-pointer duration-300 hover:bg-gray2 p-1.5 rounded">
+          <label htmlFor='input-image' className="cursor-pointer">
+            <UploadImageIcon />
+          </label>
+          <input className='hidden' id='input-image' type='file' accept="image/png, image/jpeg, image/jpg, image/webp" onChange={(e) => handleChangeFile(e, TYPE_MESSAGE.IMAGE)}></input>
         </div>
-        {
-          Object.values(uploadImage).length > 0 &&
-          <div className="mb-4 px-4 flex flex-wrap items-center">
-            {
-              Object.values(uploadImage).map((img: ImageData) => (
-                <div key={img.id} className="relative mr-4">
-                  <img className="w-20 h-20 rounded-lg object-cover border border-gray2" src={img.urlLocal || img.url} width='100px' height='100px' />
-                  <div className="absolute right-1 top-1 text-2 text-black bg-gray2 border border-white rounded-full p-1 cursor-pointer duration-300 hover:bg-primaryHover hover:text-white">
-                    {
-                      !img.url ? <p>Loading...</p> :
-                      <div onClick={() => handleRemoveImage(img.id)}>
-                        <CloseIcon />
-                      </div>
-                    }
-                  </div>
-                </div>
-              ))
-            }
-          </div>
-        }
+        {/* <div className="cursor-pointer duration-300 hover:bg-gray2 p-1.5 rounded">
+          <label htmlFor='input-file' className="cursor-pointer">
+            <UploadFileIcon />
+          </label>
+          <input className='hidden' id='input-file' type='file'></input>
+        </div> */}
       </div>
-    </Tooltip>
+      <div className="flex items-center space-x-4 px-4">
+        <Input
+          ref={inputRef}
+          className="px-4 pt-2 pb-4 pl-0"
+          placeholder={t('type_message')}
+          value={valueInput}
+          onChange={handleChange}
+          onKeyPress={handleKeyPress}
+          onPaste={handlePaste}
+          autoFocus
+        />
+        <div className="flex items-center relative">
+          <button onClick={() => toggleOpenModalIcon(!isOpenModalIcon)}>
+            <Smile />
+          </button>
+          {
+            isOpenModalIcon &&
+            <div className='absolute bottom-12 -right-10 z-10 md-right-0' ref={emojiRef}>
+              <EmojiPicker onEmojiClick={onEmojiClick} searchDisabled previewConfig={previewConfig} height={350} />
+            </div>
+          }
+        </div>
+        <div className="cursor-pointer" onClick={() => handleSendMessage('👍')}>
+          <LikeIcon />
+        </div>
+      </div>
+      {
+        Object.values(uploadImage).length > 0 &&
+        <div className="mb-4 px-4 flex flex-wrap items-center">
+          {
+            Object.values(uploadImage).map((img: ImageData) => (
+              <div key={img.id} className="relative mr-4">
+                <img className="w-20 h-20 rounded-lg object-cover border border-gray2" src={img.urlLocal || img.url} width='100px' height='100px' />
+                <div className="absolute right-1 top-1 text-2 text-black bg-gray2 border border-white rounded-full p-1 cursor-pointer duration-300 hover:bg-primaryHover hover:text-white">
+                  {
+                    !img.url ? <p>Loading...</p> :
+                    <div onClick={() => handleRemoveImage(img.id)}>
+                      <CloseIcon />
+                    </div>
+                  }
+                </div>
+              </div>
+            ))
+          }
+        </div>
+      }
+    </div>
   );
 };
 

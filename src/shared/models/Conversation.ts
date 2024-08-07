@@ -19,6 +19,7 @@ export interface Conversation {
   ownerId: string;
   links: Link[];
   bannedMembers: string[];
+  kickedMembers: string[];
 }
 
 export class Conversation {
@@ -38,5 +39,6 @@ export class Conversation {
       link: link.link
     })) || [];
     this.bannedMembers = conversation.bannedMembers || [];
+    this.kickedMembers = conversation.kickedMembers || [];
   }
 }
