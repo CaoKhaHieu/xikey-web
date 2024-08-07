@@ -349,9 +349,9 @@ const Message = (props: MessageOptions) => {
                     <ReplyIcon />
                   </div>
                 }
-                <div className="cursor-pointer" onClick={handleFowardMessage}>
+                {/* <div className="cursor-pointer" onClick={handleFowardMessage}>
                   <ShareIcon />
-                </div>
+                </div> */}
 
                 {
                   user.isAdmin &&

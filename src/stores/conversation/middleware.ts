@@ -6,7 +6,7 @@ import { all, put, takeLatest } from 'redux-saga/effects';
 import { handleApiResponseError } from '../common/actions';
 import { Conversation } from '@/shared/models/Conversation';
 import { User } from '@/shared/models/User';
-import { saveAllConversations } from './action';
+import { addConversation, saveAllConversations } from './action';
 
 function* getAllConversation({ resolve, reject }: AnyAction): any {
   try {
@@ -28,6 +28,20 @@ function* getGroupConversation({ resolve, reject }: AnyAction): any {
     yield put(saveAllConversations(mappingData));
 
     resolve(mappingData);
+  } catch (error: any) {
+    reject(error);
+    yield put(handleApiResponseError(error));
+  }
+}
+
+function* getConversationWithAdmin({ resolve, reject }: AnyAction): any {
+  try {
+    const res = yield get(['v1', 'conversations', 'with-admin']);
+    const conversation = new Conversation(res.data);
+    if (conversation.id) {
+      yield put(addConversation(conversation));
+      resolve();
+    }
   } catch (error: any) {
     reject(error);
     yield put(handleApiResponseError(error));
@@ -210,6 +224,7 @@ export function* watchConversation() {
   yield all([
     takeLatest(types.GET_ALL_CONVERSATION, getAllConversation),
     takeLatest(types.GET_GROUP_CONVERSATION, getGroupConversation),
+    takeLatest(types.GET_CONVERSATION_WITH_ADMIN, getConversationWithAdmin),
     takeLatest(types.GET_INFO_CONVERSATION, getInfoConversation),
     takeLatest(types.CREATE_CONVERSATION, createConversation),
     takeLatest(types.UPDATE_CONVERSATION, updateConversation),
