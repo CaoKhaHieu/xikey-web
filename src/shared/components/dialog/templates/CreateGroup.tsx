@@ -78,9 +78,8 @@ const CreateGroup = (props: CreateGroupOptions) => {
 
   useEffect(() => {
     const subscription = watch((value) => {
-      const members: any[] = value.groupMembers && Object.values(value.groupMembers).filter((item: any) => !!item);
       if (isCreateGroup) {
-        const isDisabledBtn = !value.groupName || members.length < 2;
+        const isDisabledBtn = !value.groupName;
         setIsDisabled(isDisabledBtn);
       }
       if (isEdit) {
@@ -134,6 +133,7 @@ const CreateGroup = (props: CreateGroupOptions) => {
     const body: any = {
       avatar: avatarGroup,
       name: data.groupName,
+      isGroup: true,
     };
     if (isCreateGroup) {
       body.members = [...membersIds, user.id];
