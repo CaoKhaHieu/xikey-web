@@ -27,7 +27,7 @@ export interface Conversation {
 export class Conversation {
   constructor (conversation: any) {
     this.id = conversation.id;
-    this.status = conversation.status;
+    this.status = conversation.status || CONVERSATION_STATUS.PUBLIC;
     this.avatar = conversation.avatar;
     this.name = conversation.name;
     this.members = conversation.members;

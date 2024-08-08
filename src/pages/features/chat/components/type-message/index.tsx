@@ -58,8 +58,7 @@ const TypeMessage = () => {
 
   const replyMessage: Message = messageManagement.reply[id];
   const havePermissionWithPrivateConversation =
-    currentConversation.status === CONVERSATION_STATUS.PRIVATE &&
-    (user.isAdmin || user.isAdmin);
+    currentConversation.status === CONVERSATION_STATUS.PRIVATE ? (user.isAdmin || user.isAdmin) : true;
 
   useEffect(() => {
     countUploadImagesRef.current = listImg.length;
@@ -209,6 +208,10 @@ const TypeMessage = () => {
   };
 
   const handleSendMessage = (message?: string, type = TYPE_MESSAGE.TEXT) => {
+    if (!havePermissionWithPrivateConversation) {
+      return;
+    }
+
     const isImageMessage = type == TYPE_MESSAGE.IMAGE;
     const virtualId = Date.now();
     const body = {
