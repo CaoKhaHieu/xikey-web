@@ -11,3 +11,8 @@ export enum DIALOG_POSITION {
   TOP = 1,
   BOTTOM = 2,
 }
+
+export enum CONVERSATION_STATUS {
+  PUBLIC = 'PUBLIC',
+  PRIVATE = 'PRIVATE',
+}

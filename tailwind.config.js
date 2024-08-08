@@ -39,6 +39,7 @@ export default {
         '7/10': '70%'
       },
       minWidth: {
+        '4': '1rem',
         '9': '2.25rem',
         '12': '3rem',
         '16': '4rem',

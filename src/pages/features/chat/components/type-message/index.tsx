@@ -10,7 +10,7 @@ import Tooltip from "@/shared/components/tooltip";
 import { User } from "@/shared/models/User";
 import { Conversation } from "@/shared/models/Conversation";
 import { upload } from "@/stores/common/actions";
-import { TYPE_MESSAGE } from "@/shared/enums";
+import { CONVERSATION_STATUS, TYPE_MESSAGE } from "@/shared/enums";
 import { Message } from "@/shared/models/Message";
 import { BASE_URL, VALIDATE_LENGTH } from "@/shared/constants";
 import { showToast } from "@/shared/utils/utils";
@@ -57,6 +57,8 @@ const TypeMessage = () => {
   const dispatch = useDispatch();
 
   const replyMessage: Message = messageManagement.reply[id];
+  const havePermissionWithPrivateConversation =
+    currentConversation.status === CONVERSATION_STATUS.PRIVATE ? (user.isAdmin || user.isAdmin) : true;
 
   useEffect(() => {
     countUploadImagesRef.current = listImg.length;
@@ -206,6 +208,10 @@ const TypeMessage = () => {
   };
 
   const handleSendMessage = (message?: string, type = TYPE_MESSAGE.TEXT) => {
+    if (!havePermissionWithPrivateConversation) {
+      return;
+    }
+
     const isImageMessage = type == TYPE_MESSAGE.IMAGE;
     const virtualId = Date.now();
     const body = {
@@ -266,6 +272,11 @@ const TypeMessage = () => {
   };
 
   return (
+    <Tooltip
+      className=''
+      id='banned'
+      content={t(!havePermissionWithPrivateConversation ? 'You do not have permission to message the group' : '')}
+    >
     <div className="flex flex-col mx-3 my-2.5 rounded-xl border border-gray2">
       {
         replyMessage &&
@@ -305,7 +316,7 @@ const TypeMessage = () => {
           <label htmlFor='input-image' className="cursor-pointer">
             <UploadImageIcon />
           </label>
-          <input className='hidden' id='input-image' type='file' accept="image/png, image/jpeg, image/jpg, image/webp" onChange={(e) => handleChangeFile(e, TYPE_MESSAGE.IMAGE)}></input>
+          <input className='hidden' id='input-image' type='file' accept="image/png, image/jpeg, image/jpg, image/webp" onChange={(e) => handleChangeFile(e, TYPE_MESSAGE.IMAGE)} disabled={!havePermissionWithPrivateConversation}></input>
         </div>
         {/* <div className="cursor-pointer duration-300 hover:bg-gray2 p-1.5 rounded">
           <label htmlFor='input-file' className="cursor-pointer">
@@ -324,6 +335,7 @@ const TypeMessage = () => {
           onKeyPress={handleKeyPress}
           onPaste={handlePaste}
           autoFocus
+          disabled={!havePermissionWithPrivateConversation}
         />
         <div className="flex items-center relative">
           <button onClick={() => toggleOpenModalIcon(!isOpenModalIcon)}>
@@ -361,6 +373,7 @@ const TypeMessage = () => {
         </div>
       }
     </div>
+    </Tooltip>
   );
 };
 
