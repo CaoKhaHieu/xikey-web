@@ -1,4 +1,5 @@
 import { Message } from "./Message";
+import { CONVERSATION_STATUS } from "../enums";
 
 export interface Link {
   id: string;
@@ -8,6 +9,7 @@ export interface Link {
 
 export interface Conversation {
   id: string;
+  status: CONVERSATION_STATUS,
   name: string;
   avatar: string;
   members: string[];
@@ -25,6 +27,7 @@ export interface Conversation {
 export class Conversation {
   constructor (conversation: any) {
     this.id = conversation.id;
+    this.status = conversation.status;
     this.avatar = conversation.avatar;
     this.name = conversation.name;
     this.members = conversation.members;
