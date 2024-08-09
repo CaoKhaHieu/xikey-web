@@ -267,24 +267,28 @@ const CreateGroup = (props: CreateGroupOptions) => {
             </div>
           }
 
-          <Controller
-            control={control}
-            name='status'
-            render={({
-              field: { onChange, value, onBlur }
-            }) => (
-              <>
-                <Radio
-                  onChange={onChange}
-                  onBlur={onBlur}
-                  defaultValue={conversationEdit ? conversationEdit.status : CONVERSATION_STATUS.PUBLIC}
-                  value={value}
-                  options={conversatioStatus}
-                  className='space-x-10'
-                />
-              </>
-            )}
-          />
+          {
+            (isCreateGroup || isEdit) &&
+            <Controller
+              control={control}
+              name='status'
+              render={({
+                field: { onChange, value, onBlur }
+              }) => (
+                <>
+                  <Radio
+                    onChange={onChange}
+                    onBlur={onBlur}
+                    defaultValue={conversationEdit ? conversationEdit.status : CONVERSATION_STATUS.PUBLIC}
+                    value={value}
+                    options={conversatioStatus}
+                    className='space-x-10'
+                  />
+                </>
+              )}
+            />
+          }
+          
           {
             (isCreateGroup || isAddUser) &&
             <>
