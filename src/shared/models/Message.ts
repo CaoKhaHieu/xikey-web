@@ -1,4 +1,5 @@
 import { TYPE_MESSAGE } from "../enums";
+import { Conversation } from "./Conversation";
 import { User } from "./User";
 
 export interface Message {
@@ -18,6 +19,11 @@ export interface Message {
     [key: number]: User[]
   };
   isSending: boolean;
+  report: {
+    conversation: Conversation,
+    sender: User,
+    reason: string,
+  }
 }
 
 export class Message {
@@ -34,5 +40,10 @@ export class Message {
     this.replyMessage = message.replyMessage;
     this.reactions = message.reactions || [];
     this.isSending = message.isSending || false;
+    this.report = message.report && {
+      conversation: new Conversation(message.report.conversation),
+      sender: new User(message.report.sender), // người gửi report
+      reason: message.report.reason || '',
+    };
   }
 }

@@ -33,7 +33,7 @@ function* getListMessage({ payload, resolve, reject }: AnyAction): any {
     const res = yield get(['v1', 'messages'], { ...payload });
     // init isNew = true to scroll to end list messgage for image message
     const mappingMessage: Message[] = res.data.map((message: any) => new Message({ ...message, isNew: !messageId && true }));
-    
+
     yield put(saveListMessage({
       conversationId,
       messages: mappingMessage,
@@ -86,6 +86,17 @@ function* getPinedMessages({ payload, resolve, reject }: AnyAction): any {
   }
 }
 
+function* reportMessage({ payload, resolve, reject }: AnyAction): any {
+  const { messageId, reason } = payload;
+  try {
+    const res = yield post(['v1', 'messages', `${messageId}`, 'report'], { data: { messageId, reason }});
+    resolve();
+  } catch (error: any) {
+    reject(error);
+    yield put(handleApiResponseError(error));
+  }
+}
+
 export function* watchMessage() {
   yield all([
     takeLatest(types.CREATE_MESSAGE, createMessage),
@@ -95,5 +106,6 @@ export function* watchMessage() {
     takeLatest(types.PIN_MESSAGE, pinMessage),
     takeLatest(types.UNPIN_MESSAGE, unpinMessage),
     takeLatest(types.GET_PINED_MESSAGES, getPinedMessages),
+    takeLatest(types.REPORT_MESSAGE, reportMessage),
   ]);
 };
