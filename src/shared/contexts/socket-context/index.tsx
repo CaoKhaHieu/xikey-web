@@ -125,7 +125,7 @@ const SocketProvider = (props: SocketProps) => {
 
     socket.on('ban_user', (conversation: Conversation) => {
       if (currentConversationRef.current.id === conversation.id) {
-        dispatch(clearCurrentConversation());
+        dispatch(selectConversation({ ...currentConversationRef.current, bannedMembers: conversation.bannedMembers }));
       }
       dispatch(updateInfoConversation(conversation));
     });
