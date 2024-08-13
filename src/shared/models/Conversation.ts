@@ -18,6 +18,7 @@ export interface Conversation {
   updatedAt: string;
   isGroup: boolean;
   isCloud: boolean;
+  isBot: boolean;
   ownerId: string;
   links: Link[];
   bannedMembers: string[];
@@ -35,6 +36,7 @@ export class Conversation {
     this.updatedAt = conversation.updatedAt;
     this.isGroup = conversation.isGroup || this.members?.length > 2;
     this.isCloud = conversation.isCloud || false;
+    this.isBot = conversation.isBot || false;
     this.ownerId = conversation.ownerId || '';
     this.links = conversation.links?.map((link: any) => ({
       id: link._id,

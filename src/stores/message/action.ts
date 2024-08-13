@@ -9,6 +9,7 @@ export const reactMessage = generateAPIAction(types.REACT_MESSAGE);
 export const pinMessage = generateAPIAction(types.PIN_MESSAGE);
 export const unpinMessage = generateAPIAction(types.UNPIN_MESSAGE);
 export const getPinedMessages = generateAPIAction(types.GET_PINED_MESSAGES);
+export const reportMessage = generateAPIAction(types.REPORT_MESSAGE);
 
 export const saveListMessage = (payload: {
   messages: Message[],

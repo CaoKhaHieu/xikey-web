@@ -12,8 +12,11 @@ import { User } from "@/shared/models/User";
 
 import { useDialog } from "../dialog";
 import DynamicPopover from "../popover";
+import Button from "../button";
 import ImageDetail from "../image-detail";
 import ForwardMessage from "../dialog/templates/ForwardMessage";
+import ReportMessageDialog from "../dialog/templates/ReportMessage";
+import ConfirmDialog from "../dialog/templates/ConfirmDialog";
 import { deleteMessage, pinMessage, reactMessage, saveReplyMessage } from "@/stores/message/action";
 
 import { TYPE_MESSAGE } from "@/shared/enums";
@@ -21,7 +24,7 @@ import { REACTIONS } from "@/shared/constants";
 import { Message as MessageModel } from "@/shared/models/Message";
 import { formatDate, formatTimeToHHMM, isOnlyEmoji, showToast, urlify } from "@/shared/utils/utils";
 import { Conversation } from "@/shared/models/Conversation";
-import { updateInfoConversation } from "@/stores/conversation/action";
+import { banUser, kickUser, updateInfoConversation } from "@/stores/conversation/action";
 
 import ReplyIcon from "../../../assets/icons/reply.svg?react";
 import SmilePlusIcon from "../../../assets/icons/smile-plus.svg?react";
@@ -31,6 +34,7 @@ import PinIcon from "../../../assets/icons/pin.svg?react";
 import CopyIcon from "../../../assets/icons/copy.svg?react";
 import DeleteIcon from "../../../assets/icons/delete.svg?react";
 import CircleCheckIcon from "../../../assets/icons/circle-check.svg?react";
+import ReportIcon from "../../../assets/icons/report.svg?react";
 
 interface MessageOptions {
   message: MessageModel;
@@ -77,6 +81,13 @@ const Message = (props: MessageOptions) => {
         </p>
       );
     }
+    let isBanned = false;
+    let isKicked = false;
+    if (message.report) {
+      isBanned = message.report.conversation.bannedMembers.includes(message.report.sender.id);
+      isKicked = message.report.conversation.kickedMembers.includes(message.report.sender.id);
+    }
+    
     return (
       <Tooltip
         className="!bg-black2 z-10"
@@ -85,6 +96,18 @@ const Message = (props: MessageOptions) => {
         place={'top-start'}
       >
         <>
+          {
+            message.report &&
+            <div className="min-w-96">
+              <p className="font-semibold">Báo cáo tin nhắn xấu hoặc spam</p>
+              <p>Người báo cáo: <span className="font-semibold">{message.sender.name}</span></p>
+              <p>Lý do: <span className="font-semibold">{message.report.reason}</span> </p>
+              <p>Nhóm: <span className="font-semibold">{message.report.conversation.name}</span> </p>
+              <div className="mb-0">
+                Nội dung tin nhắn của <span className="font-semibold">{message.report.sender.name}:</span>
+              </div>
+            </div>
+          }
           {
             message.type === TYPE_MESSAGE.TEXT &&
             <span className={classNames({
@@ -115,6 +138,29 @@ const Message = (props: MessageOptions) => {
                   ></ImageDetail>
                 </div>
               ))}
+            </div>
+          }
+          {
+            message.report &&
+            <div className="flex justify-end space-x-4 mt-2">
+              {
+                !isBanned && !isKicked &&
+                <Button
+                  className="border border-gray2 px-4 py-1.5 rounded-md font-medium cursor-pointer hover:border-red1 hover:bg-red1 hover:text-white"
+                  onClick={() => handleBanUser(message.report.sender, message.report.conversation.id)}
+                >
+                  Ban
+                </Button>
+              }
+              {
+                !isKicked &&
+                <Button
+                  className="border border-gray2 px-4 py-1.5 rounded-md font-medium cursor-pointer hover:border-red1 hover:bg-red1 hover:text-white"
+                  onClick={() => handleKickUser(message.report.sender, message.report.conversation.id)}
+                >
+                  Kick
+                </Button>
+              }
             </div>
           }
         </>
@@ -208,6 +254,54 @@ const Message = (props: MessageOptions) => {
       handleClosePopover();
     }, () => {
     }));
+  };
+
+  const handleReportMessage = () => {
+    appendDialog(
+      <ReportMessageDialog
+        conversationId={message.conversationId}
+        messageId={message.id}
+        onClick={() => console.log('first')}
+      />
+    )
+  };
+
+  const handleBanUser = (member: User, conversationId: string) => {
+    appendDialog(
+      <ConfirmDialog
+        title={t('are_you_sure')}
+        content={t('sure_ban_user')}
+        onClick={() => {
+          const data = {
+            conversationId,
+            userId: member.id,
+          };
+          dispatch(banUser(data, () => {
+            showToast(t('ban_success'));
+          }, () => {
+          }));
+        }}
+      />
+    );
+  };
+
+  const handleKickUser = (user: User, conversationId: string) => {
+    appendDialog(
+      <ConfirmDialog
+        title={t('are_you_sure')}
+        content={t('kick_content')}
+        onClick={() => {
+          const data = {
+            conversationId,
+            userId: user.id,
+          };
+          dispatch(kickUser(data, (conversation: Conversation) => {
+            showToast(t('deleted_user'));
+          }, () => {
+          }));
+        }}
+      />
+    );
   };
 
   const menusAction = [
@@ -321,6 +415,8 @@ const Message = (props: MessageOptions) => {
               "bg-primaryHover text-white": isCurrentUser,
               "!p-0 !bg-transparent": message.type === TYPE_MESSAGE.IMAGE || message.type === TYPE_MESSAGE.IMAGE_LIST,
               'bg-transparent !p-0 !ml-0': isOnlyEmojiMessage,
+              '!px-3 !py-1.5 !bg-white': message.report && !isCurrentUser,
+              '!px-3 !py-1.5 !bg-gray5': message.report && isCurrentUser,
             })}
           >
             {
@@ -349,6 +445,13 @@ const Message = (props: MessageOptions) => {
                     <ReplyIcon />
                   </div>
                 }
+                {
+                  !message.sender.isAdmin && !isCurrentUser &&
+                  <div className="cursor-pointer" onClick={handleReportMessage}>
+                    <ReportIcon />
+                  </div>
+                }
+
                 {/* <div className="cursor-pointer" onClick={handleFowardMessage}>
                   <ShareIcon />
                 </div> */}
