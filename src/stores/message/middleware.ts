@@ -33,7 +33,7 @@ function* getListMessage({ payload, resolve, reject }: AnyAction): any {
     const res = yield get(['v1', 'messages'], { ...payload });
     // init isNew = true to scroll to end list messgage for image message
     const mappingMessage: Message[] = res.data.map((message: any) => new Message({ ...message, isNew: !messageId && true }));
-
+    
     yield put(saveListMessage({
       conversationId,
       messages: mappingMessage,
