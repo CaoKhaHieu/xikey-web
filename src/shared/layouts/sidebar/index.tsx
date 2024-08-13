@@ -13,6 +13,7 @@ import { updateAvatar } from "@/stores/user/action";
 import { upload } from "@/stores/common/actions";
 import { useDialog } from "@/shared/components/dialog";
 import AccountInfo from "@/shared/components/dialog/templates/AccountInfo";
+import UserManagement from "@/shared/components/dialog/templates/UserManagement";
 
 import { User } from "@/shared/models/User";
 import { Conversation } from "@/shared/models/Conversation";
@@ -21,21 +22,6 @@ import MessageIcon from "@/assets/icons/message.svg?react";
 import CheckIcon from "@/assets/icons/check.svg?react";
 import SettingIcon from "@/assets/icons/setting.svg?react";
 import { useDevice } from "@/shared/contexts/device-context";
-
-const menu: IMenuData[] = [
-  {
-    id: 1,
-    tooltip: "",
-    icon: <MessageIcon />,
-    active: true,
-  },
-  {
-    id: 2,
-    tooltip: "",
-    icon: <CheckIcon />,
-    active: false,
-  },
-];
 
 const Sidebar = () => {
   const popoverRef: any = useRef();
@@ -75,6 +61,25 @@ const Sidebar = () => {
       icon: <SettingIcon />,
       active: false,
       onClick: handleLogout,
+    },
+  ];
+
+  const menu: IMenuData[] = [
+    {
+      id: 1,
+      tooltip: "",
+      icon: <MessageIcon />,
+      active: true,
+    },
+    {
+      id: 2,
+      tooltip: "",
+      icon: <CheckIcon />,
+      active: false,
+      isHidden: !user.isAdmin,
+      onClick: () => {
+        appendDialog(<UserManagement />)
+      }
     },
   ];
 
@@ -137,6 +142,7 @@ const Sidebar = () => {
           <Menu className="flex flex-col items-center space-y-2 mt-4">
             <>
               {menu.map((item: IMenuData) => (
+                !item.isHidden &&
                 <MenuItem
                   key={item.id}
                   className={classNames(
@@ -146,6 +152,7 @@ const Sidebar = () => {
                     }
                   )}
                   menu={item}
+                  onClick={item.onClick}
                 />
               ))}
             </>

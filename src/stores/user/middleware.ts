@@ -65,6 +65,18 @@ function* updateInfoAccount({ payload, resolve, reject }: AnyAction): any {
   }
 }
 
+function* verifyUser({ payload, resolve, reject }: AnyAction): any {
+  const { userId, verify } = payload;
+  try {
+    const res = yield patch(['v1', 'users', 'verify', `${userId}`], { data: { verify } });
+    const updatedUser = new User(res.data);
+    resolve(updatedUser);
+  } catch (error: any) {
+    reject(error);
+    yield put(handleApiResponseError(error));
+  }
+}
+
 export function* watchUser() {
   yield all([
     takeLatest(types.GET_ALL_USER, getAllUser),
@@ -72,5 +84,6 @@ export function* watchUser() {
     takeLatest(types.SEARCH_USER, searchUser),
     takeLatest(types.UPDATE_INFO_ACCOUNT, updateInfoAccount),
     takeLatest(types.UPDATE_INFO_ACCOUNT, updateInfoAccount),
+    takeLatest(types.VERIFY_USER, verifyUser),
   ]);
 };
