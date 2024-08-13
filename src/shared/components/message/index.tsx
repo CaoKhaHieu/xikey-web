@@ -384,7 +384,15 @@ const Message = (props: MessageOptions) => {
           {/* Name  */}
           {
             isShowName && !isCurrentUser && !message.replyMessage?.id &&
-            <p className="text-gray5 text-xs mb-1 ml-2">{message.sender.name}</p>
+            <div className="text-gray5 text-xs mb-1 ml-2 flex items-center space-x-2">
+              <span>{message.sender.name}</span>
+              {
+                (message.sender.hasVerified || message.sender.isAdmin) &&
+                <div className="text-2xl text-primaryHover">
+                  <CircleCheckIcon />
+                </div>
+              }
+            </div>
           }
           {/* Reply */}
           {

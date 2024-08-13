@@ -59,7 +59,7 @@ const TypeMessage = () => {
   const replyMessage: Message = messageManagement.reply[id];
   const isBanned: boolean = currentConversation.bannedMembers.includes(user.id);
   const havePermissionWithPrivateConversation =
-    currentConversation.status === CONVERSATION_STATUS.PRIVATE ? (user.isAdmin || user.isAdmin) : true;
+    currentConversation.status === CONVERSATION_STATUS.PRIVATE ? (user.isAdmin || user.hasVerified) : true;
 
   useEffect(() => {
     countUploadImagesRef.current = listImg.length;
