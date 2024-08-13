@@ -60,6 +60,7 @@ const ReportMessageDialog = (props: ReportMessageDialogProps) => {
                 onChange={onChange}
                 onBlur={onBlur}
                 value={value}
+                maxLength={100}
               />
             )}
           />

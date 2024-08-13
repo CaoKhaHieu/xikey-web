@@ -42,7 +42,7 @@ export class Message {
     this.isSending = message.isSending || false;
     this.report = message.report && {
       conversation: new Conversation(message.report.conversation),
-      sender: new User(message.report.sender), // người gửi report
+      sender: new User(message.report.sender), // người gửi tin nhắn bị report
       reason: message.report.reason || '',
     };
   }

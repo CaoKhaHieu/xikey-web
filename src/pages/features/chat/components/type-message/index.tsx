@@ -57,6 +57,7 @@ const TypeMessage = () => {
   const dispatch = useDispatch();
 
   const replyMessage: Message = messageManagement.reply[id];
+  const isBanned: boolean = currentConversation.bannedMembers.includes(user.id);
   const havePermissionWithPrivateConversation =
     currentConversation.status === CONVERSATION_STATUS.PRIVATE ? (user.isAdmin || user.isAdmin) : true;
 
@@ -208,7 +209,7 @@ const TypeMessage = () => {
   };
 
   const handleSendMessage = (message?: string, type = TYPE_MESSAGE.TEXT) => {
-    if (!havePermissionWithPrivateConversation) {
+    if (!havePermissionWithPrivateConversation || isBanned) {
       return;
     }
 
@@ -275,7 +276,7 @@ const TypeMessage = () => {
     <Tooltip
       className=''
       id='banned'
-      content={t(!havePermissionWithPrivateConversation ? 'You do not have permission to message the group' : '')}
+      content={t((!havePermissionWithPrivateConversation || isBanned) ? 'You do not have permission to message the group' : '')}
     >
     <div className="flex flex-col mx-3 my-2.5 rounded-xl border border-gray2">
       {
@@ -316,7 +317,7 @@ const TypeMessage = () => {
           <label htmlFor='input-image' className="cursor-pointer">
             <UploadImageIcon />
           </label>
-          <input className='hidden' id='input-image' type='file' accept="image/png, image/jpeg, image/jpg, image/webp" onChange={(e) => handleChangeFile(e, TYPE_MESSAGE.IMAGE)} disabled={!havePermissionWithPrivateConversation}></input>
+          <input className='hidden' id='input-image' type='file' accept="image/png, image/jpeg, image/jpg, image/webp" onChange={(e) => handleChangeFile(e, TYPE_MESSAGE.IMAGE)} disabled={!havePermissionWithPrivateConversation || isBanned}></input>
         </div>
         {/* <div className="cursor-pointer duration-300 hover:bg-gray2 p-1.5 rounded">
           <label htmlFor='input-file' className="cursor-pointer">
@@ -335,7 +336,7 @@ const TypeMessage = () => {
           onKeyPress={handleKeyPress}
           onPaste={handlePaste}
           autoFocus
-          disabled={!havePermissionWithPrivateConversation}
+          disabled={!havePermissionWithPrivateConversation || isBanned}
         />
         <div className="flex items-center relative">
           <button onClick={() => toggleOpenModalIcon(!isOpenModalIcon)}>

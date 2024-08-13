@@ -81,6 +81,13 @@ const Message = (props: MessageOptions) => {
         </p>
       );
     }
+    let isBanned = false;
+    let isKicked = false;
+    if (message.report) {
+      isBanned = message.report.conversation.bannedMembers.includes(message.report.sender.id);
+      isKicked = message.report.conversation.kickedMembers.includes(message.report.sender.id);
+    }
+    
     return (
       <Tooltip
         className="!bg-black2 z-10"
@@ -93,10 +100,11 @@ const Message = (props: MessageOptions) => {
             message.report &&
             <div className="min-w-96">
               <p className="font-semibold">Báo cáo tin nhắn xấu hoặc spam</p>
-              <p>Nội dung báo cáo: <span className="font-semibold">{message.report.sender.name} - {message.report.reason}</span> </p>
+              <p>Người báo cáo: <span className="font-semibold">{message.sender.name}</span></p>
+              <p>Lý do: <span className="font-semibold">{message.report.reason}</span> </p>
               <p>Nhóm: <span className="font-semibold">{message.report.conversation.name}</span> </p>
               <div className="mb-0">
-                Nội dung tin nhắn của <span className="font-semibold">{message.sender.name}:</span>
+                Nội dung tin nhắn của <span className="font-semibold">{message.report.sender.name}:</span>
               </div>
             </div>
           }
@@ -135,18 +143,24 @@ const Message = (props: MessageOptions) => {
           {
             message.report &&
             <div className="flex justify-end space-x-4 mt-2">
-              <Button
-                className="border border-gray2 px-4 py-1.5 rounded-md font-medium cursor-pointer hover:border-red1 hover:bg-red1 hover:text-white"
-                onClick={() => handleBanUser(message.sender, message.report.conversation.id)}
-              >
-                Ban
-              </Button>
-              <Button
-                className="border border-gray2 px-4 py-1.5 rounded-md font-medium cursor-pointer hover:border-red1 hover:bg-red1 hover:text-white"
-                onClick={() => handleKickUser(message.sender, message.report.conversation.id)}
-              >
-                Kick
-              </Button>
+              {
+                !isBanned && !isKicked &&
+                <Button
+                  className="border border-gray2 px-4 py-1.5 rounded-md font-medium cursor-pointer hover:border-red1 hover:bg-red1 hover:text-white"
+                  onClick={() => handleBanUser(message.report.sender, message.report.conversation.id)}
+                >
+                  Ban
+                </Button>
+              }
+              {
+                !isKicked &&
+                <Button
+                  className="border border-gray2 px-4 py-1.5 rounded-md font-medium cursor-pointer hover:border-red1 hover:bg-red1 hover:text-white"
+                  onClick={() => handleKickUser(message.report.sender, message.report.conversation.id)}
+                >
+                  Kick
+                </Button>
+              }
             </div>
           }
         </>
@@ -401,7 +415,8 @@ const Message = (props: MessageOptions) => {
               "bg-primaryHover text-white": isCurrentUser,
               "!p-0 !bg-transparent": message.type === TYPE_MESSAGE.IMAGE || message.type === TYPE_MESSAGE.IMAGE_LIST,
               'bg-transparent !p-0 !ml-0': isOnlyEmojiMessage,
-              '!px-3 !py-1.5 !bg-white': message.report
+              '!px-3 !py-1.5 !bg-white': message.report && !isCurrentUser,
+              '!px-3 !py-1.5 !bg-gray5': message.report && isCurrentUser,
             })}
           >
             {
