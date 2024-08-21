@@ -13,6 +13,7 @@ import { TYPE_MESSAGE } from '@/shared/enums';
 import { toggleSidebarRight } from '@/stores/common/actions';
 import { getPinedMessages, unpinMessage } from '@/stores/message/action';
 import ConfirmDialog from '@/shared/components/dialog/templates/ConfirmDialog';
+import { getImgsMessage, getTextMessage } from '@/shared/utils/utils';
 
 import CloseIcon from "../../../assets/icons/close.svg?react";
 
@@ -20,6 +21,13 @@ const MessageContent = ({ message }: { message: Message}) => {
   const { t } = useTranslation();
   const imgs = message.type === TYPE_MESSAGE.IMAGE_LIST ? message.content.split(',') : [];
   const totalImgs = imgs.length;
+  let textMessage: string = '';
+  let imgsMessage: string[] = [];
+
+  if (message.type === TYPE_MESSAGE.HTML) {
+    textMessage = getTextMessage(message.content);
+    imgsMessage = getImgsMessage(message.content);
+  }
   
   return (
     <>
@@ -50,6 +58,37 @@ const MessageContent = ({ message }: { message: Message}) => {
       }
       {
         message.type === TYPE_MESSAGE.TEXT && message.content
+      }
+      {
+        message.type === TYPE_MESSAGE.HTML &&
+        <>
+          <div className='grid grid-cols-6 gap-2'>
+            {imgsMessage.map((image, index) => (
+              <div
+                key={index}
+                className={classNames("cursor-pointer col-span-6", {
+                  '!col-span-3': imgsMessage.length > 1,
+                  '!col-span-6': index === 2 && imgs.length === 3,
+                })}
+              >
+                <ImageDetail
+                  className={classNames("max-h-64 rounded-t-lg object-cover md-max-h-96", {
+                    '!rounded-lg': !textMessage
+                  })}
+                  src={image}
+                ></ImageDetail>
+              </div>
+            ))}
+          </div>
+          {
+            textMessage &&
+            <div
+              className={classNames('bg-gray8 text-black rounded-b-lg py-1 px-2')}
+              dangerouslySetInnerHTML={{ __html: textMessage }}
+            >
+            </div>
+          }
+        </>
       }
     </>
   );

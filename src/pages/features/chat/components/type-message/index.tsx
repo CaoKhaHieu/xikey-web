@@ -13,7 +13,7 @@ import { upload } from "@/stores/common/actions";
 import { CONVERSATION_STATUS, TYPE_MESSAGE } from "@/shared/enums";
 import { Message } from "@/shared/models/Message";
 import { BASE_URL, VALIDATE_LENGTH } from "@/shared/constants";
-import { showToast } from "@/shared/utils/utils";
+import { getImgsMessage, htmlMessage, renderHTMLMessage, showToast } from "@/shared/utils/utils";
 import { clearReplyMessage, createMessage, saveNewMessage, triggerAlertNewMessage, triggerScrollToEndListMessage } from "@/stores/message/action";
 
 import LikeIcon from "@/assets/icons/like.svg?react";
@@ -21,6 +21,7 @@ import Smile from "@/assets/icons/smile.svg?react";
 import UploadImageIcon from "@/assets/icons/upload-image.svg?react";
 // import UploadFileIcon from "@/assets/icons/file.svg?react";
 import CloseIcon from "@/assets/icons/close.svg?react";
+import SendIcon from "@/assets/icons/send.svg?react";
 
 interface ImageData {
   urlLocal: string;
@@ -42,6 +43,8 @@ const TypeMessage = () => {
   
   const [valueInput, setValueInput] = useState('');
   const [isOpenModalIcon, setIsOpenModalIcon] = useState<boolean>(false);
+  const [isShowSendButton, setIsShowSendButton] = useState<boolean>(false);
+
   const { user }: { user: User } = useSelector((state: any) => state.userReducer);
   const { messageManagement } = useSelector((state: any) => state.messageReducer);
   const { conversation } = useSelector((state: any) => state.conversationReducer);
@@ -60,6 +63,16 @@ const TypeMessage = () => {
   const isBanned: boolean = currentConversation.bannedMembers.includes(user.id);
   const havePermissionWithPrivateConversation =
     currentConversation.status === CONVERSATION_STATUS.PRIVATE ? (user.isAdmin || user.hasVerified) : true;
+  let imgsMessage: string[] = [];
+
+  if (replyMessage && replyMessage.type === TYPE_MESSAGE.HTML) {
+    imgsMessage = getImgsMessage(replyMessage.content);
+  }
+  
+  useEffect(() => {
+    const isShow = !!(valueInput || listImg.length);
+    setIsShowSendButton(isShow);
+  }, [valueInput, listImg.length]);
 
   useEffect(() => {
     countUploadImagesRef.current = listImg.length;
@@ -198,13 +211,6 @@ const TypeMessage = () => {
 
       e.preventDefault();
       handleSendMessage();
-
-      if (listImg.length > 0) {
-        const listUrl = listImg.map((item: ImageData) => item.url);
-        const contentMessage = listUrl.join(',');
-        handleSendMessage(contentMessage, TYPE_MESSAGE.IMAGE_LIST);
-        setUploadImage({});
-      }
     }
   };
 
@@ -213,13 +219,18 @@ const TypeMessage = () => {
       return;
     }
 
+    const textMessage = message || valueInput;
+    const listUrl = listImg.map((item: ImageData) => item.url);
+    const contentMessage = listImg.length ? htmlMessage(listUrl, valueInput) : textMessage;
+    const typeMessage = listImg.length ? TYPE_MESSAGE.HTML : type;
+
     const isImageMessage = type == TYPE_MESSAGE.IMAGE;
     const virtualId = Date.now();
     const body = {
       conversationId: id,
       sender: user.id,
-      content: message || valueInput,
-      type,
+      content: contentMessage,
+      type: typeMessage,
       replyMessage: isImageMessage ? undefined : replyMessage?.id,
       virtualId,
     };
@@ -231,10 +242,10 @@ const TypeMessage = () => {
       virtualId,
       conversationId: id,
       sender: user,
-      content: message || valueInput,
+      content: contentMessage,
       isNew: true,
       createdAt: Date.now(),
-      type,
+      type: typeMessage,
       isSending: true,
       replyMessage: !isImageMessage && replyMessage?.id && new Message(replyMessage)
     });
@@ -250,12 +261,18 @@ const TypeMessage = () => {
     !isImageMessage && dispatch(clearReplyMessage({ conversationId: id }));
     dispatch(createMessage(body, () => {
     }, () => {}));
+    setUploadImage({});
   };
 
-  const handleChangeFile = (e: any, type: TYPE_MESSAGE) => {
+  const handleChangeFile = (e: any) => {
     const file = e.target.files[0];
 
     if (!file) {
+      return;
+    }
+
+    if (countUploadImagesRef.current >= VALIDATE_LENGTH.LIMIT_IMAGES) {
+      showToast(t('limit_image_upload'));
       return;
     }
 
@@ -263,7 +280,15 @@ const TypeMessage = () => {
     formData.append("image", file);
 
     dispatch(upload(formData, (res: { url: string}) => {
-      handleSendMessage(res.url, type);
+      const dataImage: ImageData = {
+        url: res.url,
+        urlLocal: '',
+        id: file.lastModified
+      };
+      setUploadImage((prev) => ({
+        ...prev,
+        [file.lastModified]: dataImage
+      }));
     }, () => {
     }));
   };
@@ -283,7 +308,7 @@ const TypeMessage = () => {
         replyMessage &&
         <div className="p-2">
           <div className={classNames("border-l-4 border-primary pl-1.5 relative", {
-            "flex items-center space-x-2": replyMessage?.type === TYPE_MESSAGE.IMAGE || replyMessage?.type === TYPE_MESSAGE.IMAGE_LIST
+            "flex items-center space-x-2": replyMessage?.type === TYPE_MESSAGE.IMAGE || replyMessage?.type === TYPE_MESSAGE.IMAGE_LIST || replyMessage?.type === TYPE_MESSAGE.HTML
           })}>
             {
               replyMessage?.type === TYPE_MESSAGE.IMAGE &&
@@ -297,10 +322,18 @@ const TypeMessage = () => {
                 <img className="min-w-12 w-12 h-12 object-cover" src={replyMessage.content.split(',')[0]}></img>
               </div>
             }
+            {
+              replyMessage?.type === TYPE_MESSAGE.HTML &&
+              <div>
+                <img className="min-w-12 w-12 h-12 object-cover" src={imgsMessage[0]}></img>
+              </div>
+            }
             <div>
               <p className="text-sm font-semibold">{replyMessage.sender.name}</p>
               <p className="line-clamp-1 text-ellipsis pr-2 text-sm text-gray3">
-                {replyMessage.type === TYPE_MESSAGE.IMAGE ? t('image') : replyMessage.content}
+                {
+                  renderHTMLMessage(replyMessage)
+                }
               </p>
             </div>
             <div
@@ -317,7 +350,7 @@ const TypeMessage = () => {
           <label htmlFor='input-image' className="cursor-pointer">
             <UploadImageIcon />
           </label>
-          <input className='hidden' id='input-image' type='file' accept="image/png, image/jpeg, image/jpg, image/webp" onChange={(e) => handleChangeFile(e, TYPE_MESSAGE.IMAGE)} disabled={!havePermissionWithPrivateConversation || isBanned}></input>
+          <input className='hidden' id='input-image' type='file' accept="image/png, image/jpeg, image/jpg, image/webp" onChange={handleChangeFile} disabled={!havePermissionWithPrivateConversation || isBanned}></input>
         </div>
         {/* <div className="cursor-pointer duration-300 hover:bg-gray2 p-1.5 rounded">
           <label htmlFor='input-file' className="cursor-pointer">
@@ -349,9 +382,15 @@ const TypeMessage = () => {
             </div>
           }
         </div>
-        <div className="cursor-pointer" onClick={() => handleSendMessage('👍')}>
-          <LikeIcon />
-        </div>
+        {
+          isShowSendButton ? 
+          <div className="cursor-pointer text-3xl" onClick={() => handleSendMessage()}>
+            <SendIcon />
+          </div> :
+          <div className="cursor-pointer" onClick={() => handleSendMessage('👍')}>
+            <LikeIcon />
+          </div>
+        }
       </div>
       {
         Object.values(uploadImage).length > 0 &&

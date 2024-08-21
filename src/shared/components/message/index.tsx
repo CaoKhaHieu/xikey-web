@@ -22,7 +22,7 @@ import { deleteMessage, pinMessage, reactMessage, saveReplyMessage } from "@/sto
 import { TYPE_MESSAGE } from "@/shared/enums";
 import { REACTIONS } from "@/shared/constants";
 import { Message as MessageModel } from "@/shared/models/Message";
-import { formatDate, formatTimeToHHMM, isOnlyEmoji, showToast, urlify } from "@/shared/utils/utils";
+import { formatDate, formatTimeToHHMM, getImgsMessage, getTextMessage, isOnlyEmoji, renderHTMLMessage, showToast, urlify } from "@/shared/utils/utils";
 import { Conversation } from "@/shared/models/Conversation";
 import { banUser, kickUser, updateInfoConversation } from "@/stores/conversation/action";
 
@@ -74,6 +74,14 @@ const Message = (props: MessageOptions) => {
   }
 
   const handleRenderMessage = (message: MessageModel) => {
+    let textMessage: string = '';
+    let imgsMessage: string[] = [];
+
+    if (message.type === TYPE_MESSAGE.HTML) {
+      textMessage = getTextMessage(message.content);
+      imgsMessage = getImgsMessage(message.content);
+    }
+  
     if (isDeleted) {
       return (
         <p className="text-gray3">
@@ -141,6 +149,39 @@ const Message = (props: MessageOptions) => {
             </div>
           }
           {
+            message.type === TYPE_MESSAGE.HTML &&
+            <>
+              <div className='grid grid-cols-6 gap-2'>
+                {imgsMessage.map((image, index) => (
+                  <div
+                    key={index}
+                    className={classNames("cursor-pointer col-span-6", {
+                      '!col-span-3': imgsMessage.length > 1,
+                      '!col-span-6': index === 2 && imgsMessage.length === 3,
+                    })}
+                  >
+                    <ImageDetail
+                      className={classNames("max-h-64 rounded-t-lg object-cover md-max-h-96", {
+                        '!rounded-lg': !textMessage
+                      })}
+                      src={image}
+                    ></ImageDetail>
+                  </div>
+                ))}
+              </div>
+              {
+                textMessage &&
+                <div
+                  className={classNames('bg-gray8 text-black rounded-b-lg py-1 px-2', {
+                    '!bg-primaryHover !text-white ': isCurrentUser
+                  })}
+                  dangerouslySetInnerHTML={{ __html: urlify(textMessage, isCurrentUser) }}
+                >
+                </div>
+              }
+            </>
+          }
+          {
             message.report &&
             <div className="flex justify-end space-x-4 mt-2">
               {
@@ -169,6 +210,12 @@ const Message = (props: MessageOptions) => {
   };
 
   const handleRenderReplyMessage = (message: MessageModel) => {
+    let imgsMessage: string[] = [];
+
+    if (message.replyMessage.type === TYPE_MESSAGE.HTML) {
+      imgsMessage = getImgsMessage(message.replyMessage.content);
+    }
+
     if (message.replyMessage.isDeleted) {
       return (
         <p className="text-gray3">
@@ -184,10 +231,18 @@ const Message = (props: MessageOptions) => {
             <img className="min-w-12 w-12 h-12 object-cover" src={message.replyMessage.content}></img>
           </div>
         }
+        {
+          message.replyMessage?.type === TYPE_MESSAGE.HTML &&
+          <div>
+            <img className="min-w-12 w-12 h-12 object-cover" src={imgsMessage[0]}></img>
+          </div>
+        }
         <div>
           <p className="text-sm font-semibold">{message.replyMessage.sender.name}</p>
           <p className="line-clamp-1 text-ellipsis pr-2 text-sm text-gray3">
-            {message.replyMessage.type === TYPE_MESSAGE.IMAGE ? t('image') : message.replyMessage.content}
+            {
+              renderHTMLMessage(message.replyMessage)
+            }
           </p>
         </div>
       </>
@@ -407,7 +462,7 @@ const Message = (props: MessageOptions) => {
 
               <div className="bg-gray9 p-2 mb-0.5 rounded-lg max-w-7/10 ml-2">
                 <div className={classNames("border-l-4 border-primary pl-2", {
-                  "flex items-center space-x-2": message.replyMessage?.type === TYPE_MESSAGE.IMAGE
+                  "flex items-center space-x-2": message.replyMessage?.type === TYPE_MESSAGE.IMAGE || message.replyMessage?.type === TYPE_MESSAGE.HTML
                 })}>
                   {
                     handleRenderReplyMessage(message)
@@ -418,10 +473,10 @@ const Message = (props: MessageOptions) => {
           }
 
           <div
-            className={classNames("message-content min-w-9 min-h-9 max-w-7/10 relative px-3 py-1.5 flex items-center justify-center", {
+            className={classNames("message-content min-w-9 min-h-9 max-w-7/10 relative px-3 py-1.5 flex items-center justify-center break-all", {
               "bg-gray8 ml-2": !isCurrentUser,
               "bg-primaryHover text-white": isCurrentUser,
-              "!p-0 !bg-transparent": message.type === TYPE_MESSAGE.IMAGE || message.type === TYPE_MESSAGE.IMAGE_LIST,
+              "!p-0 !bg-transparent": message.type === TYPE_MESSAGE.IMAGE || message.type === TYPE_MESSAGE.IMAGE_LIST || message.type === TYPE_MESSAGE.HTML,
               'bg-transparent !p-0 !ml-0': isOnlyEmojiMessage,
               '!px-3 !py-1.5 !bg-white': message.report && !isCurrentUser,
               '!px-3 !py-1.5 !bg-gray5': message.report && isCurrentUser,

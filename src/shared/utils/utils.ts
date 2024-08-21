@@ -3,6 +3,8 @@ import toast from 'react-hot-toast';
 import i18n from './i18n.ts';
 
 import { PASSWORD_PATTERN, VALIDATE_LENGTH } from '../constants';
+import { Message } from '../models/Message.ts';
+import { TYPE_MESSAGE } from '../enums.ts';
 
 export const urlify = (content: string, isCurrentUser: boolean) => {
   const textColor = isCurrentUser ? 'text-white' : 'text-black1';
@@ -24,6 +26,54 @@ export const urlify = (content: string, isCurrentUser: boolean) => {
   replacedText = replacedText.replace(replacePattern3, `<a class=\'message-content-link ${textColor} underline break-all\' href="mailto:$1">$1</a>`);
 
   return replacedText;
+};
+
+export const htmlMessage = (imgs: string[], text: string) => {
+  const textHtml = `<p>${text.replace(/\n/g, '<br />')}</p>`;
+
+  const imagesHtml = imgs.map(img => `<img src="${img}" />`).join('');
+
+  return `${text && textHtml}${imgs.length && imagesHtml}`;
+};
+
+export const getTextMessage = (content: string) => {
+  const parser = new DOMParser();
+  const doc = parser.parseFromString(content, 'text/html');
+
+  const pText = doc.querySelector('p')?.textContent;
+  return pText || '';
+};
+
+export const getImgsMessage = (content: string) => {
+  const parser = new DOMParser();
+  const doc = parser.parseFromString(content, 'text/html');
+  
+  const imgTags = doc.querySelectorAll('img');
+  const imgUrls = Array.from(imgTags).map(img => img.getAttribute('src') || '');
+  
+  return imgUrls;
+};
+
+export const renderHTMLMessage = (message: Message) => {
+  const { t } = i18n;
+  let textMessage: string = '';
+
+  if (message && message.type === TYPE_MESSAGE.HTML) {
+    textMessage = getTextMessage(message.content);
+  }
+
+  if (message.type === TYPE_MESSAGE.IMAGE) {
+    return t('image');
+  }
+
+  if (message.type === TYPE_MESSAGE.HTML) {
+    if (!textMessage) {
+      return t('image');
+    }
+    return textMessage
+  }
+
+  return message.content;
 };
 
 export const formValidateResolver = (arrFields: string[]) => {
