@@ -10,7 +10,7 @@ import { clearCurrentConversation, getInfoConversation, selectConversation } fro
 import { Loading } from "@/shared/components/loading";
 import { Conversation } from "@/shared/models/Conversation";
 import { TYPE_MESSAGE } from "@/shared/enums";
-import { areTimeMessageOnSameDay, isTimeDifferenceGreaterThan5Minutes } from "@/shared/utils/utils";
+import { areTimeMessageOnSameDay, isElementInViewport, isTimeDifferenceGreaterThan5Minutes } from "@/shared/utils/utils";
 
 import DoubleArrowDownIcon from "@/assets/icons/double-arrow-down.svg?react";
 
@@ -29,6 +29,7 @@ const ChatMain = () => {
   const dispatch = useDispatch();
   const history = useHistory();
   
+  const startSectionRef = useRef<HTMLDivElement>(null);
   const endSectionRef = useRef<HTMLDivElement>(null);
   const idConversationRef = useRef<string>(id);
   const listMessageRef = useRef<HTMLDivElement>(null);
@@ -49,10 +50,6 @@ const ChatMain = () => {
   }, [id]);
 
   useEffect(() => {
-    handleScrollToEnd();
-  }, [messageManagement.triggerScroll]);
-
-  useEffect(() => {
     // handle show alert new message incase usesr not scroll to end list message
     if (alert === 0) {
       setIsShowAlertNewMessage(false);
@@ -63,13 +60,6 @@ const ChatMain = () => {
       setIsShowAlertNewMessage(true);
     }
   }, [alert]);
-
-  useEffect(() => {
-    // scroll to end if have any reaction of message
-    if (isScrollEndRef.current) {
-      handleScrollToEnd();
-    }
-  }, [messageManagement.triggerScroll]);
 
   const handleGetUserChat = () => {
     dispatch(getInfoConversation(id, (conversation: Conversation) => {
@@ -99,25 +89,21 @@ const ChatMain = () => {
 
   const handleScrollToEnd = () => {
     endSectionRef.current?.scrollIntoView();
-
-    // run after scroll event 
-    setTimeout(() => {
-      isScrollEndRef.current = true;
-    }, 10);
+    isScrollEndRef.current = true;
   };
 
   const handleScrollListMessage = (e: any) => {
     const { scrollTop } = e.target;
     // handle check scroll end list message
     if (listMessageRef.current) {
-      const isScrollEndList = listMessageRef.current.scrollTop + listMessageRef.current.clientHeight >= listMessageRef.current.scrollHeight;
+      const isScrollEndList = isElementInViewport(endSectionRef.current, listMessageRef.current);
       isScrollEndRef.current = isScrollEndList;
 
       if (isScrollEndList) {
         dispatch(triggerAlertNewMessage({ type: 'RESET' }));
       }
       // handle load more message
-      const isScrollToTop = -1*listMessageRef.current.scrollTop + listMessageRef.current.clientHeight === listMessageRef.current.scrollHeight;
+      const isScrollToTop = isElementInViewport(startSectionRef.current, listMessageRef.current);
       if (isScrollToTop && isHasMoreRef.current) {        
         previousScrollHeightRef.current = scrollTop
 
@@ -142,6 +128,7 @@ const ChatMain = () => {
   return (
     <div key={id} ref={listMessageRef} className="chat-background bg-black h-full p-4 overflow-y-scroll flex flex-col-reverse" onScroll={handleScrollListMessage}>
       <div className="flex flex-col space-y-0.5">
+        <div id="start-list-message" ref={startSectionRef}></div>
         {listMessage.length > 0 &&
           listMessage.map((message: MessageModel, index: number) => (
             <Message
@@ -173,7 +160,7 @@ const ChatMain = () => {
             <span>{t('alert_new_message')}</span>
           </div>
         }
-        <div className="end-list-message" ref={endSectionRef}></div>
+        <div id="end-list-message" ref={endSectionRef}></div>
       </div>
     </div>
   );

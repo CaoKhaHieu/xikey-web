@@ -161,7 +161,7 @@ const Message = (props: MessageOptions) => {
                     })}
                   >
                     <ImageDetail
-                      className={classNames("max-h-64 rounded-t-lg object-cover md-max-h-96", {
+                      className={classNames("min-h-64 max-h-64 rounded-t-lg object-cover md-max-h-96 md-min-h-96", {
                         '!rounded-lg': !textMessage
                       })}
                       src={image}

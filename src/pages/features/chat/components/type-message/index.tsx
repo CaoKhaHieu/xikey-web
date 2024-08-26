@@ -291,6 +291,7 @@ const TypeMessage = () => {
       }));
     }, () => {
     }));
+    inputRef.current?.focus();
   };
 
   const handleClearReply = () => {

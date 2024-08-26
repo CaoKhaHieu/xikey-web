@@ -233,3 +233,14 @@ export const isTimeDifferenceGreaterThan5Minutes = (time1: string, time2: string
   // Check if the time difference is greater than or equal to 5 minutes (300 seconds)
   return timeDifference >= time5Minutes;
 };
+
+// To check if an element is visible within a scrollable container (with vertical scrolling)
+export const isElementInViewport = (element: any, container: any) => {
+  const containerRect = container.getBoundingClientRect();
+  const elementRect = element.getBoundingClientRect();
+
+  return (
+    elementRect.top >= containerRect.top &&
+    elementRect.bottom <= containerRect.bottom
+  );
+};
