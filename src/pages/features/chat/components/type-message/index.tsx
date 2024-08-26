@@ -253,7 +253,7 @@ const TypeMessage = () => {
     // handle send message
     dispatch(saveNewMessage(messageData));
     // handle scroll list message to end
-    dispatch(triggerScrollToEndListMessage());
+    document.getElementById('end-list-message')?.scrollIntoView();
 
     setValueInput('');
     setIsOpenModalIcon(false);
