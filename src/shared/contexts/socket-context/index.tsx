@@ -72,8 +72,6 @@ const SocketProvider = (props: SocketProps) => {
     socket.on('reaction', (message: Message) => {
       if (currentConversationRef.current.id === message.conversationId) {
         dispatch(updateMessage(message));
-        // handle scroll list message to end because height of list message can change
-        dispatch(triggerScrollToEndListMessage());
       }
     });
 

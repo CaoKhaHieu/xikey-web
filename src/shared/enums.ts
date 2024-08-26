@@ -4,6 +4,7 @@ export enum TYPE_MESSAGE {
   IMAGE_LIST = 'IMAGE_LIST',
   TEXT = 'TEXT',
   NOTIFY = 'NOTIFY',
+  HTML = 'HTML',
 };
 
 export enum DIALOG_POSITION {
