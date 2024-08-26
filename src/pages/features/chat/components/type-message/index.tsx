@@ -291,6 +291,9 @@ const TypeMessage = () => {
       }));
     }, () => {
     }));
+
+    // reset value input incase upload the same image multiple times
+    e.target.value = '';
     inputRef.current?.focus();
   };
 
