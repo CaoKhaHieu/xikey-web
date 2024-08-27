@@ -1,4 +1,4 @@
-import { memo, useRef } from "react";
+import { memo, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import classNames from "classnames";
 import { useTranslation } from "react-i18next";
@@ -52,6 +52,8 @@ const heightOfPopover = 100;
 const Message = (props: MessageOptions) => {
   const { message, showAvatar, isShowName, isLastOfSection, isLast, isShowDayName, isShowStartTime } = props;
   const { user }: { user: User } = useSelector((state: any) => state.userReducer);
+
+  const [ isShowMenuAction, setIsShowMenuAction ] = useState<boolean>(false);
   
   const { t } = useTranslation();
   const { appendDialog } = useDialog();
@@ -84,7 +86,7 @@ const Message = (props: MessageOptions) => {
   
     if (isDeleted) {
       return (
-        <p className="text-gray3">
+        <p className="text-gray3 px-2.5 py-1">
           <i>{t('deleted_message')}</i>
         </p>
       );
@@ -218,7 +220,7 @@ const Message = (props: MessageOptions) => {
 
     if (message.replyMessage.isDeleted) {
       return (
-        <p className="text-gray3">
+        <p className="text-gray3 px-2.5 py-1">
           <i>{t('deleted_message')}</i>
         </p>
       );
@@ -239,7 +241,7 @@ const Message = (props: MessageOptions) => {
         }
         <div>
           <p className="text-sm font-semibold">{message.replyMessage.sender.name}</p>
-          <p className="line-clamp-1 text-ellipsis pr-2 text-sm text-gray3">
+          <p className="line-clamp-1 text-ellipsis pr-2 text-sm text-gray3 break-all">
             {
               renderHTMLMessage(message.replyMessage)
             }
@@ -285,6 +287,7 @@ const Message = (props: MessageOptions) => {
 
   const handleClosePopover = () => {
     popoverRef.current?.closePopover();
+    setIsShowMenuAction(false);
   };
 
   const handleDeleteMessage = () => {
@@ -307,6 +310,7 @@ const Message = (props: MessageOptions) => {
     dispatch(pinMessage(body, (conversation: Conversation) => {
       dispatch(updateInfoConversation(conversation));
       handleClosePopover();
+      showToast(t('pinned'));
     }, () => {
     }));
   };
@@ -362,21 +366,27 @@ const Message = (props: MessageOptions) => {
   const menusAction = [
     {
       title: 'pin',
-      isShow: true,
+      isShow: user.isAdmin,
       icon: <PinIcon />,
       onClick: handlePinMessage,
     },
-    {
-      title: 'copy_message',
-      isShow: !isDeleted && message.type !== TYPE_MESSAGE.IMAGE_LIST,
-      icon: <CopyIcon />,
-      onClick: handleCopyMessage,
-    },
+    // {
+    //   title: 'copy_message',
+    //   isShow: !isDeleted && message.type !== TYPE_MESSAGE.IMAGE_LIST,
+    //   icon: <CopyIcon />,
+    //   onClick: handleCopyMessage,
+    // },
     // {
     //   title: 'edit',
     //   isShow: true,
     //   icon: <EditIcon />
     // },
+    {
+      title: 'report',
+      icon: <ReportIcon />,
+      isShow: !isCurrentUser,
+      onClick: handleReportMessage,
+    },
     {
       title: 'delete',
       icon: <DeleteIcon />,
@@ -480,6 +490,7 @@ const Message = (props: MessageOptions) => {
               'bg-transparent !p-0 !ml-0': isOnlyEmojiMessage,
               '!px-3 !py-1.5 !bg-white': message.report && !isCurrentUser,
               '!px-3 !py-1.5 !bg-gray5': message.report && isCurrentUser,
+              '!bg-transparent !p-0 border border-gray3': message.isDeleted
             })}
           >
             {
@@ -492,7 +503,8 @@ const Message = (props: MessageOptions) => {
                 ref={actionRef}
                 className={classNames("absolute top-1/2 -translate-y-1/2 space-x-4 opacity-0 flex items-center justify-center group-hover:opacity-100 rounded-lg p-1.5 text-gray3 text-lg", {
                   "right-full -translate-x-4": isCurrentUser,
-                  "left-full translate-x-4": !isCurrentUser
+                  "left-full translate-x-4": !isCurrentUser,
+                  "opacity-100": isShowMenuAction
                 })}
               >
                 <div className="cursor-pointer relative group/react">
@@ -508,27 +520,26 @@ const Message = (props: MessageOptions) => {
                     <ReplyIcon />
                   </div>
                 }
-                {
+                {/* {
                   !message.sender.isAdmin && !isCurrentUser &&
                   <div className="cursor-pointer" onClick={handleReportMessage}>
                     <ReportIcon />
                   </div>
-                }
+                } */}
 
                 {/* <div className="cursor-pointer" onClick={handleFowardMessage}>
                   <ShareIcon />
                 </div> */}
 
-                {
+                {/* {
                   user.isAdmin &&
                   <div className="cursor-pointer" onClick={handlePinMessage}>
                     <PinIcon />
                   </div>
-                }
-                {/* <DynamicPopover
+                } */}
+                <DynamicPopover
                   key={message.id}
                   ref={ popoverRef }
-                  padding={20}
                   positions={[`${getPositionPopover(actionRef.current)}`]}
                   align={isCurrentUser ? 'end' : 'start'}
                   parentElement={actionRef.current}
@@ -538,12 +549,12 @@ const Message = (props: MessageOptions) => {
                     </div>
                   }
                   content={
-                    <div className="py-1 bg-white rounded-lg shadow-2xl overflow-hidden">
+                    <div className="py-1 bg-white rounded-sm shadow-2xl overflow-hidden">
                       {
                         menusAction.map((menuItem) => menuItem.isShow && (
                           <p
                             key={menuItem.title}
-                            className="flex items-center space-x-3 text-gray3 text-base px-4 py-1 cursor-pointer hover:bg-gray2"
+                            className="flex items-center space-x-3 text-black1 text-base px-4 py-1 cursor-pointer hover:bg-gray2"
                             onClick={menuItem.onClick}
                           >
                             <span className="text-xl">
@@ -555,7 +566,8 @@ const Message = (props: MessageOptions) => {
                       }
                     </div>
                   }
-                /> */}
+                  onClickTrigger={() => setIsShowMenuAction(true)}
+                />
               </div>
             }
           </div>

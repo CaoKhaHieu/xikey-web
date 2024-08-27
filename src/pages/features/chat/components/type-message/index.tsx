@@ -334,7 +334,7 @@ const TypeMessage = () => {
             }
             <div>
               <p className="text-sm font-semibold">{replyMessage.sender.name}</p>
-              <p className="line-clamp-1 text-ellipsis pr-2 text-sm text-gray3">
+              <p className="line-clamp-1 text-ellipsis pr-2 text-sm text-gray w-full break-all">
                 {
                   renderHTMLMessage(replyMessage)
                 }

@@ -28,6 +28,14 @@ const MessageContent = ({ message }: { message: Message}) => {
     textMessage = getTextMessage(message.content);
     imgsMessage = getImgsMessage(message.content);
   }
+
+  if (message.isDeleted) {
+    return (
+      <p className="text-black">
+        <i>{t('deleted_message')}</i>
+      </p>
+    );
+  }
   
   return (
     <>

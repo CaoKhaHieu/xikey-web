@@ -67,6 +67,9 @@ const SocketProvider = (props: SocketProps) => {
       if (currentConversationRef.current.id === message.conversationId) {
         dispatch(updateMessage(message));
       }
+      if (currentConversationRef.current.lastMessage.id === message.id) {
+        dispatch(updateLastMessageConversation(message));
+      }
     });
 
     socket.on('reaction', (message: Message) => {

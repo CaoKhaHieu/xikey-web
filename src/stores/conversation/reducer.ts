@@ -26,6 +26,7 @@ const updateLastMessageConversation = (state: any, payload: Message) => {
   return {
     ...state,
     allConversations: { ...data },
+    currentConversation: { ...state.currentConversation, lastMessage: payload }
   };
 };
 

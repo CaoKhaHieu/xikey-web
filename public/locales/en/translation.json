@@ -105,6 +105,7 @@
   "unpin_notify": "have unpined a message",
   "pin_messages": "Pin messages",
   "no_pined_message": "You don't have any pinned messages yet",
+  "pinned": "Pin message successfully",
   "unpin": "Unpin",
   "cannot_search_user": "You cannot use this feature",
   "links": "Links",
