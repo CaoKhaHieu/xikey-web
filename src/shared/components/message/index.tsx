@@ -108,7 +108,7 @@ const Message = (props: MessageOptions) => {
         <>
           {
             message.report &&
-            <div className="min-w-96">
+            <div className="min-w-4 md:min-w-96">
               <p className="font-semibold">Báo cáo tin nhắn xấu hoặc spam</p>
               <p>Người báo cáo: <span className="font-semibold">{message.sender.name}</span></p>
               <p>Lý do: <span className="font-semibold">{message.report.reason}</span> </p>
@@ -487,7 +487,7 @@ const Message = (props: MessageOptions) => {
               "bg-gray8 ml-2": !isCurrentUser,
               "bg-primaryHover text-white": isCurrentUser,
               "!p-0 !bg-transparent": message.type === TYPE_MESSAGE.IMAGE || message.type === TYPE_MESSAGE.IMAGE_LIST || message.type === TYPE_MESSAGE.HTML,
-              'bg-transparent !p-0 !ml-0': isOnlyEmojiMessage,
+              'bg-transparent !p-0': isOnlyEmojiMessage,
               '!px-3 !py-1.5 !bg-white': message.report && !isCurrentUser,
               '!px-3 !py-1.5 !bg-gray5': message.report && isCurrentUser,
               '!bg-transparent !p-0 border border-gray3': message.isDeleted
