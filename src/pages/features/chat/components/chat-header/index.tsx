@@ -68,7 +68,7 @@ const ChatHeader = () => {
             {
               user.isAdmin &&
                 <Tooltip
-                  className=''
+                  className='z-10'
                   wrapperClassName="w-fit"
                   id='links'
                   content={t('links')}
@@ -79,7 +79,7 @@ const ChatHeader = () => {
                 </Tooltip>
             }
             <Tooltip
-              className=''
+              className='z-10'
               wrapperClassName="w-fit"
               id='links'
               content={t('pin_messages')}

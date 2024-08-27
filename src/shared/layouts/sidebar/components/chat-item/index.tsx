@@ -55,7 +55,7 @@ const ChatItem = (props: IUserSidebar) => {
           {
             conversation?.lastMessage?.sender?.id === user.id && t('you_last_message')
           }
-          {t('deleted_message')}
+          <i>{t('deleted_message')}</i>
         </>
       );
     }
@@ -118,7 +118,7 @@ const ChatItem = (props: IUserSidebar) => {
 
         {/* bottom */}
         <div className="flex justify-between">
-          <div className="text-sm text-gray3 line-clamp-1 text-ellipsis break-all">
+          <div className="text-sm text-gray3 line-clamp-1 text-ellipsis break-all w-full">
             { renderLastMessage() }
           </div>
         </div>
