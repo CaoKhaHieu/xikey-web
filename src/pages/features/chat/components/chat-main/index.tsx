@@ -126,7 +126,7 @@ const ChatMain = () => {
   }
 
   return (
-    <div key={id} ref={listMessageRef} className="chat-background bg-black h-full p-2 md:p-4 overflow-y-scroll flex flex-col-reverse" onScroll={handleScrollListMessage}>
+    <div key={id} ref={listMessageRef} className="chat-background bg-black h-full p-4 overflow-y-scroll flex flex-col-reverse" onScroll={handleScrollListMessage}>
       <div className="flex flex-col space-y-0.5">
         <div id="start-list-message" ref={startSectionRef}></div>
         {listMessage.length > 0 &&

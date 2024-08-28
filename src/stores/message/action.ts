@@ -10,6 +10,7 @@ export const pinMessage = generateAPIAction(types.PIN_MESSAGE);
 export const unpinMessage = generateAPIAction(types.UNPIN_MESSAGE);
 export const getPinedMessages = generateAPIAction(types.GET_PINED_MESSAGES);
 export const reportMessage = generateAPIAction(types.REPORT_MESSAGE);
+export const editMessageAction = generateAPIAction(types.EDIT_MESSAGE);
 
 export const saveListMessage = (payload: {
   messages: Message[],
@@ -57,3 +58,11 @@ export const triggerGetPinedMessage = () => ({
   type: types.TRIGGER_GET_PINED_MESSAGE,
 });
 
+export const saveEditMessage = (payload: Message) => ({
+  type: types.SAVE_EDIT_MESSAGE,
+  payload,
+});
+
+export const clearEditMessage = () => ({
+  type: types.CLEAR_EDIT_MESSAGE,
+});

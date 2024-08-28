@@ -13,7 +13,9 @@ const messageInitialState = {
   alert: 0,
   // use to trigger call api get pined message
   triggerGetPinedMessage: 0,
+  editMessage: new Message({}),
 };
+
 const saveListMessageByIdConversation = (state: any, payload: {
   messages: Message[],
   conversationId: string;
@@ -116,6 +118,20 @@ const triggerGetPinedMessage = (state: any) => {
   };
 };
 
+const saveEditMessage = (state: any, payload: Message) => {
+  return {
+    ...state,
+    editMessage: payload,
+  };
+};
+
+const clearEditMessage = (state: any) => {
+  return {
+    ...state,
+    editMessage: new Message({}),
+  };
+};
+
 const messageStrategies = {
   SAVE_LIST_MESSAGE: saveListMessageByIdConversation,
   SAVE_NEW_MESSAGE: saveNewMessageByIdConversation,
@@ -126,6 +142,8 @@ const messageStrategies = {
   SCROLL_TO_END_LIST_MESSAGE: scrollToEndListMessage,
   ALERT_NEW_MESSAGE: alertNewMessage,
   TRIGGER_GET_PINED_MESSAGE: triggerGetPinedMessage,
+  SAVE_EDIT_MESSAGE: saveEditMessage,
+  CLEAR_EDIT_MESSAGE: clearEditMessage,
   __default__: (state: any) => state,
 };
 

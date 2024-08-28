@@ -13,8 +13,8 @@ import { upload } from "@/stores/common/actions";
 import { CONVERSATION_STATUS, TYPE_MESSAGE } from "@/shared/enums";
 import { Message } from "@/shared/models/Message";
 import { BASE_URL, VALIDATE_LENGTH } from "@/shared/constants";
-import { getImgsMessage, htmlMessage, renderHTMLMessage, showToast } from "@/shared/utils/utils";
-import { clearReplyMessage, createMessage, saveNewMessage, triggerAlertNewMessage, triggerScrollToEndListMessage } from "@/stores/message/action";
+import { getImgsMessage, getTextMessage, htmlMessage, renderHTMLMessage, showToast } from "@/shared/utils/utils";
+import { clearEditMessage, clearReplyMessage, createMessage, editMessageAction, saveNewMessage, triggerAlertNewMessage, triggerScrollToEndListMessage } from "@/stores/message/action";
 
 import LikeIcon from "@/assets/icons/like.svg?react";
 import Smile from "@/assets/icons/smile.svg?react";
@@ -29,8 +29,22 @@ interface ImageData {
   id: number;
 }
 
+class ImageData {
+  constructor (img: any) {
+    this.id = img.id;
+    this.url = img.url;
+    this.urlLocal = img.urlLocal;
+  }
+}
+
 interface UploadImage {
   [key: number]: ImageData;
+}
+
+class UploadImage implements UploadImage {
+  constructor(id: number, data: ImageData) {
+    this[id] = data;
+  }
 }
 
 const previewConfig = {
@@ -49,6 +63,8 @@ const TypeMessage = () => {
   const { messageManagement } = useSelector((state: any) => state.messageReducer);
   const { conversation } = useSelector((state: any) => state.conversationReducer);
   const { currentConversation }: { currentConversation: Conversation} = conversation;
+  const { editMessage }: { editMessage: Message } = messageManagement;
+  const isEdit = !!editMessage.id;
   
   const inputRef = useRef<HTMLInputElement>(null);
   const emojiRef = useRef<any>();
@@ -102,6 +118,26 @@ const TypeMessage = () => {
   useEffect(() => {
     inputRef.current?.focus();
   }, [replyMessage]);
+
+  useEffect(() => {
+    if (isEdit) {
+      let textMessage: string = editMessage.content;
+      let imgsMessage: UploadImage = {};
+      if (editMessage.type === TYPE_MESSAGE.HTML) {
+        textMessage = getTextMessage(editMessage.content);
+        getImgsMessage(editMessage.content).forEach((img: string, index: number) => {
+          imgsMessage[index] = new ImageData({
+            id: index,
+            urlLocal: '',
+            url: img,
+          })
+        });
+      }
+      setValueInput(textMessage);
+      setUploadImage(imgsMessage);
+      inputRef.current?.focus();
+    }
+  }, [editMessage]);
   
   const toggleOpenModalIcon = (value: boolean) => {
     setIsOpenModalIcon(value);
@@ -250,17 +286,25 @@ const TypeMessage = () => {
       replyMessage: !isImageMessage && replyMessage?.id && new Message(replyMessage)
     });
 
-    // handle send message
-    dispatch(saveNewMessage(messageData));
-    // handle scroll list message to end
-    document.getElementById('end-list-message')?.scrollIntoView();
+    if (!isEdit) {
+      dispatch(saveNewMessage(messageData));
+      // handle scroll list message to end
+      document.getElementById('end-list-message')?.scrollIntoView();
+    }
 
     setValueInput('');
     setIsOpenModalIcon(false);
     valueInputRef.current = '';
     !isImageMessage && dispatch(clearReplyMessage({ conversationId: id }));
-    dispatch(createMessage(body, () => {
-    }, () => {}));
+    if (isEdit) {
+      dispatch(editMessageAction({messageId: editMessage.id, body }, () => {
+      }, () => {
+      }));
+      dispatch(clearEditMessage());
+    } else {
+      dispatch(createMessage(body, () => {
+      }, () => {}));
+    }
     setUploadImage({});
   };
 
@@ -299,6 +343,61 @@ const TypeMessage = () => {
 
   const handleClearReply = () => {
     dispatch(clearReplyMessage({ conversationId: id }));
+  };
+
+  const handleClearEditMessage = () => {
+    dispatch(clearEditMessage());
+    setValueInput('');
+    setUploadImage({});
+  };
+
+  const handleRenderEditMessage = (editMessage: Message) => {
+    let imgsMessage: string[] = [];
+
+    if (editMessage && editMessage.type === TYPE_MESSAGE.HTML) {
+      imgsMessage = getImgsMessage(editMessage.content);
+    }
+
+    return (
+      <div className="p-2">
+        <div className={classNames("border-l-4 border-primary pl-1.5 relative", {
+          "flex items-center space-x-2": editMessage?.type === TYPE_MESSAGE.IMAGE || editMessage?.type === TYPE_MESSAGE.IMAGE_LIST || editMessage?.type === TYPE_MESSAGE.HTML
+        })}>
+          {
+            editMessage?.type === TYPE_MESSAGE.IMAGE &&
+            <div>
+              <img className="min-w-12 w-12 h-12 object-cover" src={editMessage.content}></img>
+            </div>
+          }
+          {
+            editMessage?.type === TYPE_MESSAGE.IMAGE_LIST &&
+            <div>
+              <img className="min-w-12 w-12 h-12 object-cover" src={editMessage.content.split(',')[0]}></img>
+            </div>
+          }
+          {
+            editMessage?.type === TYPE_MESSAGE.HTML &&
+            <div>
+              <img className="min-w-12 w-12 h-12 object-cover" src={imgsMessage[0]}></img>
+            </div>
+          }
+          <div>
+            <p className="text-sm font-semibold">Edit message</p>
+            <p className="line-clamp-1 text-ellipsis pr-2 text-sm text-gray w-full break-all">
+              {
+                renderHTMLMessage(editMessage)
+              }
+            </p>
+          </div>
+          <div
+            className="absolute right-2 top-0 cursor-pointer text-2 text-black rounded-full w-5 h-5 flex items-center justify-center"
+            onClick={handleClearEditMessage}
+          >
+            <CloseIcon />
+          </div>
+        </div>
+      </div>
+    );
   };
 
   return (
@@ -348,6 +447,9 @@ const TypeMessage = () => {
             </div>
           </div>
         </div>
+      }
+      {
+        isEdit && handleRenderEditMessage(editMessage)
       }
       <div className="flex items-center space-x-2 px-2 pt-1">
         <div className="cursor-pointer duration-300 hover:bg-gray2 p-1.5 rounded">

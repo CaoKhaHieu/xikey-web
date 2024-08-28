@@ -97,6 +97,17 @@ function* reportMessage({ payload, resolve, reject }: AnyAction): any {
   }
 }
 
+function* editMessage({ payload, resolve, reject }: AnyAction): any {
+  const { messageId, body } = payload;
+  try {
+    const res = yield patch(['v1', 'messages', `${messageId}`, 'edit'], { data: body });
+    resolve(res);
+  } catch (error: any) {
+    reject(error);
+    yield put(handleApiResponseError(error));
+  }
+}
+
 export function* watchMessage() {
   yield all([
     takeLatest(types.CREATE_MESSAGE, createMessage),
@@ -107,5 +118,6 @@ export function* watchMessage() {
     takeLatest(types.UNPIN_MESSAGE, unpinMessage),
     takeLatest(types.GET_PINED_MESSAGES, getPinedMessages),
     takeLatest(types.REPORT_MESSAGE, reportMessage),
+    takeLatest(types.EDIT_MESSAGE, editMessage),
   ]);
 };
