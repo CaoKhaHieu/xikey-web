@@ -17,7 +17,7 @@ import ImageDetail from "../image-detail";
 import ForwardMessage from "../dialog/templates/ForwardMessage";
 import ReportMessageDialog from "../dialog/templates/ReportMessage";
 import ConfirmDialog from "../dialog/templates/ConfirmDialog";
-import { deleteMessage, pinMessage, reactMessage, saveReplyMessage } from "@/stores/message/action";
+import { deleteMessage, pinMessage, reactMessage, saveEditMessage, saveReplyMessage } from "@/stores/message/action";
 
 import { TYPE_MESSAGE } from "@/shared/enums";
 import { REACTIONS } from "@/shared/constants";
@@ -35,6 +35,7 @@ import CopyIcon from "../../../assets/icons/copy.svg?react";
 import DeleteIcon from "../../../assets/icons/delete.svg?react";
 import CircleCheckIcon from "../../../assets/icons/circle-check.svg?react";
 import ReportIcon from "../../../assets/icons/report.svg?react";
+import EditIcon from "../../../assets/icons/edit2.svg?react";
 
 interface MessageOptions {
   message: MessageModel;
@@ -295,6 +296,10 @@ const Message = (props: MessageOptions) => {
     }, () => {}));
   };
 
+  const handleEditMessage = () => {
+    dispatch(saveEditMessage(message));
+  };
+
   const handleCopyMessage = () => {
     const value = message.content;
     navigator.clipboard.writeText(value);
@@ -376,11 +381,12 @@ const Message = (props: MessageOptions) => {
     //   icon: <CopyIcon />,
     //   onClick: handleCopyMessage,
     // },
-    // {
-    //   title: 'edit',
-    //   isShow: true,
-    //   icon: <EditIcon />
-    // },
+    {
+      title: 'edit',
+      isShow: !isDeleted && isCurrentUser,
+      icon: <EditIcon />,
+      onClick: handleEditMessage,
+    },
     {
       title: 'report',
       icon: <ReportIcon />,
