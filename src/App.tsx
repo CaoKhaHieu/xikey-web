@@ -49,24 +49,24 @@ function App() {
     }))
   };
 
-  useEffect(() => {
-    const handleMessage = (event: any) => {
-      try {
-        const data = JSON.parse(event.data);
-        if (data.userId) {
-          getUserProfileGMSH(data.userId);
-        }
-      } catch (error) {
-        console.error('Error parsing message data:', error);
-      }
-    };
+  // useEffect(() => {
+  //   const handleMessage = (event: any) => {
+  //     try {
+  //       const data = JSON.parse(event.data);
+  //       if (data.userId) {
+  //         getUserProfileGMSH(data.userId);
+  //       }
+  //     } catch (error) {
+  //       console.error('Error parsing message data:', error);
+  //     }
+  //   };
 
-    window.addEventListener('message', handleMessage);
+  //   window.addEventListener('message', handleMessage);
 
-    return () => {
-      window.removeEventListener('message', handleMessage);
-    };
-  }, []);
+  //   return () => {
+  //     window.removeEventListener('message', handleMessage);
+  //   };
+  // }, []);
 
   return (
     <>

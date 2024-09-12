@@ -14,13 +14,15 @@ const messageInitialState = {
   // use to trigger call api get pined message
   triggerGetPinedMessage: 0,
   editMessage: new Message({}),
+  scrollMessage: new Message({}),
 };
 
 const saveListMessageByIdConversation = (state: any, payload: {
   messages: Message[],
   conversationId: string;
+  direction: string;
 }) => {
-  const { messages, conversationId } = payload;
+  const { messages, conversationId, direction } = payload;
   const data: any = { ...state.messages };
   const newListMessage: any = {};
 
@@ -29,13 +31,31 @@ const saveListMessageByIdConversation = (state: any, payload: {
   });
 
   const newListMessageState = (state.conversationId === conversationId || !state.conversationId) ?
-    { ...newListMessage, ...data } :
+    (direction === 'UP' ? { ...newListMessage, ...data } : { ...data, ...newListMessage }) :
     { ...newListMessage };
   
   return {
     ...state,
     conversationId,
     messages: newListMessageState,
+  };
+};
+
+const replaceListMessage = (state: any, payload: {
+  messages: Message[],
+  conversationId: string;
+}) => {
+  const { messages, conversationId } = payload;
+  const newListMessage: any = {};
+
+  messages.forEach((message: Message) => {
+    newListMessage[message.id] = { ...message };
+  });
+  
+  return {
+    ...state,
+    conversationId,
+    messages: newListMessage,
   };
 };
 
@@ -132,8 +152,23 @@ const clearEditMessage = (state: any) => {
   };
 };
 
+const saveScrollMessage = (state: any, payload: Message) => {
+  return {
+    ...state,
+    scrollMessage: payload,
+  };
+};
+
+const clearScrollMessage = (state: any) => {
+  return {
+    ...state,
+    scrollMessage: new Message({}),
+  };
+};
+
 const messageStrategies = {
   SAVE_LIST_MESSAGE: saveListMessageByIdConversation,
+  REPLACE_LIST_MESSAGE: replaceListMessage,
   SAVE_NEW_MESSAGE: saveNewMessageByIdConversation,
   SAVE_NEW_MESSAGE_WITH_VIRTUAL_ID: saveNewMessageByIdConversationWithVirtualId,
   UPDATE_MESSAGE: updateMessageByIdConversation,
@@ -144,6 +179,8 @@ const messageStrategies = {
   TRIGGER_GET_PINED_MESSAGE: triggerGetPinedMessage,
   SAVE_EDIT_MESSAGE: saveEditMessage,
   CLEAR_EDIT_MESSAGE: clearEditMessage,
+  SAVE_SCROLL_MESSAGE: saveScrollMessage,
+  CLEAR_SCROLL_MESSAGE: clearScrollMessage,
   __default__: (state: any) => state,
 };
 

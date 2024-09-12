@@ -15,8 +15,17 @@ export const editMessageAction = generateAPIAction(types.EDIT_MESSAGE);
 export const saveListMessage = (payload: {
   messages: Message[],
   conversationId: string,
+  direction: string,
 }) => ({
   type: types.SAVE_LIST_MESSAGE,
+  payload,
+});
+
+export const replaceListMessage = (payload: {
+  messages: Message[],
+  conversationId: string,
+}) => ({
+  type: types.REPLACE_LIST_MESSAGE,
   payload,
 });
 
@@ -65,4 +74,13 @@ export const saveEditMessage = (payload: Message) => ({
 
 export const clearEditMessage = () => ({
   type: types.CLEAR_EDIT_MESSAGE,
+});
+
+export const saveScrollMessage = (payload: Message) => ({
+  type: types.SAVE_SCROLL_MESSAGE,
+  payload,
+});
+
+export const clearScrollMessage = () => ({
+  type: types.CLEAR_SCROLL_MESSAGE,
 });
