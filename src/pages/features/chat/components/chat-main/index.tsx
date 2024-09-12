@@ -141,10 +141,14 @@ const ChatMain = () => {
       const isScrollEndList = scrollTop === 0;
       isScrollEndRef.current = isScrollEndList;
 
-      if (isScrollEndList && isHasMoreDownRef.current) {
+      if (isScrollEndList) {
         const distanceScrollTop = listMessageRef.current?.scrollHeight - listMessageRef.current?.clientHeight;
         previousScrollHeightRef.current = distanceScrollTop;
-        handleGetMessage(listMessage[listMessage.length - 1].id, 'DOWN');
+        const lastMessage = listMessage[listMessage.length - 1];
+        // no call api when user scroll to top and send a message
+        if (!lastMessage.isSending) {
+          handleGetMessage(listMessage[listMessage.length - 1].id, 'DOWN');
+        }
         dispatch(triggerAlertNewMessage({ type: 'RESET' }));
       }
       // handle load more message

@@ -221,7 +221,7 @@ const Message = (props: MessageOptions) => {
 
     if (message.replyMessage.isDeleted) {
       return (
-        <p className="text-gray3 px-2.5 py-1">
+        <p className="text-gray3 py-1">
           <i>{t('deleted_message')}</i>
         </p>
       );
