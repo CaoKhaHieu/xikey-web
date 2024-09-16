@@ -84,3 +84,8 @@ export const saveScrollMessage = (payload: Message) => ({
 export const clearScrollMessage = () => ({
   type: types.CLEAR_SCROLL_MESSAGE,
 });
+
+export const saveLastMesssageLoaded = (payload: boolean) => ({
+  type: types.SAVE_LAST_MESSAGE_LOADED,
+  payload,
+});

@@ -8,13 +8,16 @@ const messageInitialState = {
   messages: {},
   reply: {},
   // use to trigger scroll to end list message
-  triggerScroll: 1,
+  triggerScroll: 0,
   // use to trigger show alert new message incase user not scroll to end list message
   alert: 0,
   // use to trigger call api get pined message
   triggerGetPinedMessage: 0,
   editMessage: new Message({}),
   scrollMessage: new Message({}),
+  // kiểm tra tin nhắn cuối cùng đã nằm trong list message hay chưa.
+  // Ex: click reply message và scroll tới những tin nhắn đầu tiên thì không có tin nhắn cuối cùng
+  isLastMessageLoaded: true,
 };
 
 const saveListMessageByIdConversation = (state: any, payload: {
@@ -166,6 +169,13 @@ const clearScrollMessage = (state: any) => {
   };
 };
 
+const saveLastMessageLoaded = (state: any, payload: boolean) => {
+  return {
+    ...state,
+    isLastMessageLoaded: payload,
+  };
+};
+
 const messageStrategies = {
   SAVE_LIST_MESSAGE: saveListMessageByIdConversation,
   REPLACE_LIST_MESSAGE: replaceListMessage,
@@ -181,6 +191,7 @@ const messageStrategies = {
   CLEAR_EDIT_MESSAGE: clearEditMessage,
   SAVE_SCROLL_MESSAGE: saveScrollMessage,
   CLEAR_SCROLL_MESSAGE: clearScrollMessage,
+  SAVE_LAST_MESSAGE_LOADED: saveLastMessageLoaded,
   __default__: (state: any) => state,
 };
 

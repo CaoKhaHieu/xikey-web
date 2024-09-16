@@ -4,7 +4,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { useTranslation } from "react-i18next";
 
 import Message from "@/shared/components/message";
-import { clearScrollMessage, getListMessage, saveScrollMessage, triggerAlertNewMessage} from "@/stores/message/action";
+import { clearScrollMessage, getListMessage, saveLastMesssageLoaded, saveScrollMessage, triggerAlertNewMessage} from "@/stores/message/action";
 import { Message as MessageModel } from "@/shared/models/Message";
 import { clearCurrentConversation, getInfoConversation, selectConversation } from "@/stores/conversation/action";
 import { Loading } from "@/shared/components/loading";
@@ -21,7 +21,8 @@ const ChatMain = () => {
   const { conversation } = useSelector((state: any) => state.conversationReducer);
 
   const listMessage: MessageModel[] = Object.values(messageManagement.messages);
-  const { currentConversation } = conversation;
+  const { currentConversation }: { currentConversation: Conversation } = conversation;
+  const { isLastMessageLoaded, triggerScroll }: { isLastMessageLoaded: boolean, triggerScroll: boolean } = messageManagement;
   const { alert, scrollMessage }: { alert: number, scrollMessage: MessageModel } = messageManagement;
 
   const { t } = useTranslation();
@@ -45,6 +46,7 @@ const ChatMain = () => {
       idConversationRef.current = id;
       isHasMoreRef.current = true;
       isHasMoreDownRef.current = true;
+      dispatch(saveLastMesssageLoaded(true));
     }
     return () => {
       setIsLoading(true);
@@ -75,6 +77,17 @@ const ChatMain = () => {
       handleScrollToMessageElement(messageElement)
     }
   }, [scrollMessage]);
+
+  useEffect(() => {
+    if (triggerScroll) {
+      handleScrollToEnd();
+
+      // handle load latest message incase user clicked reply message then send new message
+      if (!isLastMessageLoaded) {
+        handleGetLatestMessages();
+      }
+    }
+  }, [triggerScroll]);
 
   const handleScrollToMessageElement = (messageElement: any) => {
     messageElement.scrollIntoView();
@@ -124,6 +137,10 @@ const ChatMain = () => {
         dispatch(saveScrollMessage(messages[index]));
         saveScrollMessage(messages[index]);
       }
+      if (search || direction === 'DOWN') {
+        const isLastMessageLoaded = messages[messages.length - 1].id === currentConversation.lastMessage.id;
+        dispatch(saveLastMesssageLoaded(isLastMessageLoaded));
+      }
     }, () => {
       setIsLoading(false);
     }));
@@ -141,14 +158,17 @@ const ChatMain = () => {
       const isScrollEndList = scrollTop === 0;
       isScrollEndRef.current = isScrollEndList;
 
-      if (isScrollEndList) {
+      const lastMessageInList = listMessage[listMessage.length - 1];
+      if (isScrollEndList && currentConversation.lastMessage.id !== lastMessageInList.id) {
         const distanceScrollTop = listMessageRef.current?.scrollHeight - listMessageRef.current?.clientHeight;
         previousScrollHeightRef.current = distanceScrollTop;
-        const lastMessage = listMessage[listMessage.length - 1];
         // no call api when user scroll to top and send a message
-        if (!lastMessage.isSending) {
-          handleGetMessage(listMessage[listMessage.length - 1].id, 'DOWN');
+        if (!lastMessageInList.isSending) {
+          handleGetMessage(lastMessageInList.id, 'DOWN');
         }
+      }
+      // handle remove alert new message
+      if (isScrollEndList && isLastMessageLoaded) {
         dispatch(triggerAlertNewMessage({ type: 'RESET' }));
       }
       // handle load more message
@@ -162,8 +182,18 @@ const ChatMain = () => {
   };
 
   const handleClickAlertNewMessage = () => {
-    handleScrollToEnd();
     dispatch(triggerAlertNewMessage({ type: 'RESET' }));
+    if (isLastMessageLoaded) {
+      handleScrollToEnd();
+    } else {
+      // handle incase user click reply message and scroll to top, then any message comming
+      handleGetLatestMessages();
+    }
+  };
+
+  const handleGetLatestMessages = () => {
+    // using search = 1 to replace current list message
+    handleGetMessage('', 'UP', 1);
   };
 
   if (isLoading) {
