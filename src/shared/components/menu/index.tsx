@@ -11,12 +11,14 @@ export interface IMenuData {
   tooltip: string;
   icon: any;
   active: boolean;
+  isHidden?: boolean;
   onClick?: () => void
 }
 
 interface IMenuItem {
   menu: IMenuData;
   className?: string;
+  onClick?: () => void;
 }
 
 const Menu = (props: IMenu) => {
@@ -25,9 +27,9 @@ const Menu = (props: IMenu) => {
 };
 
 const MenuItem = (props: IMenuItem) => {
-  const { menu, className } = props;
+  const { menu, className, onClick } = props;
   const { icon } = menu;
-  return <div className={classNames("cursor-pointer", className)}>{icon}</div>;
+  return <div className={classNames("cursor-pointer", className)} onClick={onClick}>{icon}</div>;
 };
 
 export { Menu, MenuItem };

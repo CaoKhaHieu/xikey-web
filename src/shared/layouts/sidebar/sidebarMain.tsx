@@ -18,7 +18,7 @@ import { Conversation } from "@/shared/models/Conversation";
 import { searchUser } from "@/stores/user/action";
 import Avatar from "@/shared/components/avatar";
 import { useDialog } from "@/shared/components/dialog";
-import { createConversation, getAllConversation, getAllGroupConversation, saveAllConversations, selectConversation } from "@/stores/conversation/action";
+import { createConversation, getAllConversation, getAllGroupConversation, getConversationWithAdmin, saveAllConversations, selectConversation } from "@/stores/conversation/action";
 
 import SearchIcon from "@/assets/icons/search.svg?react";
 import GroupIcon from "@/assets/icons/group.svg?react";
@@ -53,7 +53,11 @@ const SidebarMain = () => {
     if (!user.id) {
       return;
     }
-    handleGetAllConversation();
+    if (user.isAdmin) {
+      handleGetAllConversation();
+    } else {
+      handleGetAllGroupConversation();
+    }
   }, [user.id]);
 
   const handleChangeInput = (event: React.FormEvent<HTMLInputElement>) => {
@@ -83,9 +87,12 @@ const SidebarMain = () => {
 
   const handleGetAllGroupConversation = () => {
     dispatch(getAllGroupConversation(null, () => {
-      setIsLoading(false);
+      dispatch(getConversationWithAdmin(null, () => {
+        setIsLoading(false);
+      }, () => {
+        setIsLoading(false);
+      }));
     }, () => {
-      setIsLoading(false);
     }));
   };
 

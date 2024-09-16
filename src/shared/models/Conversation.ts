@@ -1,4 +1,5 @@
 import { Message } from "./Message";
+import { CONVERSATION_STATUS } from "../enums";
 
 export interface Link {
   id: string;
@@ -8,6 +9,7 @@ export interface Link {
 
 export interface Conversation {
   id: string;
+  status: CONVERSATION_STATUS,
   name: string;
   avatar: string;
   members: string[];
@@ -16,14 +18,17 @@ export interface Conversation {
   updatedAt: string;
   isGroup: boolean;
   isCloud: boolean;
+  isBot: boolean;
   ownerId: string;
   links: Link[];
   bannedMembers: string[];
+  kickedMembers: string[];
 }
 
 export class Conversation {
   constructor (conversation: any) {
     this.id = conversation.id;
+    this.status = conversation.status || CONVERSATION_STATUS.PUBLIC;
     this.avatar = conversation.avatar;
     this.name = conversation.name;
     this.members = conversation.members;
@@ -31,6 +36,7 @@ export class Conversation {
     this.updatedAt = conversation.updatedAt;
     this.isGroup = conversation.isGroup || this.members?.length > 2;
     this.isCloud = conversation.isCloud || false;
+    this.isBot = conversation.isBot || false;
     this.ownerId = conversation.ownerId || '';
     this.links = conversation.links?.map((link: any) => ({
       id: link._id,
@@ -38,5 +44,6 @@ export class Conversation {
       link: link.link
     })) || [];
     this.bannedMembers = conversation.bannedMembers || [];
+    this.kickedMembers = conversation.kickedMembers || [];
   }
 }

@@ -5,7 +5,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { BASE_URL } from '@/shared/constants';
 import { Message } from '@/shared/models/Message';
 import { saveNewMessage, saveNewMessageWithVirtualId, triggerAlertNewMessage, triggerScrollToEndListMessage, updateMessage, triggerGetPinedMessage } from '@/stores/message/action';
-import { removeConversation, selectConversation, updateInfoConversation, updateLastMessageConversation } from '@/stores/conversation/action';
+import { clearCurrentConversation, removeConversation, selectConversation, updateInfoConversation, updateLastMessageConversation } from '@/stores/conversation/action';
 import { Conversation } from '@/shared/models/Conversation';
 import { User } from '@/shared/models/User';
 import { getToken } from '@/shared/utils/utils';
@@ -32,9 +32,14 @@ export const useSocket = () => {
 const SocketProvider = (props: SocketProps) => {
   const { conversation } = useSelector((state: any) => state.conversationReducer);
   const { user }: { user: User } = useSelector((state: any) => state.userReducer);
+  const { messageManagement } = useSelector((state: any) => state.messageReducer);
+
+  const { isLastMessageLoaded }: { isLastMessageLoaded: boolean } = messageManagement;
   const { currentConversation }: { currentConversation: Conversation } = conversation;
+
   const currentConversationRef = useRef<Conversation>(currentConversation);
   const userRef = useRef<User>(user);
+  const isLastMessageLoadedRef = useRef<boolean>(isLastMessageLoaded);
   
   const dispatch = useDispatch();
 
@@ -53,32 +58,47 @@ const SocketProvider = (props: SocketProps) => {
         // isNew to know message is receive by socket
         isNew: true,
       };
-
-      if (currentConversationRef.current.id === newMessage.conversationId) {
-        if (newMessage.sender.id === userRef.current.id) {
-          // update message
-          dispatch(saveNewMessageWithVirtualId(newMessage));
-        } else {
-          // save new message
-          dispatch(saveNewMessage(newMessage));
-          //handle show alert new message
-          dispatch(triggerAlertNewMessage({ type: 'INCREASE' }));
-        }
-      }
       dispatch(updateLastMessageConversation(newMessage));
+      
+      if (currentConversationRef.current.id !== newMessage.conversationId) {
+        return;
+      }
+
+      if (newMessage.sender.id === userRef.current.id) {
+        // update message
+        dispatch(saveNewMessageWithVirtualId(newMessage));
+      } else {
+        // save new message in case last message loaded
+        // Ex: Click reply message scroll to top, khi có tin nhắn tới mà chưa có last message thì không cần thêm vào list
+        if (isLastMessageLoadedRef.current) {
+          dispatch(saveNewMessage(newMessage));
+        }
+        //handle show alert new message
+        dispatch(triggerAlertNewMessage({ type: 'INCREASE' }));
+      }
+    });
+
+    socket.on('edit_message', (message: Message) => {
+      if (currentConversationRef.current.id === message.conversationId) {
+        dispatch(updateMessage(message));
+      }
+      if (currentConversationRef.current.lastMessage.id === message.id) {
+        dispatch(updateLastMessageConversation(message));
+      }
     });
 
     socket.on('delete_message', (message: Message) => {
       if (currentConversationRef.current.id === message.conversationId) {
         dispatch(updateMessage(message));
       }
+      if (currentConversationRef.current.lastMessage.id === message.id) {
+        dispatch(updateLastMessageConversation(message));
+      }
     });
 
     socket.on('reaction', (message: Message) => {
       if (currentConversationRef.current.id === message.conversationId) {
         dispatch(updateMessage(message));
-        // handle scroll list message to end because height of list message can change
-        dispatch(triggerScrollToEndListMessage());
       }
     });
 
@@ -90,6 +110,9 @@ const SocketProvider = (props: SocketProps) => {
     });
 
     socket.on('remove_group', (conversation: Conversation) => {
+      if (currentConversationRef.current.id === conversation.id) {
+        dispatch(clearCurrentConversation());
+      }
       dispatch(removeConversation(conversation));
     });
 
@@ -100,6 +123,9 @@ const SocketProvider = (props: SocketProps) => {
 
     socket.on('kick_user', (conversation: Conversation) => {
       // remove the conversation when user has been kick by admin
+      if (currentConversationRef.current.id === conversation.id) {
+        dispatch(clearCurrentConversation());
+      }
       dispatch(removeConversation(conversation));
     });
 
@@ -133,6 +159,10 @@ const SocketProvider = (props: SocketProps) => {
   useEffect(() => {
     currentConversationRef.current = currentConversation;
   }, [conversation.currentConversation]);
+
+  useEffect(() => {
+    isLastMessageLoadedRef.current = isLastMessageLoaded;
+  }, [isLastMessageLoaded]);
 
   const data = {
     socket,

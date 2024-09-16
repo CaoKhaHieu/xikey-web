@@ -10,17 +10,18 @@ import Tooltip from "@/shared/components/tooltip";
 import { User } from "@/shared/models/User";
 import { Conversation } from "@/shared/models/Conversation";
 import { upload } from "@/stores/common/actions";
-import { TYPE_MESSAGE } from "@/shared/enums";
+import { CONVERSATION_STATUS, TYPE_MESSAGE } from "@/shared/enums";
 import { Message } from "@/shared/models/Message";
 import { BASE_URL, VALIDATE_LENGTH } from "@/shared/constants";
-import { showToast } from "@/shared/utils/utils";
-import { clearReplyMessage, createMessage, saveNewMessage, triggerAlertNewMessage, triggerScrollToEndListMessage } from "@/stores/message/action";
+import { getImgsMessage, getTextMessage, htmlMessage, renderHTMLMessage, showToast } from "@/shared/utils/utils";
+import { clearEditMessage, clearReplyMessage, createMessage, editMessageAction, saveNewMessage, triggerAlertNewMessage, triggerScrollToEndListMessage } from "@/stores/message/action";
 
 import LikeIcon from "@/assets/icons/like.svg?react";
 import Smile from "@/assets/icons/smile.svg?react";
 import UploadImageIcon from "@/assets/icons/upload-image.svg?react";
 // import UploadFileIcon from "@/assets/icons/file.svg?react";
 import CloseIcon from "@/assets/icons/close.svg?react";
+import SendIcon from "@/assets/icons/send.svg?react";
 
 interface ImageData {
   urlLocal: string;
@@ -28,8 +29,22 @@ interface ImageData {
   id: number;
 }
 
+class ImageData {
+  constructor (img: any) {
+    this.id = img.id;
+    this.url = img.url;
+    this.urlLocal = img.urlLocal;
+  }
+}
+
 interface UploadImage {
   [key: number]: ImageData;
+}
+
+class UploadImage implements UploadImage {
+  constructor(id: number, data: ImageData) {
+    this[id] = data;
+  }
 }
 
 const previewConfig = {
@@ -42,10 +57,14 @@ const TypeMessage = () => {
   
   const [valueInput, setValueInput] = useState('');
   const [isOpenModalIcon, setIsOpenModalIcon] = useState<boolean>(false);
+  const [isShowSendButton, setIsShowSendButton] = useState<boolean>(false);
+
   const { user }: { user: User } = useSelector((state: any) => state.userReducer);
   const { messageManagement } = useSelector((state: any) => state.messageReducer);
   const { conversation } = useSelector((state: any) => state.conversationReducer);
   const { currentConversation }: { currentConversation: Conversation} = conversation;
+  const { editMessage }: { editMessage: Message } = messageManagement;
+  const isEdit = !!editMessage.id;
   
   const inputRef = useRef<HTMLInputElement>(null);
   const emojiRef = useRef<any>();
@@ -58,6 +77,18 @@ const TypeMessage = () => {
 
   const replyMessage: Message = messageManagement.reply[id];
   const isBanned: boolean = currentConversation.bannedMembers.includes(user.id);
+  const havePermissionWithPrivateConversation =
+    currentConversation.status === CONVERSATION_STATUS.PRIVATE ? (user.isAdmin || user.hasVerified) : true;
+  let imgsMessage: string[] = [];
+
+  if (replyMessage && replyMessage.type === TYPE_MESSAGE.HTML) {
+    imgsMessage = getImgsMessage(replyMessage.content);
+  }
+  
+  useEffect(() => {
+    const isShow = !!(valueInput || listImg.length);
+    setIsShowSendButton(isShow);
+  }, [valueInput, listImg.length]);
 
   useEffect(() => {
     countUploadImagesRef.current = listImg.length;
@@ -87,6 +118,26 @@ const TypeMessage = () => {
   useEffect(() => {
     inputRef.current?.focus();
   }, [replyMessage]);
+
+  useEffect(() => {
+    if (isEdit) {
+      let textMessage: string = editMessage.content;
+      let imgsMessage: UploadImage = {};
+      if (editMessage.type === TYPE_MESSAGE.HTML) {
+        textMessage = getTextMessage(editMessage.content);
+        getImgsMessage(editMessage.content).forEach((img: string, index: number) => {
+          imgsMessage[index] = new ImageData({
+            id: index,
+            urlLocal: '',
+            url: img,
+          })
+        });
+      }
+      setValueInput(textMessage);
+      setUploadImage(imgsMessage);
+      inputRef.current?.focus();
+    }
+  }, [editMessage]);
   
   const toggleOpenModalIcon = (value: boolean) => {
     setIsOpenModalIcon(value);
@@ -196,24 +247,26 @@ const TypeMessage = () => {
 
       e.preventDefault();
       handleSendMessage();
-
-      if (listImg.length > 0) {
-        const listUrl = listImg.map((item: ImageData) => item.url);
-        const contentMessage = listUrl.join(',');
-        handleSendMessage(contentMessage, TYPE_MESSAGE.IMAGE_LIST);
-        setUploadImage({});
-      }
     }
   };
 
   const handleSendMessage = (message?: string, type = TYPE_MESSAGE.TEXT) => {
+    if (!havePermissionWithPrivateConversation || isBanned) {
+      return;
+    }
+
+    const textMessage = message || valueInput;
+    const listUrl = listImg.map((item: ImageData) => item.url);
+    const contentMessage = listImg.length ? htmlMessage(listUrl, valueInput) : textMessage;
+    const typeMessage = listImg.length ? TYPE_MESSAGE.HTML : type;
+
     const isImageMessage = type == TYPE_MESSAGE.IMAGE;
     const virtualId = Date.now();
     const body = {
       conversationId: id,
       sender: user.id,
-      content: message || valueInput,
-      type,
+      content: contentMessage,
+      type: typeMessage,
       replyMessage: isImageMessage ? undefined : replyMessage?.id,
       virtualId,
     };
@@ -225,31 +278,45 @@ const TypeMessage = () => {
       virtualId,
       conversationId: id,
       sender: user,
-      content: message || valueInput,
+      content: contentMessage,
       isNew: true,
       createdAt: Date.now(),
-      type,
+      type: typeMessage,
       isSending: true,
       replyMessage: !isImageMessage && replyMessage?.id && new Message(replyMessage)
     });
 
-    // handle send message
-    dispatch(saveNewMessage(messageData));
-    // handle scroll list message to end
-    dispatch(triggerScrollToEndListMessage());
+    if (!isEdit) {
+      dispatch(saveNewMessage(messageData));
+      // handle scroll list message to end
+      dispatch(triggerScrollToEndListMessage());
+    }
 
     setValueInput('');
     setIsOpenModalIcon(false);
     valueInputRef.current = '';
     !isImageMessage && dispatch(clearReplyMessage({ conversationId: id }));
-    dispatch(createMessage(body, () => {
-    }, () => {}));
+    if (isEdit) {
+      dispatch(editMessageAction({messageId: editMessage.id, body }, () => {
+      }, () => {
+      }));
+      dispatch(clearEditMessage());
+    } else {
+      dispatch(createMessage(body, () => {
+      }, () => {}));
+    }
+    setUploadImage({});
   };
 
-  const handleChangeFile = (e: any, type: TYPE_MESSAGE) => {
+  const handleChangeFile = (e: any) => {
     const file = e.target.files[0];
 
     if (!file) {
+      return;
+    }
+
+    if (countUploadImagesRef.current >= VALIDATE_LENGTH.LIMIT_IMAGES) {
+      showToast(t('limit_image_upload'));
       return;
     }
 
@@ -257,117 +324,201 @@ const TypeMessage = () => {
     formData.append("image", file);
 
     dispatch(upload(formData, (res: { url: string}) => {
-      handleSendMessage(res.url, type);
+      const dataImage: ImageData = {
+        url: res.url,
+        urlLocal: '',
+        id: file.lastModified
+      };
+      setUploadImage((prev) => ({
+        ...prev,
+        [file.lastModified]: dataImage
+      }));
     }, () => {
     }));
+
+    // reset value input incase upload the same image multiple times
+    e.target.value = '';
+    inputRef.current?.focus();
   };
 
   const handleClearReply = () => {
     dispatch(clearReplyMessage({ conversationId: id }));
   };
 
+  const handleClearEditMessage = () => {
+    dispatch(clearEditMessage());
+    setValueInput('');
+    setUploadImage({});
+  };
+
+  const handleRenderEditMessage = (editMessage: Message) => {
+    let imgsMessage: string[] = [];
+
+    if (editMessage && editMessage.type === TYPE_MESSAGE.HTML) {
+      imgsMessage = getImgsMessage(editMessage.content);
+    }
+
+    return (
+      <div className="p-2">
+        <div className={classNames("border-l-4 border-primary pl-1.5 relative", {
+          "flex items-center space-x-2": editMessage?.type === TYPE_MESSAGE.IMAGE || editMessage?.type === TYPE_MESSAGE.IMAGE_LIST || editMessage?.type === TYPE_MESSAGE.HTML
+        })}>
+          {
+            editMessage?.type === TYPE_MESSAGE.IMAGE &&
+            <div>
+              <img className="min-w-12 w-12 h-12 object-cover" src={editMessage.content}></img>
+            </div>
+          }
+          {
+            editMessage?.type === TYPE_MESSAGE.IMAGE_LIST &&
+            <div>
+              <img className="min-w-12 w-12 h-12 object-cover" src={editMessage.content.split(',')[0]}></img>
+            </div>
+          }
+          {
+            editMessage?.type === TYPE_MESSAGE.HTML &&
+            <div>
+              <img className="min-w-12 w-12 h-12 object-cover" src={imgsMessage[0]}></img>
+            </div>
+          }
+          <div>
+            <p className="text-sm font-semibold">Edit message</p>
+            <p className="line-clamp-1 text-ellipsis pr-2 text-sm text-gray w-full break-all">
+              {
+                renderHTMLMessage(editMessage)
+              }
+            </p>
+          </div>
+          <div
+            className="absolute right-2 top-0 cursor-pointer text-2 text-black rounded-full w-5 h-5 flex items-center justify-center"
+            onClick={handleClearEditMessage}
+          >
+            <CloseIcon />
+          </div>
+        </div>
+      </div>
+    );
+  };
+
   return (
     <Tooltip
       className=''
       id='banned'
-      content={t(isBanned ? 'You have been banned from chatting' : '')}
+      content={t((!havePermissionWithPrivateConversation || isBanned) ? 'You do not have permission to message the group' : '')}
     >
-      <div className="flex flex-col mx-3 my-2.5 rounded-xl border border-gray2">
-        {
-          replyMessage &&
-          <div className="p-2">
-            <div className={classNames("border-l-4 border-primary pl-1.5 relative", {
-              "flex items-center space-x-2": replyMessage?.type === TYPE_MESSAGE.IMAGE || replyMessage?.type === TYPE_MESSAGE.IMAGE_LIST
-            })}>
-              {
-                replyMessage?.type === TYPE_MESSAGE.IMAGE &&
-                <div>
-                  <img className="min-w-12 w-12 h-12 object-cover" src={replyMessage.content}></img>
-                </div>
-              }
-              {
-                replyMessage?.type === TYPE_MESSAGE.IMAGE_LIST &&
-                <div>
-                  <img className="min-w-12 w-12 h-12 object-cover" src={replyMessage.content.split(',')[0]}></img>
-                </div>
-              }
-              <div>
-                <p className="text-sm font-semibold">{replyMessage.sender.name}</p>
-                <p className="line-clamp-1 text-ellipsis pr-2 text-sm text-gray3">
-                  {replyMessage.type === TYPE_MESSAGE.IMAGE ? t('image') : replyMessage.content}
-                </p>
-              </div>
-              <div
-                className="absolute right-2 top-0 cursor-pointer text-2 text-black rounded-full w-5 h-5 flex items-center justify-center"
-                onClick={handleClearReply}
-              >
-                <CloseIcon />
-              </div>
-            </div>
-          </div>
-        }
-        <div className="flex items-center space-x-2 px-2 pt-1">
-          <div className="cursor-pointer duration-300 hover:bg-gray2 p-1.5 rounded">
-            <label htmlFor='input-image' className="cursor-pointer">
-              <UploadImageIcon />
-            </label>
-            <input className='hidden' id='input-image' type='file' accept="image/png, image/jpeg, image/jpg, image/webp" onChange={(e) => handleChangeFile(e, TYPE_MESSAGE.IMAGE)} disabled={isBanned}></input>
-          </div>
-          {/* <div className="cursor-pointer duration-300 hover:bg-gray2 p-1.5 rounded">
-            <label htmlFor='input-file' className="cursor-pointer">
-              <UploadFileIcon />
-            </label>
-            <input className='hidden' id='input-file' type='file'></input>
-          </div> */}
-        </div>
-        <div className="flex items-center space-x-4 px-4">
-          <Input
-            ref={inputRef}
-            className="px-4 pt-2 pb-4 pl-0"
-            placeholder={t('type_message')}
-            value={valueInput}
-            onChange={handleChange}
-            onKeyPress={handleKeyPress}
-            onPaste={handlePaste}
-            autoFocus
-            disabled={isBanned}
-          />
-          <div className="flex items-center relative">
-            <button onClick={() => toggleOpenModalIcon(!isOpenModalIcon)}>
-              <Smile />
-            </button>
+    <div className="flex flex-col mx-3 my-2.5 rounded-xl border border-gray2">
+      {
+        replyMessage &&
+        <div className="p-2">
+          <div className={classNames("border-l-4 border-primary pl-1.5 relative", {
+            "flex items-center space-x-2": replyMessage?.type === TYPE_MESSAGE.IMAGE || replyMessage?.type === TYPE_MESSAGE.IMAGE_LIST || replyMessage?.type === TYPE_MESSAGE.HTML
+          })}>
             {
-              isOpenModalIcon &&
-              <div className='absolute bottom-12 -right-10 z-10 md-right-0' ref={emojiRef}>
-                <EmojiPicker onEmojiClick={onEmojiClick} searchDisabled previewConfig={previewConfig} height={350} />
+              replyMessage?.type === TYPE_MESSAGE.IMAGE &&
+              <div>
+                <img className="min-w-12 w-12 h-12 object-cover" src={replyMessage.content}></img>
               </div>
             }
+            {
+              replyMessage?.type === TYPE_MESSAGE.IMAGE_LIST &&
+              <div>
+                <img className="min-w-12 w-12 h-12 object-cover" src={replyMessage.content.split(',')[0]}></img>
+              </div>
+            }
+            {
+              replyMessage?.type === TYPE_MESSAGE.HTML &&
+              <div>
+                <img className="min-w-12 w-12 h-12 object-cover" src={imgsMessage[0]}></img>
+              </div>
+            }
+            <div>
+              <p className="text-sm font-semibold">{replyMessage.sender.name}</p>
+              <p className="line-clamp-1 text-ellipsis pr-2 text-sm text-gray w-full break-all">
+                {
+                  renderHTMLMessage(replyMessage)
+                }
+              </p>
+            </div>
+            <div
+              className="absolute right-2 top-0 cursor-pointer text-2 text-black rounded-full w-5 h-5 flex items-center justify-center"
+              onClick={handleClearReply}
+            >
+              <CloseIcon />
+            </div>
           </div>
+        </div>
+      }
+      {
+        isEdit && handleRenderEditMessage(editMessage)
+      }
+      <div className="flex items-center space-x-2 px-2 pt-1">
+        <div className="cursor-pointer duration-300 hover:bg-gray2 p-1.5 rounded">
+          <label htmlFor='input-image' className="cursor-pointer">
+            <UploadImageIcon />
+          </label>
+          <input className='hidden' id='input-image' type='file' accept="image/png, image/jpeg, image/jpg, image/webp" onChange={handleChangeFile} disabled={!havePermissionWithPrivateConversation || isBanned}></input>
+        </div>
+        {/* <div className="cursor-pointer duration-300 hover:bg-gray2 p-1.5 rounded">
+          <label htmlFor='input-file' className="cursor-pointer">
+            <UploadFileIcon />
+          </label>
+          <input className='hidden' id='input-file' type='file'></input>
+        </div> */}
+      </div>
+      <div className="flex items-center space-x-4 px-4">
+        <Input
+          ref={inputRef}
+          className="px-4 pt-2 pb-4 pl-0"
+          placeholder={t('type_message')}
+          value={valueInput}
+          onChange={handleChange}
+          onKeyPress={handleKeyPress}
+          onPaste={handlePaste}
+          autoFocus
+          disabled={!havePermissionWithPrivateConversation || isBanned}
+        />
+        <div className="flex items-center relative">
+          <button onClick={() => toggleOpenModalIcon(!isOpenModalIcon)}>
+            <Smile />
+          </button>
+          {
+            isOpenModalIcon &&
+            <div className='absolute bottom-12 -right-10 z-10 md-right-0' ref={emojiRef}>
+              <EmojiPicker onEmojiClick={onEmojiClick} searchDisabled previewConfig={previewConfig} height={350} />
+            </div>
+          }
+        </div>
+        {
+          isShowSendButton ? 
+          <div className="cursor-pointer text-3xl" onClick={() => handleSendMessage()}>
+            <SendIcon />
+          </div> :
           <div className="cursor-pointer" onClick={() => handleSendMessage('👍')}>
             <LikeIcon />
           </div>
-        </div>
-        {
-          Object.values(uploadImage).length > 0 &&
-          <div className="mb-4 px-4 flex flex-wrap items-center">
-            {
-              Object.values(uploadImage).map((img: ImageData) => (
-                <div key={img.id} className="relative mr-4">
-                  <img className="w-20 h-20 rounded-lg object-cover border border-gray2" src={img.urlLocal || img.url} width='100px' height='100px' />
-                  <div className="absolute right-1 top-1 text-2 text-black bg-gray2 border border-white rounded-full p-1 cursor-pointer duration-300 hover:bg-primaryHover hover:text-white">
-                    {
-                      !img.url ? <p>Loading...</p> :
-                      <div onClick={() => handleRemoveImage(img.id)}>
-                        <CloseIcon />
-                      </div>
-                    }
-                  </div>
-                </div>
-              ))
-            }
-          </div>
         }
       </div>
+      {
+        Object.values(uploadImage).length > 0 &&
+        <div className="mb-4 px-4 flex flex-wrap items-center">
+          {
+            Object.values(uploadImage).map((img: ImageData) => (
+              <div key={img.id} className="relative mr-4">
+                <img className="w-20 h-20 rounded-lg object-cover border border-gray2" src={img.urlLocal || img.url} width='100px' height='100px' />
+                <div className="absolute right-1 top-1 text-2 text-black bg-gray2 border border-white rounded-full p-1 cursor-pointer duration-300 hover:bg-primaryHover hover:text-white">
+                  {
+                    !img.url ? <p>Loading...</p> :
+                    <div onClick={() => handleRemoveImage(img.id)}>
+                      <CloseIcon />
+                    </div>
+                  }
+                </div>
+              </div>
+            ))
+          }
+        </div>
+      }
+    </div>
     </Tooltip>
   );
 };

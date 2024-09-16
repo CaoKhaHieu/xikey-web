@@ -1,0 +1,27 @@
+.inputRadio {
+  @apply flex;
+  label:last-child {
+    @apply mr-5;
+  }
+
+  .inputRadioLabel {
+    @apply flex items-center cursor-pointer whitespace-nowrap;
+
+    .inputRadioCheckBox {
+      @apply relative min-w-4 w-4 h-4 rounded-full bg-white border-gray2 border-2 mr-2;
+
+      &::after {
+        content: '';
+        @apply absolute w-1.5 h-1.5 rounded-full block inset-1/2 bg-primaryHover;
+        transform: scale(0) translate(-50%, -50%);
+      }
+    }
+
+    input:checked + .inputRadioCheckBox {
+      @apply border-2 border-primaryHover;
+      &:after {
+        transform: scale(1) translate(-50%, -50%);
+      }
+    }
+  }
+}

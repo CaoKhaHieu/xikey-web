@@ -10,6 +10,7 @@ interface PopoverProps extends PopoverContentProps {
   ref?: any;
   align?: 'start' | 'center' | 'end';
   padding?: number;
+  onClickTrigger?: () => void;
 }
 
 interface PopoverContentProps {
@@ -43,6 +44,7 @@ const DynamicPopover = forwardRef(({
   toggleCondition,
   align,
   padding = 0,
+  onClickTrigger,
 }: PopoverProps, ref) => {
   const [isPopoverOpen, setIsPopoverOpen] = useState(false);
 
@@ -71,6 +73,7 @@ const DynamicPopover = forwardRef(({
     e.stopPropagation();
     e.preventDefault();
     togglePopover();
+    onClickTrigger && onClickTrigger();
   };
 
   return (

@@ -39,6 +39,7 @@ export default {
         '7/10': '70%'
       },
       minWidth: {
+        '4': '1rem',
         '9': '2.25rem',
         '12': '3rem',
         '16': '4rem',
@@ -47,6 +48,7 @@ export default {
         '96': '24rem'
       },
       minHeight: {
+        '4': '1rem',
         '12': '3rem',
         '16': '4rem',
         '20': '5rem',

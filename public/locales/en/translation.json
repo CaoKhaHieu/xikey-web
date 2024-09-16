@@ -105,6 +105,7 @@
   "unpin_notify": "have unpined a message",
   "pin_messages": "Pin messages",
   "no_pined_message": "You don't have any pinned messages yet",
+  "pinned": "Pin message successfully",
   "unpin": "Unpin",
   "cannot_search_user": "You cannot use this feature",
   "links": "Links",
@@ -121,5 +122,7 @@
   "ban_success": "Ban user success",
   "unban_success": "Unban user success",
   "sure_ban_user": "Do you really want to ban this user?",
-  "sure_unban_user": "Do you really want to unban this user?"
+  "sure_unban_user": "Do you really want to unban this user?",
+  "report": "Report",
+  "report_message_success": "Report message successfully"
 }

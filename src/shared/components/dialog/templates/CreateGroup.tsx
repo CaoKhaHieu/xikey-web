@@ -11,6 +11,7 @@ import Button from '../../button';
 import Input from '../../input';
 import Checkbox from '../../checkbox';
 import Avatar from '../../avatar';
+import Radio from '../../radio';
 import { useLoading } from '../../loading';
 import { Conversation } from '@/shared/models/Conversation';
 import { upload } from '@/stores/common/actions';
@@ -21,6 +22,7 @@ import { addUser, createConversation, saveAllConversations, selectConversation, 
 import CameraIcon from "@/assets/icons/camera2.svg?react";
 import SearchIcon from "@/assets/icons/search.svg?react";
 import { showToast } from '@/shared/utils/utils';
+import { CONVERSATION_STATUS } from '@/shared/enums';
 
 interface CreateGroupOptions {
   type?: 'CREATE' | 'ADD_USER' | 'EDIT';
@@ -35,6 +37,17 @@ const titles = {
   ADD_USER: 'add_user',
   EDIT: 'edit_group',
 };
+
+const conversatioStatus = [
+  {
+    value: CONVERSATION_STATUS.PUBLIC,
+    text: CONVERSATION_STATUS.PUBLIC,
+  },
+  {
+    value: CONVERSATION_STATUS.PRIVATE,
+    text: CONVERSATION_STATUS.PRIVATE,
+  },
+];
 
 const CreateGroup = (props: CreateGroupOptions) => {
   const { type = 'CREATE', conversationEdit, close, afterClose, handleAfterUpdateConversation, ...otherProps } = props;
@@ -78,13 +91,12 @@ const CreateGroup = (props: CreateGroupOptions) => {
 
   useEffect(() => {
     const subscription = watch((value) => {
-      const members: any[] = value.groupMembers && Object.values(value.groupMembers).filter((item: any) => !!item);
       if (isCreateGroup) {
-        const isDisabledBtn = !value.groupName || members.length < 2;
+        const isDisabledBtn = !value.groupName;
         setIsDisabled(isDisabledBtn);
       }
       if (isEdit) {
-        const isDisabledBtn = value.groupName === conversationEdit?.name;
+        const isDisabledBtn = value.groupName === conversationEdit?.name && value.status === conversationEdit?.status;
         setIsDisabled(isDisabledBtn);
       }
       if (isAddUser) {
@@ -134,6 +146,8 @@ const CreateGroup = (props: CreateGroupOptions) => {
     const body: any = {
       avatar: avatarGroup,
       name: data.groupName,
+      status: data.status,
+      isGroup: true,
     };
     if (isCreateGroup) {
       body.members = [...membersIds, user.id];
@@ -252,6 +266,29 @@ const CreateGroup = (props: CreateGroupOptions) => {
               <Input variant='auth' placeholder={t('group_name_placeholder')} defaultValue={conversationEdit?.name || ''} {...register('groupName')} />
             </div>
           }
+
+          {
+            (isCreateGroup || isEdit) &&
+            <Controller
+              control={control}
+              name='status'
+              render={({
+                field: { onChange, value, onBlur }
+              }) => (
+                <>
+                  <Radio
+                    onChange={onChange}
+                    onBlur={onBlur}
+                    defaultValue={conversationEdit ? conversationEdit.status : CONVERSATION_STATUS.PUBLIC}
+                    value={value}
+                    options={conversatioStatus}
+                    className='space-x-10'
+                  />
+                </>
+              )}
+            />
+          }
+          
           {
             (isCreateGroup || isAddUser) &&
             <>
