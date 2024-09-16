@@ -37,7 +37,6 @@ const ChatMain = () => {
   const previousScrollHeightRef = useRef<number>(0);
   const isScrollEndRef = useRef<boolean>(true);
   const isHasMoreRef = useRef<boolean>(true);
-  const isHasMoreDownRef = useRef<boolean>(true);
 
   useEffect(() => {
     if (id) {
@@ -45,7 +44,6 @@ const ChatMain = () => {
       handleGetMessage();
       idConversationRef.current = id;
       isHasMoreRef.current = true;
-      isHasMoreDownRef.current = true;
       dispatch(saveLastMesssageLoaded(true));
     }
     return () => {
@@ -91,10 +89,15 @@ const ChatMain = () => {
 
   const handleScrollToMessageElement = (messageElement: any) => {
     messageElement.scrollIntoView();
-    document.getElementById(`message-background-${scrollMessage.id}`)?.classList.remove('fade-out');
-    document.getElementById(`message-background-${scrollMessage.id}`)?.classList.add('fade-bg');
+    const messageBackgroundElement = document.getElementById(`message-background-${scrollMessage.id}`);
+    if (!messageBackgroundElement) {
+      return;
+    }
+
+    messageBackgroundElement.classList.remove('fade-out');
+    messageBackgroundElement.classList.add('fade-bg');
     setTimeout(() => {
-      document.getElementById(`message-background-${scrollMessage.id}`)?.classList.add('fade-out');
+      messageBackgroundElement.classList.add('fade-out');
       dispatch(clearScrollMessage());
     }, 500);
   };
@@ -118,8 +121,6 @@ const ChatMain = () => {
       if (!messages.length) {
         if (direction === 'UP') {
           isHasMoreRef.current = false;
-        } else {
-          isHasMoreDownRef.current = false;
         }
         setIsLoading(false);
         return;
