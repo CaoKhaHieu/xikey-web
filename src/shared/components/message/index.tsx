@@ -17,7 +17,7 @@ import ImageDetail from "../image-detail";
 import ForwardMessage from "../dialog/templates/ForwardMessage";
 import ReportMessageDialog from "../dialog/templates/ReportMessage";
 import ConfirmDialog from "../dialog/templates/ConfirmDialog";
-import { deleteMessage, pinMessage, reactMessage, saveEditMessage, saveReplyMessage } from "@/stores/message/action";
+import { clearScrollMessage, deleteMessage, pinMessage, reactMessage, saveEditMessage, saveReplyMessage, saveScrollMessage } from "@/stores/message/action";
 
 import { TYPE_MESSAGE } from "@/shared/enums";
 import { REACTIONS } from "@/shared/constants";
@@ -221,7 +221,7 @@ const Message = (props: MessageOptions) => {
 
     if (message.replyMessage.isDeleted) {
       return (
-        <p className="text-gray3 px-2.5 py-1">
+        <p className="text-gray3 py-1">
           <i>{t('deleted_message')}</i>
         </p>
       );
@@ -250,6 +250,11 @@ const Message = (props: MessageOptions) => {
         </div>
       </>
     );
+  };
+
+  const handleScrollToMessage = (message: MessageModel) => {
+    dispatch(clearScrollMessage());
+    dispatch(saveScrollMessage(message));
   };
 
   const handleSaveReplyMessage = () => {
@@ -415,12 +420,14 @@ const Message = (props: MessageOptions) => {
 
   return (
     <div
+      id={message.id}
       className={classNames("flex flex-col w-full relative", {
         "me": isCurrentUser,
         "him": !isCurrentUser,
         'last': isLastOfSection,
       })}
     >
+      <div id={`message-background-${message.id}`} className="absolute w-full h-full inset-0 rounded-lg overflow-hidden"></div>
       {
         isShowDayName &&
         <p className="text-center my-3 text-gray3 text-xs">
@@ -476,7 +483,10 @@ const Message = (props: MessageOptions) => {
                 <span>{message.sender.id === user.id ? t('you') : message.sender.name} {t('replied')} </span>
               </div>
 
-              <div className="bg-gray9 p-2 mb-0.5 rounded-lg max-w-7/10 ml-2">
+              <div
+                className="bg-gray9 p-2 mb-0.5 rounded-lg max-w-7/10 ml-2 cursor-pointer"
+                onClick={() => handleScrollToMessage(message.replyMessage)}
+              >
                 <div className={classNames("border-l-4 border-primary pl-2", {
                   "flex items-center space-x-2": message.replyMessage?.type === TYPE_MESSAGE.IMAGE || message.replyMessage?.type === TYPE_MESSAGE.HTML
                 })}>

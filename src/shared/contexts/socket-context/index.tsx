@@ -27,9 +27,14 @@ export const useSocket = () => {
 const SocketProvider = (props: SocketProps) => {
   const { conversation } = useSelector((state: any) => state.conversationReducer);
   const { user }: { user: User } = useSelector((state: any) => state.userReducer);
+  const { messageManagement } = useSelector((state: any) => state.messageReducer);
+
+  const { isLastMessageLoaded }: { isLastMessageLoaded: boolean } = messageManagement;
   const { currentConversation }: { currentConversation: Conversation } = conversation;
+
   const currentConversationRef = useRef<Conversation>(currentConversation);
   const userRef = useRef<User>(user);
+  const isLastMessageLoadedRef = useRef<boolean>(isLastMessageLoaded);
   
   const dispatch = useDispatch();
 
@@ -48,19 +53,24 @@ const SocketProvider = (props: SocketProps) => {
         // isNew to know message is receive by socket
         isNew: true,
       };
-
-      if (currentConversationRef.current.id === newMessage.conversationId) {
-        if (newMessage.sender.id === userRef.current.id) {
-          // update message
-          dispatch(saveNewMessageWithVirtualId(newMessage));
-        } else {
-          // save new message
-          dispatch(saveNewMessage(newMessage));
-          //handle show alert new message
-          dispatch(triggerAlertNewMessage({ type: 'INCREASE' }));
-        }
-      }
       dispatch(updateLastMessageConversation(newMessage));
+      
+      if (currentConversationRef.current.id !== newMessage.conversationId) {
+        return;
+      }
+
+      if (newMessage.sender.id === userRef.current.id) {
+        // update message
+        dispatch(saveNewMessageWithVirtualId(newMessage));
+      } else {
+        // save new message in case last message loaded
+        // Ex: Click reply message scroll to top, khi có tin nhắn tới mà chưa có last message thì không cần thêm vào list
+        if (isLastMessageLoadedRef.current) {
+          dispatch(saveNewMessage(newMessage));
+        }
+        //handle show alert new message
+        dispatch(triggerAlertNewMessage({ type: 'INCREASE' }));
+      }
     });
 
     socket.on('edit_message', (message: Message) => {
@@ -144,6 +154,10 @@ const SocketProvider = (props: SocketProps) => {
   useEffect(() => {
     currentConversationRef.current = currentConversation;
   }, [conversation.currentConversation]);
+
+  useEffect(() => {
+    isLastMessageLoadedRef.current = isLastMessageLoaded;
+  }, [isLastMessageLoaded]);
 
   const data = {
     socket,

@@ -289,7 +289,7 @@ const TypeMessage = () => {
     if (!isEdit) {
       dispatch(saveNewMessage(messageData));
       // handle scroll list message to end
-      document.getElementById('end-list-message')?.scrollIntoView();
+      dispatch(triggerScrollToEndListMessage());
     }
 
     setValueInput('');
