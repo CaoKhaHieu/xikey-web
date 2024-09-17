@@ -5,6 +5,7 @@ import i18n from './i18n.ts';
 import { PASSWORD_PATTERN, VALIDATE_LENGTH } from '../constants';
 import { Message } from '../models/Message.ts';
 import { TYPE_MESSAGE } from '../enums.ts';
+import { Conversation } from '../models/Conversation.ts';
 
 export const urlify = (content: string, isCurrentUser: boolean) => {
   const textColor = isCurrentUser ? 'text-white' : 'text-black1';

@@ -8,6 +8,7 @@ import { Conversation } from "@/shared/models/Conversation";
 import { getImgsMessage, getTextMessage, timeSince } from "@/shared/utils/utils";
 import { TYPE_MESSAGE } from "@/shared/enums";
 import { joinGroupConversation, selectConversation } from "@/stores/conversation/action";
+import { useOnlineStatus } from "@/hooks/useOnlineStatus";
 
 interface IUserSidebar {
   conversation: Conversation;
@@ -23,6 +24,7 @@ const ChatItem = (props: IUserSidebar) => {
 
   const { t } = useTranslation();
   const dispatch = useDispatch();
+  const { online } = useOnlineStatus(conversation.userChat.online, conversation.userChat.id, true);
 
   const handleClick = () => {
     if (conversation.members.includes(user.id)) {
@@ -100,7 +102,11 @@ const ChatItem = (props: IUserSidebar) => {
       "hover:bg-gray8": currentConversation.id !== conversation.id,
     })}>
       <div>
-        <Avatar className="" url={conversation.avatar} />
+        <Avatar
+          className=""
+          url={conversation.avatar}
+          online={online}
+         />
       </div>
       <div className="flex-1 ml-2">
         {/* top */}

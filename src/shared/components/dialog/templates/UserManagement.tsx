@@ -129,7 +129,11 @@ const UserManagement = (props: ConfirmDialogProps) => {
                 return (
                   <div className='flex items-center justify-between' key={user.id}>
                     <div className='flex items-center space-x-2'>
-                      <Avatar className='' url={user.avatar} />
+                      <Avatar
+                        className=''
+                        url={user.avatar}
+                        online={user.online}
+                      />
                       <p>{user.name}</p>
                     </div>
                     <div>

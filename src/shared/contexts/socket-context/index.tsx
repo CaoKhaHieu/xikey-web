@@ -1,5 +1,5 @@
 import { ReactElement, createContext, useContext, useEffect, useRef, useState } from 'react';
-import { io } from "socket.io-client";
+import { io, Socket } from "socket.io-client";
 import { useDispatch, useSelector } from 'react-redux';
 
 import { BASE_URL } from '@/shared/constants';
@@ -8,15 +8,18 @@ import { saveNewMessage, saveNewMessageWithVirtualId, triggerAlertNewMessage, tr
 import { clearCurrentConversation, removeConversation, selectConversation, updateInfoConversation, updateLastMessageConversation } from '@/stores/conversation/action';
 import { Conversation } from '@/shared/models/Conversation';
 import { User } from '@/shared/models/User';
+import { getToken } from '@/shared/utils/utils';
 
 interface SocketProps {
   children: ReactElement;
 }
 
-const socket = io(BASE_URL);
+type SocketContextType = {
+  socket: Socket | null;
+};
 
-const SocketContext = createContext({
-  socket,
+const SocketContext = createContext<SocketContextType>({
+  socket: null,
 });
 
 export const useSocket = () => {
@@ -25,6 +28,8 @@ export const useSocket = () => {
 };
 
 const SocketProvider = (props: SocketProps) => {
+  const [socket, setSocket] = useState<Socket | null>(null);
+
   const { conversation } = useSelector((state: any) => state.conversationReducer);
   const { user }: { user: User } = useSelector((state: any) => state.userReducer);
   const { messageManagement } = useSelector((state: any) => state.messageReducer);
@@ -40,13 +45,24 @@ const SocketProvider = (props: SocketProps) => {
 
   useEffect(() => {
     if (user.id) {
+      const newSocket = io(BASE_URL, {
+        auth: {
+          token: getToken(),
+        },
+      });
+      setSocket(newSocket);
+
       userRef.current = user;
 
-      socket.emit('join', user.id);
+      newSocket.emit('join', user.id);
     }
   }, [user.id]);
 
   useEffect(() => {
+    if (!socket) {
+      return;
+    }
+
     socket.on('new_message', (message: Message) => {
       const newMessage: Message = {
         ...message,
@@ -149,7 +165,10 @@ const SocketProvider = (props: SocketProps) => {
       }
       dispatch(updateInfoConversation(conversation));
     });
-  }, []);
+
+    socket.on('user_online', (data: { userId: string, online: boolean }) => {
+    });
+  }, [socket]);
 
   useEffect(() => {
     currentConversationRef.current = currentConversation;

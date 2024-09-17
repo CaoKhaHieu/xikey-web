@@ -330,7 +330,11 @@ const CreateGroup = (props: CreateGroupOptions) => {
                                 onChange={onChange}
                                 render={() => (
                                   <div className='flex items-center space-x-2'>
-                                    <Avatar className='' url={user.avatar} />
+                                    <Avatar
+                                      className=''
+                                      url={user.avatar}
+                                      online={user.online}
+                                    />
                                     <p>{user.name}</p>
                                   </div>
                                 )}

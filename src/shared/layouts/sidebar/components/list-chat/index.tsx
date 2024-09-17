@@ -12,11 +12,11 @@ const ListChat = () => {
   const { socket } = useSocket();
 
   useEffect(() => {
-    if (listConversations.length) {
+    if (listConversations.length && socket) {
       const listIdConversations = listConversations?.map((conversation: Conversation) => conversation.id);
       socket.emit('join_conversations', listIdConversations);
     }
-  }, [listConversations]);
+  }, [listConversations, socket]);
 
   return (
     <div className="flex flex-col overflow-y-scroll h-[calc(100vh-103px)] py-1 pl-1.5">

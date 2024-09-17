@@ -1,3 +1,4 @@
+import { User } from "./User";
 import { Message } from "./Message";
 import { CONVERSATION_STATUS } from "../enums";
 
@@ -23,6 +24,9 @@ export interface Conversation {
   links: Link[];
   bannedMembers: string[];
   kickedMembers: string[];
+
+  // user data for chat 1:1
+  userChat: User;
 }
 
 export class Conversation {
@@ -45,5 +49,6 @@ export class Conversation {
     })) || [];
     this.bannedMembers = conversation.bannedMembers || [];
     this.kickedMembers = conversation.kickedMembers || [];
+    this.userChat = conversation.userChat || new User({});
   }
 }

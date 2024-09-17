@@ -29,6 +29,7 @@ export default {
         red1: '#f1251d',
         pink1: '#fde4e4',
         pink2: '#f2cccc',
+        green1: '#16a34a',
         overlay5: 'rgba(0, 0, 0, 0.5)',
       },
       width: {
