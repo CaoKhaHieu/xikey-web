@@ -206,7 +206,11 @@ const SidebarMain = () => {
                     className="flex space-x-2 items-center p-2 cursor-pointer rounded-lg hover:bg-gray2 duration-300"
                     onClick={() => handleRedirectToConversation(user?.conversationId, user)}
                   >
-                    <Avatar className="" url={user.avatar} />
+                    <Avatar
+                      className=""
+                      url={user.avatar}
+                      online={user.online}
+                    />
                     <p className="line-clamp-1">{user.name}</p>
                   </div>
                 ))

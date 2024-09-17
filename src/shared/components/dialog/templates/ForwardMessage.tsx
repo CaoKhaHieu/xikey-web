@@ -110,7 +110,11 @@ const ForwardMessage = (props: ForwardMessageOptions) => {
               allUsers.map((user: User) => (
                 <div className='flex items-center' key={user.id}>
                   <div className='flex items-center space-x-4 grow'>
-                    <Avatar className='' url={user.avatar} />
+                    <Avatar
+                      className=''
+                      url={user.avatar}
+                      online={user.online}
+                    />
                     <p className='line-clamp-1'>{user.name}</p>
                   </div>
                   <Button

@@ -10,6 +10,7 @@ import LinksDialog from "@/shared/components/dialog/templates/LinksDialog";
 import { toggleSidebarRight } from "@/stores/common/actions";
 import { User } from "@/shared/models/User";
 import { clearCurrentConversation } from "@/stores/conversation/action";
+import { isShowOnlineStatus } from "@/shared/utils/utils";
 
 import SearchIcon from "@/assets/icons/search.svg?react";
 import LinkIcon from "@/assets/icons/links.svg?react";
@@ -61,7 +62,12 @@ const ChatHeader = () => {
       }
 
       <div className="flex items-center flex-1 space-x-4">
-        <Avatar className="cursor-pointer" url={currentConversation?.avatar} onClick={handleWatchInfoConversation} />
+        <Avatar
+          className="cursor-pointer"
+          url={currentConversation?.avatar}
+          online={isShowOnlineStatus(currentConversation)}
+          onClick={handleWatchInfoConversation}
+        />
         <div className="flex flex-col">
           <p className="font-semibold text-lg text-black1 line-clamp-1">{currentConversation?.name}</p>
           <div className="flex space-x-2">

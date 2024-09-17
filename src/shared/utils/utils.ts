@@ -5,6 +5,7 @@ import i18n from './i18n.ts';
 import { PASSWORD_PATTERN, VALIDATE_LENGTH } from '../constants';
 import { Message } from '../models/Message.ts';
 import { TYPE_MESSAGE } from '../enums.ts';
+import { Conversation } from '../models/Conversation.ts';
 
 export const urlify = (content: string, isCurrentUser: boolean) => {
   const textColor = isCurrentUser ? 'text-white' : 'text-black1';
@@ -243,4 +244,14 @@ export const isElementInViewport = (element: any, container: any) => {
     elementRect.top >= containerRect.top &&
     elementRect.bottom <= containerRect.bottom
   );
+};
+
+export const isShowOnlineStatus = (conversation: Conversation) => {
+  if (conversation.isBot && conversation.isGroup && conversation.isCloud) {
+    return false;
+  }
+  if (!conversation.userChat?.online) {
+    return false;
+  }
+  return true;
 };

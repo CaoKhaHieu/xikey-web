@@ -19,5 +19,6 @@ export class User {
     this.conversationId = user.conversationId;
     this.isAdmin = user.isAdmin || false;
     this.hasVerified = user.hasVerified || false;
+    this.online = user.online || false;
   }
 }

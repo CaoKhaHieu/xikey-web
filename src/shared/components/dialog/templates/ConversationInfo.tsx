@@ -18,7 +18,7 @@ import EditIcon from "@/assets/icons/edit.svg?react";
 import DeleteIcon from "@/assets/icons/delete.svg?react";
 import { Conversation } from '@/shared/models/Conversation';
 import { banUser, clearCurrentConversation, getMembers, kickUser, leaveGroup, removeConversation, removeGroup, selectConversation, unbanUser } from '@/stores/conversation/action';
-import { showToast } from '@/shared/utils/utils';
+import { isShowOnlineStatus, showToast } from '@/shared/utils/utils';
 
 interface ConversationInfoOptions {
   conversation: Conversation,
@@ -195,7 +195,11 @@ const ConversationInfo = (props: ConversationInfoOptions) => {
       </Dialog.Header>
       <Dialog.Body className='text-3.25 mt-6 whitespace-break'>
         <div className='flex items-center space-x-4'>
-          <Avatar className='!w-20 !h-20' url={conversationInfo.avatar} />
+          <Avatar
+            className='!w-20 !h-20'
+            url={conversationInfo.avatar}
+            online={isShowOnlineStatus(conversationInfo)}
+          />
           <p className='font-semibold text-xl line-clamp-1 flex items-center space-x-2'>
             <span>{conversationInfo.name}</span>
             {

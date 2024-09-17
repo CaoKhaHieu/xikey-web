@@ -154,6 +154,9 @@ const SocketProvider = (props: SocketProps) => {
       }
       dispatch(updateInfoConversation(conversation));
     });
+
+    socket.on('user_online', (data: { userId: string, online: boolean }) => {
+    });
   }, []);
 
   useEffect(() => {

@@ -5,7 +5,7 @@ import classNames from "classnames";
 import Avatar from "@/shared/components/avatar";
 import { User } from "@/shared/models/User";
 import { Conversation } from "@/shared/models/Conversation";
-import { getImgsMessage, getTextMessage, timeSince } from "@/shared/utils/utils";
+import { getImgsMessage, getTextMessage, isShowOnlineStatus, timeSince } from "@/shared/utils/utils";
 import { TYPE_MESSAGE } from "@/shared/enums";
 import { joinGroupConversation, selectConversation } from "@/stores/conversation/action";
 
@@ -100,7 +100,11 @@ const ChatItem = (props: IUserSidebar) => {
       "hover:bg-gray8": currentConversation.id !== conversation.id,
     })}>
       <div>
-        <Avatar className="" url={conversation.avatar} />
+        <Avatar
+          className=""
+          url={conversation.avatar}
+          online={isShowOnlineStatus(conversation)}
+         />
       </div>
       <div className="flex-1 ml-2">
         {/* top */}
