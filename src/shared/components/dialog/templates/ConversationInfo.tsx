@@ -18,7 +18,8 @@ import EditIcon from "@/assets/icons/edit.svg?react";
 import DeleteIcon from "@/assets/icons/delete.svg?react";
 import { Conversation } from '@/shared/models/Conversation';
 import { banUser, clearCurrentConversation, getMembers, kickUser, leaveGroup, removeConversation, removeGroup, selectConversation, unbanUser } from '@/stores/conversation/action';
-import { isShowOnlineStatus, showToast } from '@/shared/utils/utils';
+import { showToast } from '@/shared/utils/utils';
+import { useOnlineStatus } from '@/hooks/useOnlineStatus';
 
 interface ConversationInfoOptions {
   conversation: Conversation,
@@ -44,6 +45,7 @@ const ConversationInfo = (props: ConversationInfoOptions) => {
   const history = useHistory();
   const { t } = useTranslation();
   const { appendDialog } = useDialog();
+  const { online } = useOnlineStatus(conversationInfo.userChat.online, conversationInfo.userChat.id);
 
   useEffect(() => {
     handleGetMembers();
@@ -198,7 +200,7 @@ const ConversationInfo = (props: ConversationInfoOptions) => {
           <Avatar
             className='!w-20 !h-20'
             url={conversationInfo.avatar}
-            online={isShowOnlineStatus(conversationInfo)}
+            online={online}
           />
           <p className='font-semibold text-xl line-clamp-1 flex items-center space-x-2'>
             <span>{conversationInfo.name}</span>

@@ -10,7 +10,8 @@ import LinksDialog from "@/shared/components/dialog/templates/LinksDialog";
 import { toggleSidebarRight } from "@/stores/common/actions";
 import { User } from "@/shared/models/User";
 import { clearCurrentConversation } from "@/stores/conversation/action";
-import { isShowOnlineStatus } from "@/shared/utils/utils";
+import { useDevice } from "@/shared/contexts/device-context";
+import { useOnlineStatus } from "@/hooks/useOnlineStatus";
 
 import SearchIcon from "@/assets/icons/search.svg?react";
 import LinkIcon from "@/assets/icons/links.svg?react";
@@ -20,7 +21,6 @@ import CallIcon from "@/assets/icons/call.svg?react";
 import CameraIcon from "@/assets/icons/camera.svg?react";
 import Icon from "@/shared/components/icon";
 import BackIcon from "@/assets/icons/back.svg?react";
-import { useDevice } from "@/shared/contexts/device-context";
 
 const ChatHeader = () => {
   const { conversation } = useSelector((state: any) => state.conversationReducer);
@@ -31,7 +31,8 @@ const ChatHeader = () => {
   const { t } = useTranslation();
   const { isMobile } = useDevice();
   const dispatch = useDispatch();
-
+  const { online } = useOnlineStatus(currentConversation.userChat.online, currentConversation.userChat.id);
+    
   const handleWatchInfoConversation = () => {
     appendDialog(
       <ConversationInfo conversation={currentConversation} />
@@ -65,7 +66,7 @@ const ChatHeader = () => {
         <Avatar
           className="cursor-pointer"
           url={currentConversation?.avatar}
-          online={isShowOnlineStatus(currentConversation)}
+          online={online}
           onClick={handleWatchInfoConversation}
         />
         <div className="flex flex-col">

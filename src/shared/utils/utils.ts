@@ -245,13 +245,3 @@ export const isElementInViewport = (element: any, container: any) => {
     elementRect.bottom <= containerRect.bottom
   );
 };
-
-export const isShowOnlineStatus = (conversation: Conversation) => {
-  if (conversation.isBot && conversation.isGroup && conversation.isCloud) {
-    return false;
-  }
-  if (!conversation.userChat?.online) {
-    return false;
-  }
-  return true;
-};

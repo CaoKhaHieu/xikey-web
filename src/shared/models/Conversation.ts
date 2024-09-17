@@ -26,7 +26,7 @@ export interface Conversation {
   kickedMembers: string[];
 
   // user data for chat 1:1
-  userChat?: User;
+  userChat: User;
 }
 
 export class Conversation {
@@ -49,6 +49,6 @@ export class Conversation {
     })) || [];
     this.bannedMembers = conversation.bannedMembers || [];
     this.kickedMembers = conversation.kickedMembers || [];
-    this.userChat = conversation?.userChat || new User({});
+    this.userChat = conversation.userChat || new User({});
   }
 }
