@@ -14,7 +14,7 @@ const Home = () => {
         currentConversation.id ? <Chat /> : <NoData />
       }
 
-      <ToolNumber />
+      {/* <ToolNumber /> */}
     </div>
   );
 };
