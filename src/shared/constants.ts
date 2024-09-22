@@ -43,3 +43,6 @@ export const REACTIONS: {
     value: 6,
   },
 };
+
+export const WHITELIST_FILES = ".jpg,.jpeg,.png,.webp,.gif,.bmp,.svg,.tiff,.ico,.pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.txt,.odt,.rtf,.mp3,.wav,.aac,.flac,.ogg,.m4a,.mp4,.avi,.mkv,.mov,.wmv,.flv,.webm,.zip,.rar,.7z,.tar,.gz,.bz2,.csv,.json,.xml,.yaml,.yml,.xlsm,.ods,.stl,.obj,.fbx,.dwg,.dxf,.skp,.psd,.ai,.eps,.svg";
+export const VALID_IMAGE_TYPES = ['.jpeg', '.jpg', '.webp', '.png'];

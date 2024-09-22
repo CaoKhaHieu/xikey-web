@@ -2,7 +2,7 @@ import * as yup from 'yup';
 import toast from 'react-hot-toast';
 import i18n from './i18n.ts';
 
-import { PASSWORD_PATTERN, VALIDATE_LENGTH } from '../constants';
+import { PASSWORD_PATTERN, VALID_IMAGE_TYPES, VALIDATE_LENGTH } from '../constants';
 import { Message } from '../models/Message.ts';
 import { TYPE_MESSAGE } from '../enums.ts';
 import { Conversation } from '../models/Conversation.ts';
@@ -29,12 +29,22 @@ export const urlify = (content: string, isCurrentUser: boolean) => {
   return replacedText;
 };
 
-export const htmlMessage = (imgs: string[], text: string) => {
+export const htmlMessage = (urlsFile: string[], text: string) => {
   const textHtml = `<p>${text.replace(/\n/g, '<br />')}</p>`;
 
-  const imagesHtml = imgs.map(img => `<img src="${img}" />`).join('');
+  const filesHtml = urlsFile
+    .map(url => {
+      const ext = url.substring(url.lastIndexOf('.')).toLowerCase();
 
-  return `${text && textHtml}${imgs.length && imagesHtml}`;
+      if (VALID_IMAGE_TYPES.includes(ext)) {
+        return `<img src="${url}" alt="image" />`;
+      }
+
+      return `<a href="${url}" download>Download file</a>`;
+    })
+    .join('');
+
+  return `${text ? textHtml : ''}${urlsFile.length ? filesHtml : ''}`;
 };
 
 export const getTextMessage = (content: string) => {
@@ -55,12 +65,60 @@ export const getImgsMessage = (content: string) => {
   return imgUrls;
 };
 
+export const getFilesMessage = (content: string) => {
+  const parser = new DOMParser();
+  const doc = parser.parseFromString(content, 'text/html');
+  
+  const fileTags = doc.querySelectorAll('a');
+  const fileUrls = Array.from(fileTags).map(file => file.getAttribute('href') || '');
+  
+  return fileUrls;
+};
+
+export const getFileNameFromUrl = (url: string) => {
+  const fileNameWithDash = url.split('/').pop() || '';
+  const fileNameFromFirstDash = fileNameWithDash.substring(fileNameWithDash.indexOf('-') + 1).trim();
+  return fileNameFromFirstDash;
+};
+
+export const getFileType = (url: string) => {
+  const fileType = url.substring(url.lastIndexOf('.')).toLowerCase();
+  return fileType;
+};
+
+export const getFileSize = async (url: string) => {
+  try {
+    const response = await fetch(url, {
+      method: 'HEAD'
+    });
+
+    const contentLength = response.headers.get('Content-Length');
+
+    if (contentLength) {
+      const sizeInBytes = +contentLength;
+      const sizeInKB = sizeInBytes / 1024;
+      const sizeInMB = sizeInKB / 1024;
+
+      return sizeInMB >=1 ? sizeInMB : sizeInKB;
+    } else {
+      console.log('File size is not available');
+    }
+  } catch (error) {
+    console.error('Error fetching file size:', error);
+  }
+}
+
+
 export const renderHTMLMessage = (message: Message) => {
   const { t } = i18n;
   let textMessage: string = '';
+  let imgsMessage: string[] = [];
+  let filesMessage: string[] = [];
 
   if (message && message.type === TYPE_MESSAGE.HTML) {
     textMessage = getTextMessage(message.content);
+    imgsMessage = getImgsMessage(message.content);
+    filesMessage = getFilesMessage(message.content);
   }
 
   if (message.type === TYPE_MESSAGE.IMAGE) {
@@ -68,10 +126,17 @@ export const renderHTMLMessage = (message: Message) => {
   }
 
   if (message.type === TYPE_MESSAGE.HTML) {
-    if (!textMessage) {
+    if (textMessage) {
+      return textMessage;
+    }
+
+    if (imgsMessage.length) {
       return t('image');
     }
-    return textMessage
+
+    if (filesMessage.length) {
+      return getFileNameFromUrl(filesMessage[0]);
+    }
   }
 
   return message.content;

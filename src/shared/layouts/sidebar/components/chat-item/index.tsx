@@ -5,7 +5,7 @@ import classNames from "classnames";
 import Avatar from "@/shared/components/avatar";
 import { User } from "@/shared/models/User";
 import { Conversation } from "@/shared/models/Conversation";
-import { getImgsMessage, getTextMessage, timeSince } from "@/shared/utils/utils";
+import { getFileNameFromUrl, getFilesMessage, getImgsMessage, getTextMessage, timeSince } from "@/shared/utils/utils";
 import { TYPE_MESSAGE } from "@/shared/enums";
 import { joinGroupConversation, selectConversation } from "@/stores/conversation/action";
 import { useOnlineStatus } from "@/hooks/useOnlineStatus";
@@ -47,10 +47,12 @@ const ChatItem = (props: IUserSidebar) => {
   const renderLastMessage = () => {
     let textMessage: string = '';
     let imgsMessage: string[] = [];
+    let filesMessage: string[] = [];
 
     if (conversation.lastMessage && conversation.lastMessage.type === TYPE_MESSAGE.HTML) {
       textMessage = getTextMessage(conversation.lastMessage.content);
       imgsMessage = getImgsMessage(conversation.lastMessage.content);
+      filesMessage = getFilesMessage(conversation.lastMessage.content);
     }
 
     if (conversation.lastMessage?.isDeleted) {
@@ -79,15 +81,19 @@ const ChatItem = (props: IUserSidebar) => {
         }
         {
           conversation.lastMessage?.type === TYPE_MESSAGE.HTML &&
-          <div className="flex space-x-1 ml-1">
+          <div className="flex space-x-1">
             {
-              imgsMessage.map((image, index) => (
+              imgsMessage.length > 0 ? imgsMessage.map((image, index) => (
                 <div
                   key={index}
                 >
                   <img className="h-4 w-4 min-h-4 min-w-4 rounded" src={image} />
                 </div>
-            ))}
+            )) :
+            <p className="line-clamp-1 text-ellipsis break-all">
+              {getFileNameFromUrl(filesMessage[0])}
+            </p>
+            }
             {
               textMessage &&
               <span className="line-clamp-1 text-ellipsis break-all">{textMessage}</span>

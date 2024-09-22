@@ -12,16 +12,17 @@ import { Conversation } from "@/shared/models/Conversation";
 import { upload } from "@/stores/common/actions";
 import { CONVERSATION_STATUS, TYPE_MESSAGE } from "@/shared/enums";
 import { Message } from "@/shared/models/Message";
-import { BASE_URL, VALIDATE_LENGTH } from "@/shared/constants";
-import { getImgsMessage, getTextMessage, htmlMessage, renderHTMLMessage, showToast } from "@/shared/utils/utils";
+import { BASE_URL, VALID_IMAGE_TYPES, VALIDATE_LENGTH, WHITELIST_FILES } from "@/shared/constants";
+import { getFileNameFromUrl, getFilesMessage, getFileType, getImgsMessage, getTextMessage, htmlMessage, renderHTMLMessage, showToast } from "@/shared/utils/utils";
 import { clearEditMessage, clearReplyMessage, createMessage, editMessageAction, saveNewMessage, triggerAlertNewMessage, triggerScrollToEndListMessage } from "@/stores/message/action";
 
 import LikeIcon from "@/assets/icons/like.svg?react";
 import Smile from "@/assets/icons/smile.svg?react";
 import UploadImageIcon from "@/assets/icons/upload-image.svg?react";
-// import UploadFileIcon from "@/assets/icons/file.svg?react";
+import UploadFileIcon from "@/assets/icons/file.svg?react";
 import CloseIcon from "@/assets/icons/close.svg?react";
 import SendIcon from "@/assets/icons/send.svg?react";
+import FileIcon from "@/assets/icons/file-common.svg?react";
 
 interface ImageData {
   urlLocal: string;
@@ -53,7 +54,7 @@ const previewConfig = {
 
 const TypeMessage = () => {
   const [uploadImage, setUploadImage] = useState<UploadImage>({});
-  const listImg = Object.values(uploadImage);
+  const listFile = Object.values(uploadImage);
   
   const [valueInput, setValueInput] = useState('');
   const [isOpenModalIcon, setIsOpenModalIcon] = useState<boolean>(false);
@@ -69,7 +70,7 @@ const TypeMessage = () => {
   const inputRef = useRef<HTMLInputElement>(null);
   const emojiRef = useRef<any>();
   const valueInputRef = useRef<string>('');
-  const countUploadImagesRef = useRef<number>(listImg.length);
+  const countUploadFilesRef = useRef<number>(listFile.length);
 
   const { id }: { id: string } = currentConversation;
   const { t } = useTranslation();
@@ -80,19 +81,21 @@ const TypeMessage = () => {
   const havePermissionWithPrivateConversation =
     currentConversation.status === CONVERSATION_STATUS.PRIVATE ? (user.isAdmin || user.hasVerified) : true;
   let imgsMessage: string[] = [];
+  let filesMessage: string[] = [];
 
   if (replyMessage && replyMessage.type === TYPE_MESSAGE.HTML) {
     imgsMessage = getImgsMessage(replyMessage.content);
+    filesMessage = getFilesMessage(replyMessage.content);
   }
   
   useEffect(() => {
-    const isShow = !!(valueInput || listImg.length);
+    const isShow = !!(valueInput || listFile.length);
     setIsShowSendButton(isShow);
-  }, [valueInput, listImg.length]);
+  }, [valueInput, listFile.length]);
 
   useEffect(() => {
-    countUploadImagesRef.current = listImg.length;
-  }, [listImg.length]);
+    countUploadFilesRef.current = listFile.length;
+  }, [listFile.length]);
 
   const handleRemoveImage = (key: number) => {
     const newData: UploadImage = { ...uploadImage };
@@ -171,7 +174,7 @@ const TypeMessage = () => {
       }
     }
 
-    // cehck is text content
+    // check is text content
     if (isText) {
       const text = event.clipboardData.getData('text/plain');
       if (text.startsWith(`${BASE_URL}/uploads`)) {
@@ -191,7 +194,7 @@ const TypeMessage = () => {
       for (const item of items) {
         if (item.kind === 'file' && item.type.startsWith('image/')) {
           // limit image
-          if (countUploadImagesRef.current >= VALIDATE_LENGTH.LIMIT_IMAGES) {
+          if (countUploadFilesRef.current >= VALIDATE_LENGTH.LIMIT_IMAGES) {
             showToast(t('limit_image_upload'));
             return;
           }
@@ -239,8 +242,8 @@ const TypeMessage = () => {
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
     if(e.key == 'Enter' && !e.shiftKey){
-      const isUploadingImage = listImg.length && listImg.find((image: ImageData) => !image.url);
-      if (listImg.length > 0 && isUploadingImage) {
+      const isUploadingImage = listFile.length && listFile.find((image: ImageData) => !image.url);
+      if (listFile.length > 0 && isUploadingImage) {
         showToast(t('uploading_image'));
         return;
       }
@@ -256,9 +259,9 @@ const TypeMessage = () => {
     }
 
     const textMessage = message || valueInput;
-    const listUrl = listImg.map((item: ImageData) => item.url);
-    const contentMessage = listImg.length ? htmlMessage(listUrl, valueInput) : textMessage;
-    const typeMessage = listImg.length ? TYPE_MESSAGE.HTML : type;
+    const listUrl = listFile.map((item: ImageData) => item.url);
+    const contentMessage = listFile.length ? htmlMessage(listUrl, valueInput) : textMessage;
+    const typeMessage = listFile.length ? TYPE_MESSAGE.HTML : type;
 
     const isImageMessage = type == TYPE_MESSAGE.IMAGE;
     const virtualId = Date.now();
@@ -315,13 +318,13 @@ const TypeMessage = () => {
       return;
     }
 
-    if (countUploadImagesRef.current >= VALIDATE_LENGTH.LIMIT_IMAGES) {
+    if (countUploadFilesRef.current >= VALIDATE_LENGTH.LIMIT_IMAGES) {
       showToast(t('limit_image_upload'));
       return;
     }
 
     let formData = new FormData()
-    formData.append("image", file);
+    formData.append("file", file);
 
     dispatch(upload(formData, (res: { url: string}) => {
       const dataImage: ImageData = {
@@ -378,7 +381,13 @@ const TypeMessage = () => {
           {
             editMessage?.type === TYPE_MESSAGE.HTML &&
             <div>
-              <img className="min-w-12 w-12 h-12 object-cover" src={imgsMessage[0]}></img>
+              {
+                imgsMessage.length > 0 ?
+                <img className="min-w-12 w-12 h-12 object-cover" src={imgsMessage[0]}></img> :
+                <div className="text-4xl">
+                  <FileIcon />
+                </div>
+              }
             </div>
           }
           <div>
@@ -428,7 +437,13 @@ const TypeMessage = () => {
             {
               replyMessage?.type === TYPE_MESSAGE.HTML &&
               <div>
-                <img className="min-w-12 w-12 h-12 object-cover" src={imgsMessage[0]}></img>
+                {
+                  imgsMessage.length > 0 ?
+                  <img className="min-w-12 w-12 h-12 object-cover" src={imgsMessage[0]}></img> :
+                  <div className="text-4xl">
+                    <FileIcon />
+                  </div>
+                }
               </div>
             }
             <div>
@@ -458,12 +473,19 @@ const TypeMessage = () => {
           </label>
           <input className='hidden' id='input-image' type='file' accept="image/png, image/jpeg, image/jpg, image/webp" onChange={handleChangeFile} disabled={!havePermissionWithPrivateConversation || isBanned}></input>
         </div>
-        {/* <div className="cursor-pointer duration-300 hover:bg-gray2 p-1.5 rounded">
+        <div className="cursor-pointer duration-300 hover:bg-gray2 p-1.5 rounded">
           <label htmlFor='input-file' className="cursor-pointer">
             <UploadFileIcon />
           </label>
-          <input className='hidden' id='input-file' type='file'></input>
-        </div> */}
+          <input
+            className='hidden'
+            id='input-file'
+            type='file'
+            onChange={handleChangeFile}
+            disabled={!havePermissionWithPrivateConversation || isBanned}
+            accept={WHITELIST_FILES}
+          />
+        </div>
       </div>
       <div className="flex items-center space-x-4 px-4">
         <Input
@@ -502,13 +524,34 @@ const TypeMessage = () => {
         Object.values(uploadImage).length > 0 &&
         <div className="mb-4 px-4 flex flex-wrap items-center">
           {
-            Object.values(uploadImage).map((img: ImageData) => (
-              <div key={img.id} className="relative mr-4">
-                <img className="w-20 h-20 rounded-lg object-cover border border-gray2" src={img.urlLocal || img.url} width='100px' height='100px' />
-                <div className="absolute right-1 top-1 text-2 text-black bg-gray2 border border-white rounded-full p-1 cursor-pointer duration-300 hover:bg-primaryHover hover:text-white">
+            Object.values(uploadImage).map((file: ImageData) => (
+              <div key={file.id} className="relative mr-4 mb-1">
+                <>
                   {
-                    !img.url ? <p>Loading...</p> :
-                    <div onClick={() => handleRemoveImage(img.id)}>
+                    VALID_IMAGE_TYPES.includes(getFileType(file.url)) ?
+                    <img className="w-20 h-20 rounded-lg object-cover border border-gray2" src={file.urlLocal || file.url} width='100px' height='100px' /> :
+                    <a
+                      className={classNames("flex items-center bg-gray8 rounded-lg pr-4 py-1.5")}
+                      href={file.url}
+                      download
+                    >
+                      <div className={classNames("w-12 h-12 min-w-12 min-h-12 rounded-full bg-gray8 flex justify-center items-center text-4xl")}>
+                        <FileIcon />
+                      </div>
+                      <div className="flex flex-col">
+                        <p className="font-semibold line-clamp-1 text-ellipsis">{getFileNameFromUrl(file.url)}</p>
+                        <span className="text-sm">3.7MB</span>
+                      </div>
+                    </a>
+                  }
+                </>
+                <div
+                  className="absolute right-1 top-1 text-2 text-black bg-gray2 border border-white rounded-full p-1 cursor-pointer duration-300 hover:bg-red hover:text-white"
+                  onClick={() => handleRemoveImage(file.id)}
+                >
+                  {
+                    !file.url ? <p>Loading...</p> :
+                    <div>
                       <CloseIcon />
                     </div>
                   }

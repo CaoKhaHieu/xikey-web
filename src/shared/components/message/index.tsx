@@ -22,7 +22,7 @@ import { clearScrollMessage, deleteMessage, pinMessage, reactMessage, saveEditMe
 import { TYPE_MESSAGE } from "@/shared/enums";
 import { REACTIONS } from "@/shared/constants";
 import { Message as MessageModel } from "@/shared/models/Message";
-import { formatDate, formatTimeToHHMM, getImgsMessage, getTextMessage, isOnlyEmoji, renderHTMLMessage, showToast, urlify } from "@/shared/utils/utils";
+import { formatDate, formatTimeToHHMM, getFileNameFromUrl, getFilesMessage, getFileType, getImgsMessage, getTextMessage, isOnlyEmoji, renderHTMLMessage, showToast, urlify } from "@/shared/utils/utils";
 import { Conversation } from "@/shared/models/Conversation";
 import { banUser, kickUser, updateInfoConversation } from "@/stores/conversation/action";
 
@@ -36,6 +36,7 @@ import DeleteIcon from "../../../assets/icons/delete.svg?react";
 import CircleCheckIcon from "../../../assets/icons/circle-check.svg?react";
 import ReportIcon from "../../../assets/icons/report.svg?react";
 import EditIcon from "../../../assets/icons/edit2.svg?react";
+import FileIcon from "../../../assets/icons/file-common.svg?react";
 
 interface MessageOptions {
   message: MessageModel;
@@ -79,10 +80,12 @@ const Message = (props: MessageOptions) => {
   const handleRenderMessage = (message: MessageModel) => {
     let textMessage: string = '';
     let imgsMessage: string[] = [];
+    let filesMessage: string[] = [];
 
     if (message.type === TYPE_MESSAGE.HTML) {
       textMessage = getTextMessage(message.content);
       imgsMessage = getImgsMessage(message.content);
+      filesMessage = getFilesMessage(message.content);
     }
   
     if (isDeleted) {
@@ -165,18 +168,47 @@ const Message = (props: MessageOptions) => {
                   >
                     <ImageDetail
                       className={classNames("min-h-64 max-h-64 rounded-t-lg object-cover md-max-h-96 md-min-h-96", {
-                        '!rounded-lg': !textMessage
+                        '!rounded-lg': !textMessage || filesMessage.length
                       })}
                       src={image}
                     ></ImageDetail>
                   </div>
                 ))}
               </div>
+              <div
+                className={classNames('flex flex-col space-y-0.5', {
+                  'items-end': isCurrentUser,
+                  'mt-0.5': filesMessage.length
+                })}
+              >
+                {filesMessage.map((file, index) => (
+                  <a
+                    key={index}
+                    className={classNames("flex items-center w-fit bg-primaryHover rounded-lg pr-4 py-1.5", {
+                      '!bg-gray8': !isCurrentUser,
+                    })}
+                    href={file}
+                    download
+                  >
+                    <div className={classNames("w-12 h-12 min-w-12 min-h-12 rounded-full bg-primaryHover flex justify-center items-center text-4xl", {
+                      '!bg-gray8': !isCurrentUser,
+                    })}>
+                      <FileIcon />
+                    </div>
+                    <div className="flex flex-col">
+                      <p className="font-semibold line-clamp-1 text-ellipsis">{getFileNameFromUrl(file)}</p>
+                      <span className="text-sm">3.7MB</span>
+                    </div>
+                  </a>
+                ))}
+              </div>
               {
                 textMessage &&
                 <div
                   className={classNames('bg-gray8 text-black rounded-b-lg py-1 px-2', {
-                    '!bg-primaryHover !text-white ': isCurrentUser
+                    '!bg-primaryHover !text-white ': isCurrentUser,
+                    'mt-0.5 w-fit rounded-lg': filesMessage.length,
+                    'ml-auto': filesMessage.length > 0 && isCurrentUser,
                   })}
                   dangerouslySetInnerHTML={{ __html: urlify(textMessage, isCurrentUser) }}
                 >
@@ -214,9 +246,11 @@ const Message = (props: MessageOptions) => {
 
   const handleRenderReplyMessage = (message: MessageModel) => {
     let imgsMessage: string[] = [];
+    let filesMessage: string[] = [];
 
     if (message.replyMessage.type === TYPE_MESSAGE.HTML) {
       imgsMessage = getImgsMessage(message.replyMessage.content);
+      filesMessage = getFilesMessage(message.replyMessage.content);
     }
 
     if (message.replyMessage.isDeleted) {
@@ -237,7 +271,13 @@ const Message = (props: MessageOptions) => {
         {
           message.replyMessage?.type === TYPE_MESSAGE.HTML &&
           <div>
-            <img className="min-w-12 w-12 h-12 object-cover" src={imgsMessage[0]}></img>
+            {
+              imgsMessage.length > 0 ?
+              <img className="min-w-12 w-12 h-12 object-cover" src={imgsMessage[0]}></img> :
+              <div className="text-4xl -mx-1">
+                <FileIcon />
+              </div>
+            }
           </div>
         }
         <div>
