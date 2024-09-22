@@ -45,7 +45,9 @@ const ConversationInfo = (props: ConversationInfoOptions) => {
   const history = useHistory();
   const { t } = useTranslation();
   const { appendDialog } = useDialog();
-  const { online } = useOnlineStatus(conversationInfo.userChat.online, conversationInfo.userChat.id);
+
+  // use ? because user model in BE does not have field userChat, when use updateInfoConversation() -> bug systax error
+  const { online } = useOnlineStatus(conversationInfo?.userChat?.online, conversationInfo?.userChat?.id);
 
   useEffect(() => {
     handleGetMembers();

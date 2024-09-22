@@ -31,7 +31,9 @@ const ChatHeader = () => {
   const { t } = useTranslation();
   const { isMobile } = useDevice();
   const dispatch = useDispatch();
-  const { online } = useOnlineStatus(currentConversation.userChat.online, currentConversation.userChat.id);
+
+  // use ? because user model in BE does not have field userChat, when use updateInfoConversation() -> bug systax error
+  const { online } = useOnlineStatus(currentConversation?.userChat?.online, currentConversation?.userChat?.id);
     
   const handleWatchInfoConversation = () => {
     appendDialog(
