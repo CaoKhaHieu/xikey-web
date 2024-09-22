@@ -24,7 +24,9 @@ const ChatItem = (props: IUserSidebar) => {
 
   const { t } = useTranslation();
   const dispatch = useDispatch();
-  const { online } = useOnlineStatus(conversation.userChat.online, conversation.userChat.id, true);
+
+  // use ? because user model in BE does not have field userChat, when use updateInfoConversation() -> bug systax error
+  const { online } = useOnlineStatus(conversation?.userChat?.online, conversation?.userChat?.id, true);
 
   const handleClick = () => {
     if (conversation.members.includes(user.id)) {

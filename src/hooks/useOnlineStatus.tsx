@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useSocket } from '@/shared/contexts/socket-context';
 
-export const useOnlineStatus = (isOnline: boolean, conversationId: string, currentConversationOnly = false) => {
+export const useOnlineStatus = (isOnline: boolean, userId: string, currentConversationOnly = false) => {
   const [online, setOnline] = useState<boolean>(isOnline);
   const { socket } = useSocket();
 
@@ -16,10 +16,10 @@ export const useOnlineStatus = (isOnline: boolean, conversationId: string, curre
 
     const handleUserOnline = (data: { userId: string, online: boolean }) => {
       // incase userChat reload: just update status only 1 user in sidebar
-      if (currentConversationOnly && data.userId !== conversationId) {
+      if (currentConversationOnly && data.userId !== userId) {
         return;
       }
-      const onlineStatus = data.online && data.userId === conversationId;
+      const onlineStatus = data.online && data.userId === userId;
       setOnline(onlineStatus);
     };
 
