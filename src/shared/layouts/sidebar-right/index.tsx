@@ -186,10 +186,7 @@ const SidebarRight = () => {
                 <div className='flex flex-col mt-1.5 flex-1'>
                   <p className='flex justify-between w-full'>
                     <span className='font-semibold'>{message.sender.name}</span>
-                    {
-                      user.isAdmin &&
-                      <span className='text-red cursor-pointer' onClick={() => handleRemovePinedMessage(message)}>{t('unpin')}</span>
-                    }
+                    <span className='text-red cursor-pointer' onClick={() => handleRemovePinedMessage(message)}>{t('unpin')}</span>
                   </p>
                   <div className='mt-2'>
                     <MessageContent message={message} />

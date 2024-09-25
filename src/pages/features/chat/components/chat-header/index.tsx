@@ -6,7 +6,6 @@ import Avatar from "@/shared/components/avatar";
 import Tooltip from "@/shared/components/tooltip";
 import { Conversation } from "@/shared/models/Conversation";
 import ConversationInfo from "@/shared/components/dialog/templates/ConversationInfo";
-import LinksDialog from "@/shared/components/dialog/templates/LinksDialog";
 import { toggleSidebarRight } from "@/stores/common/actions";
 import { User } from "@/shared/models/User";
 import { clearCurrentConversation } from "@/stores/conversation/action";
@@ -41,12 +40,6 @@ const ChatHeader = () => {
     );
   };
 
-  const handleOpenLinksDialog = () => {
-    appendDialog(
-      <LinksDialog onClick={() => {}} />
-    );
-  };
-
   const handleOpenSidebarRight = () => {
     dispatch(toggleSidebarRight(true));
   };
@@ -74,19 +67,6 @@ const ChatHeader = () => {
         <div className="flex flex-col">
           <p className="font-semibold text-lg text-black1 line-clamp-1">{currentConversation?.name}</p>
           <div className="flex space-x-2">
-            {
-              user.isAdmin &&
-                <Tooltip
-                  className='z-10'
-                  wrapperClassName="w-fit"
-                  id='links'
-                  content={t('links')}
-                >
-                  <p className="text-black flex items-center space-x-1 w-fit cursor-pointer font-bold" onClick={handleOpenLinksDialog}>
-                    <LinkIcon />
-                  </p>
-                </Tooltip>
-            }
             <Tooltip
               className='z-10'
               wrapperClassName="w-fit"

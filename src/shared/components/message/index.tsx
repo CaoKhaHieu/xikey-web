@@ -318,7 +318,6 @@ const Message = (props: MessageOptions) => {
       conversationId: message.conversationId,
     };
     dispatch(pinMessage(body, (conversation: Conversation) => {
-      dispatch(updateInfoConversation(conversation));
       handleClosePopover();
       showToast(t('pinned'));
     }, () => {
@@ -376,7 +375,7 @@ const Message = (props: MessageOptions) => {
   const menusAction = [
     {
       title: 'pin',
-      isShow: user.isAdmin,
+      isShow: true,
       icon: <PinIcon />,
       onClick: handlePinMessage,
     },
@@ -408,7 +407,11 @@ const Message = (props: MessageOptions) => {
 
   if (message.type === TYPE_MESSAGE.NOTIFY) {
     return (
-      <div className="flex justify-center items-center space-x-2 py-2">
+      <div className={classNames("flex justify-center items-center space-x-2 py-2", {
+        "me": isCurrentUser,
+        "him": !isCurrentUser,
+        'last': isLastOfSection,
+      })}>
         <Avatar className="w-6 h-6" url={message.sender.avatar} />
         <p className="flex items-center space-x-1 text-gray3">
           <span>{message.sender.name}</span>

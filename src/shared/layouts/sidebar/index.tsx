@@ -76,7 +76,7 @@ const Sidebar = () => {
       tooltip: "",
       icon: <CheckIcon />,
       active: false,
-      isHidden: !user.isAdmin,
+      isHidden: true,
       onClick: () => {
         appendDialog(<UserManagement />)
       }

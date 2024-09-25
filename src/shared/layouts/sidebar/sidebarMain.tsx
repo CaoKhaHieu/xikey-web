@@ -53,11 +53,7 @@ const SidebarMain = () => {
     if (!user.id) {
       return;
     }
-    if (user.isAdmin) {
-      handleGetAllConversation();
-    } else {
-      handleGetAllGroupConversation();
-    }
+    handleGetAllConversation();
   }, [user.id]);
 
   const handleChangeInput = (event: React.FormEvent<HTMLInputElement>) => {
@@ -147,7 +143,7 @@ const SidebarMain = () => {
               className=''
               wrapperClassName='w-full'
               id='search_user'
-              content={t(!user.isAdmin ? 'cannot_search_user' : '')}
+              content={t('')}
             >
               <Input
                 ref={inputRef}
@@ -156,7 +152,6 @@ const SidebarMain = () => {
                 onChange={handleChangeInput}
                 value={valueInput}
                 onFocus={() => setIsFocused(true)}
-                disabled={!user.isAdmin}
               ></Input>
             </Tooltip>
             <div className="text-black1 text-2xl mr-2">
@@ -167,7 +162,6 @@ const SidebarMain = () => {
             className="cursor-pointer hover:bg-gray8 text-2xl p-2 rounded-full"
             hidden={isFocused}
             onClick={handleOpenDialogCreateGroup}
-            disabled={!user.isAdmin}
           >
             <GroupIcon />
           </button>

@@ -2,7 +2,6 @@ import { useSelector } from 'react-redux';
 
 import SidebarRight from '@/shared/layouts/sidebar-right';
 import ChatHeader from './components/chat-header';
-import ChatLinks from './components/chat-links';
 import ChatMain from './components/chat-main';
 import TypeMessage from './components/type-message';
 
@@ -14,7 +13,6 @@ const ChatContainer = () => {
     <div className='flex h-full'>
       <div className='h-screen w-full flex flex-col relative'>
         <ChatHeader />
-        <ChatLinks />
         <ChatMain />
         <TypeMessage />
       </div>

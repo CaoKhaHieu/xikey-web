@@ -2,7 +2,6 @@ import { useSelector } from 'react-redux';
 
 import Chat from '../chat';
 import NoData from './components/no-data';
-import ToolNumber from './components/tool-number';
 
 const Home = () => {
   const { conversation } = useSelector((state: any) => state.conversationReducer);
@@ -13,8 +12,6 @@ const Home = () => {
       {
         currentConversation.id ? <Chat /> : <NoData />
       }
-
-      <ToolNumber />
     </div>
   );
 };
