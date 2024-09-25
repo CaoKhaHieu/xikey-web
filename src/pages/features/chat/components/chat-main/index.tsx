@@ -4,13 +4,13 @@ import { useDispatch, useSelector } from "react-redux";
 import { useTranslation } from "react-i18next";
 
 import Message from "@/shared/components/message";
-import { getListMessage, triggerAlertNewMessage} from "@/stores/message/action";
+import { clearScrollMessage, getListMessage, saveLastMesssageLoaded, saveScrollMessage, triggerAlertNewMessage} from "@/stores/message/action";
 import { Message as MessageModel } from "@/shared/models/Message";
-import { getInfoConversation, selectConversation } from "@/stores/conversation/action";
+import { clearCurrentConversation, getInfoConversation, selectConversation } from "@/stores/conversation/action";
 import { Loading } from "@/shared/components/loading";
 import { Conversation } from "@/shared/models/Conversation";
 import { TYPE_MESSAGE } from "@/shared/enums";
-import { areTimeMessageOnSameDay, isTimeDifferenceGreaterThan5Minutes } from "@/shared/utils/utils";
+import { areTimeMessageOnSameDay, isElementInViewport, isTimeDifferenceGreaterThan5Minutes } from "@/shared/utils/utils";
 
 import DoubleArrowDownIcon from "@/assets/icons/double-arrow-down.svg?react";
 
@@ -21,37 +21,35 @@ const ChatMain = () => {
   const { conversation } = useSelector((state: any) => state.conversationReducer);
 
   const listMessage: MessageModel[] = Object.values(messageManagement.messages);
-  const { currentConversation } = conversation;
-  const { alert }: { alert: number} = messageManagement;
+  const { currentConversation }: { currentConversation: Conversation } = conversation;
+  const { isLastMessageLoaded, triggerScroll }: { isLastMessageLoaded: boolean, triggerScroll: boolean } = messageManagement;
+  const { alert, scrollMessage }: { alert: number, scrollMessage: MessageModel } = messageManagement;
 
   const { t } = useTranslation();
-  const { id }: { id: string } = useParams();
+  const { id }: { id: string } = currentConversation;
   const dispatch = useDispatch();
   const history = useHistory();
   
+  const startSectionRef = useRef<HTMLDivElement>(null);
   const endSectionRef = useRef<HTMLDivElement>(null);
   const idConversationRef = useRef<string>(id);
   const listMessageRef = useRef<HTMLDivElement>(null);
   const previousScrollHeightRef = useRef<number>(0);
-  const isScrollEndRef = useRef<boolean>(false);
+  const isScrollEndRef = useRef<boolean>(true);
+  const isHasMoreRef = useRef<boolean>(true);
 
   useEffect(() => {
     if (id) {
       handleGetUserChat();
       handleGetMessage();
       idConversationRef.current = id;
+      isHasMoreRef.current = true;
+      dispatch(saveLastMesssageLoaded(true));
     }
     return () => {
       setIsLoading(true);
     };
   }, [id]);
-
-  useEffect(() => {
-    // scroll to end if have any reaction of message
-    if (isScrollEndRef.current) {
-      handleScrollToEnd();
-    }
-  }, [messageManagement.triggerScroll]);
 
   useEffect(() => {
     // handle show alert new message incase usesr not scroll to end list message
@@ -66,32 +64,83 @@ const ChatMain = () => {
   }, [alert]);
 
   useEffect(() => {
-    // scroll to end if have any reaction of message
-    if (isScrollEndRef.current) {
-      handleScrollToEnd();
+    if (scrollMessage.id) {
+      const messageElement = document.getElementById(scrollMessage.id);
+      if (!messageElement) {
+        handleGetMessage(scrollMessage.id, 'UP', 1);
+        return;
+      }
+      
+      // already have message
+      handleScrollToMessageElement(messageElement)
     }
-  }, [messageManagement.triggerScroll]);
+  }, [scrollMessage]);
+
+  useEffect(() => {
+    if (triggerScroll) {
+      handleScrollToEnd();
+
+      // handle load latest message incase user clicked reply message then send new message
+      if (!isLastMessageLoaded) {
+        handleGetLatestMessages();
+      }
+    }
+  }, [triggerScroll]);
+
+  const handleScrollToMessageElement = (messageElement: any) => {
+    messageElement.scrollIntoView();
+    const messageBackgroundElement = document.getElementById(`message-background-${scrollMessage.id}`);
+    if (!messageBackgroundElement) {
+      return;
+    }
+
+    messageBackgroundElement.classList.remove('fade-out');
+    messageBackgroundElement.classList.add('fade-bg');
+    setTimeout(() => {
+      messageBackgroundElement.classList.add('fade-out');
+      dispatch(clearScrollMessage());
+    }, 500);
+  };
 
   const handleGetUserChat = () => {
     dispatch(getInfoConversation(id, (conversation: Conversation) => {
       dispatch(selectConversation(conversation));
     }, () => {
-      history.push('/');
+      dispatch(clearCurrentConversation());
     }));
   };
   
-  const handleGetMessage = (messageId?: string) => {
+  const handleGetMessage = (messageId?: string, direction: 'UP' | 'DOWN' = 'UP', search = 0) => {
     const body = {
       conversationId: id,
       messageId: messageId || null,
+      direction,
+      search,
     };
-    dispatch(getListMessage(body, () => {
+    dispatch(getListMessage(body, (messages: MessageModel[]) => {
+      if (!messages.length) {
+        if (direction === 'UP') {
+          isHasMoreRef.current = false;
+        }
+        setIsLoading(false);
+        return;
+      }
       if (listMessageRef.current) {
-        listMessageRef.current.scrollTop = listMessageRef.current.scrollHeight - previousScrollHeightRef.current;
+        if (direction === 'UP') {
+          listMessageRef.current.scrollTop = previousScrollHeightRef.current;
+        } else {
+          listMessageRef.current.scrollTop = (listMessageRef.current.scrollHeight - listMessageRef.current.clientHeight - previousScrollHeightRef.current) * -1;
+        }
       }
       setIsLoading(false);
-      if (!body.messageId) {
-        handleScrollToEnd();
+      if (search && messageId) {
+        const index = messages.findIndex(message => message.id === messageId);
+        dispatch(saveScrollMessage(messages[index]));
+        saveScrollMessage(messages[index]);
+      }
+      if (search || direction === 'DOWN') {
+        const isLastMessageLoaded = messages[messages.length - 1].id === currentConversation.lastMessage.id;
+        dispatch(saveLastMesssageLoaded(isLastMessageLoaded));
       }
     }, () => {
       setIsLoading(false);
@@ -100,31 +149,52 @@ const ChatMain = () => {
 
   const handleScrollToEnd = () => {
     endSectionRef.current?.scrollIntoView();
+    isScrollEndRef.current = true;
   };
 
   const handleScrollListMessage = (e: any) => {
     const { scrollTop } = e.target;
     // handle check scroll end list message
     if (listMessageRef.current) {
-      const isScrollEndList = listMessageRef.current.scrollTop + listMessageRef.current.clientHeight >= listMessageRef.current.scrollHeight;
+      const isScrollEndList = scrollTop === 0;
       isScrollEndRef.current = isScrollEndList;
 
-      if (isScrollEndList) {
+      const lastMessageInList = listMessage[listMessage.length - 1];
+      if (isScrollEndList && currentConversation.lastMessage.id !== lastMessageInList.id) {
+        const distanceScrollTop = listMessageRef.current?.scrollHeight - listMessageRef.current?.clientHeight;
+        previousScrollHeightRef.current = distanceScrollTop;
+        // no call api when user scroll to top and send a message
+        if (!lastMessageInList.isSending) {
+          handleGetMessage(lastMessageInList.id, 'DOWN');
+        }
+      }
+      // handle remove alert new message
+      if (isScrollEndList && isLastMessageLoaded) {
         dispatch(triggerAlertNewMessage({ type: 'RESET' }));
       }
-    }
-    // handle load more message
-    if (scrollTop === 0) {
-      const currentScrollHeight = listMessageRef.current ? listMessageRef.current.scrollHeight : 0;
-      previousScrollHeightRef.current = currentScrollHeight;
+      // handle load more message
+      const isScrollToTop = (scrollTop * -1) + listMessageRef.current?.clientHeight >= listMessageRef.current?.scrollHeight;
+      if (isScrollToTop && isHasMoreRef.current) {
+        previousScrollHeightRef.current = scrollTop
 
-      handleGetMessage(listMessage[0].id);
+        handleGetMessage(listMessage[0].id);
+      }
     }
   };
 
   const handleClickAlertNewMessage = () => {
-    handleScrollToEnd();
     dispatch(triggerAlertNewMessage({ type: 'RESET' }));
+    if (isLastMessageLoaded) {
+      handleScrollToEnd();
+    } else {
+      // handle incase user click reply message and scroll to top, then any message comming
+      handleGetLatestMessages();
+    }
+  };
+
+  const handleGetLatestMessages = () => {
+    // using search = 1 to replace current list message
+    handleGetMessage('', 'UP', 1);
   };
 
   if (isLoading) {
@@ -136,8 +206,9 @@ const ChatMain = () => {
   }
 
   return (
-    <div ref={listMessageRef} className="h-full p-4 overflow-y-scroll" onScroll={handleScrollListMessage}>
+    <div key={id} ref={listMessageRef} className="chat-background bg-black h-full p-4 overflow-y-scroll flex flex-col-reverse" onScroll={handleScrollListMessage}>
       <div className="flex flex-col space-y-0.5">
+        <div id="start-list-message" ref={startSectionRef}></div>
         {listMessage.length > 0 &&
           listMessage.map((message: MessageModel, index: number) => (
             <Message
@@ -169,8 +240,8 @@ const ChatMain = () => {
             <span>{t('alert_new_message')}</span>
           </div>
         }
+        <div id="end-list-message" ref={endSectionRef}></div>
       </div>
-      <div ref={endSectionRef}></div>
     </div>
   );
 };

@@ -1,7 +1,8 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useHistory } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useDispatch, useSelector } from 'react-redux';
+import InfiniteScroll from 'react-infinite-scroll-component';
 
 import { Dialog, useDialog } from '..';
 import ConfirmDialog from './ConfirmDialog';
@@ -16,8 +17,9 @@ import AddIcon from "@/assets/icons/add.svg?react";
 import EditIcon from "@/assets/icons/edit.svg?react";
 import DeleteIcon from "@/assets/icons/delete.svg?react";
 import { Conversation } from '@/shared/models/Conversation';
-import { kickUser, leaveGroup, removeConversation, removeGroup, selectConversation } from '@/stores/conversation/action';
+import { banUser, clearCurrentConversation, getMembers, kickUser, leaveGroup, removeConversation, removeGroup, selectConversation, unbanUser } from '@/stores/conversation/action';
 import { showToast } from '@/shared/utils/utils';
+import { useOnlineStatus } from '@/hooks/useOnlineStatus';
 
 interface ConversationInfoOptions {
   conversation: Conversation,
@@ -28,9 +30,13 @@ interface ConversationInfoOptions {
 const ConversationInfo = (props: ConversationInfoOptions) => {
   const { conversation, close, ...otherProps } = props;
 
+  const [members, setMembers] = useState<User[]>([]);
+  const [page, setPage] = useState<number>(1);
+  const [hasMore, setHasMore] = useState<boolean>(true);
+
   const [ conversationInfo, setConversationInfo ] = useState<Conversation>(conversation);
   const { user }: { user: User } = useSelector((state: any) => state.userReducer);
-  const userChat = conversationInfo.members.find((member: User) => member.id !== user.id);
+  const userChat = members.find((member: User) => member.id !== user.id);
   const isGroupChat = conversationInfo.isGroup;
   const isCloudChat = conversationInfo.isCloud;
   const isOwner = conversationInfo.ownerId === user.id;
@@ -40,12 +46,20 @@ const ConversationInfo = (props: ConversationInfoOptions) => {
   const { t } = useTranslation();
   const { appendDialog } = useDialog();
 
+  // use ? because user model in BE does not have field userChat, when use updateInfoConversation() -> bug systax error
+  const { online } = useOnlineStatus(conversationInfo?.userChat?.online, conversationInfo?.userChat?.id);
+
+  useEffect(() => {
+    handleGetMembers();
+  }, []);
+
   const handleClose = () => {
     close && close();
   };
 
   const handleAfterUpdateConversation = (conversation: Conversation) => {
     setConversationInfo(conversation);
+    handleClose();
   };
 
   const handleOpenAddUserDialog = (type: 'CREATE' | 'ADD_USER' | 'EDIT') => {
@@ -72,6 +86,9 @@ const ConversationInfo = (props: ConversationInfoOptions) => {
             dispatch(selectConversation(conversation));
             setConversationInfo(conversation);
             showToast(t('deleted_user'));
+
+            const newMembers = members.filter(member => member.id !== user.id);
+            setMembers(newMembers);
           }, () => {
           }));
         }}
@@ -91,7 +108,8 @@ const ConversationInfo = (props: ConversationInfoOptions) => {
           };
           dispatch(leaveGroup(data, (conversation: Conversation) => {
             dispatch(removeConversation(conversation));
-            history.push('/');
+            dispatch(clearCurrentConversation());
+            handleClose();
           }, () => {
           }));
         }}
@@ -110,13 +128,68 @@ const ConversationInfo = (props: ConversationInfoOptions) => {
           };
           dispatch(removeGroup(data, () => {
             dispatch(removeConversation(conversationInfo));
-            history.push('/');
             showToast(t('remove_group_success'));
+            dispatch(clearCurrentConversation());
+            handleClose();
           }, () => {
           }));
         }}
       />
     );
+  };
+
+  const handleBanUser = (member: User) => {
+    appendDialog(
+      <ConfirmDialog
+        title={t('are_you_sure')}
+        content={t('sure_ban_user')}
+        onClick={() => {
+          const data = {
+            conversationId: conversationInfo.id,
+            userId: member.id,
+          };
+          dispatch(banUser(data, (conversation: Conversation) => {
+            showToast(t('ban_success'));
+            dispatch(selectConversation({ ...conversationInfo, bannedMembers: conversation.bannedMembers }));
+            setConversationInfo({ ...conversationInfo, bannedMembers: conversation.bannedMembers });
+          }, () => {
+          }));
+        }}
+      />
+    );
+  };
+
+  const handleUnbanUser = (member: User) => {
+    appendDialog(
+      <ConfirmDialog
+        title={t('are_you_sure')}
+        content={t('sure_unban_user')}
+        onClick={() => {
+          const data = {
+            conversationId: conversationInfo.id,
+            userId: member.id,
+          };
+          dispatch(unbanUser(data, (conversation: Conversation) => {
+            showToast(t('unban_success'));
+            dispatch(selectConversation({ ...conversationInfo, bannedMembers: conversation.bannedMembers }));
+            setConversationInfo({ ...conversationInfo, bannedMembers: conversation.bannedMembers });
+          }, () => {
+          }));
+        }}
+      />
+    );
+  };
+
+  const handleGetMembers = () => {
+    dispatch(getMembers({
+      conversationId: conversationInfo.id,
+      page,
+    }, (membersResponse: User[], hasMore: boolean, total: number) => {
+      setPage(page + 1);
+      setMembers([...members, ...membersResponse]);
+      setHasMore(hasMore);
+    }, () => {
+    }));
   };
 
   return (
@@ -126,7 +199,11 @@ const ConversationInfo = (props: ConversationInfoOptions) => {
       </Dialog.Header>
       <Dialog.Body className='text-3.25 mt-6 whitespace-break'>
         <div className='flex items-center space-x-4'>
-          <Avatar className='!w-20 !h-20' url={conversationInfo.avatar} />
+          <Avatar
+            className='!w-20 !h-20'
+            url={conversationInfo.avatar}
+            online={online}
+          />
           <p className='font-semibold text-xl line-clamp-1 flex items-center space-x-2'>
             <span>{conversationInfo.name}</span>
             {
@@ -172,21 +249,40 @@ const ConversationInfo = (props: ConversationInfoOptions) => {
                 </Tooltip>
               }
             </div>
-            <div className='flex flex-col space-y-4 max-h-72 overflow-y-scroll'>
-              {
-                conversationInfo.members.map((member: User) => (
-                  <div className='flex items-center space-x-4 justify-between cursor-pointer group' key={member.id}>
-                    <div className='flex items-center space-x-4'>
-                      <Avatar className='' url={member.avatar} />
-                      <p className='line-clamp-1'>{member.name}</p>
+            <div className='flex flex-col space-y-4 max-h-72 overflow-y-scroll' id="scrollableDiv">
+              <InfiniteScroll
+                className='flex flex-col space-y-4'
+                dataLength={members.length}
+                next={handleGetMembers}
+                hasMore={hasMore}
+                loader={<></>}
+                scrollableTarget="scrollableDiv"
+              >
+                {
+                  members.map((member: User) => (
+                    <div className='flex items-center space-x-4 justify-between cursor-pointer group' key={member.id}>
+                      <div className='flex items-center space-x-4'>
+                        <Avatar className='' url={member.avatar} />
+                        <p className='line-clamp-1'>{member.name} {member.id === conversationInfo.ownerId && '(' + t('admin') + ')'}</p>
+                      </div>
+                      <div className='flex space-x-2'>
+                        {
+                          isOwner && member.id !== conversationInfo.ownerId &&
+                          <Button className='text-red hidden group-hover:flex px-2' onClick={() => handleKickUser(member)}>{t('kick')}</Button>
+                        }
+                        {
+                          isOwner && conversationInfo.bannedMembers.includes(member.id) && member.id !== conversationInfo.ownerId &&
+                          <Button className='text-red hidden group-hover:flex px-2' onClick={() => handleUnbanUser(member)}>{t('unban')}</Button>
+                        }
+                        {
+                          isOwner && !conversationInfo.bannedMembers.includes(member.id) && member.id !== conversationInfo.ownerId &&
+                          <Button className='text-red hidden group-hover:flex px-2' onClick={() => handleBanUser(member)}>{t('ban')}</Button>
+                        }
+                      </div>
                     </div>
-                    {
-                      isOwner && member.id !== conversationInfo.ownerId &&
-                      <Button className='text-red hidden group-hover:flex px-2' onClick={() => handleKickUser(member)}>{t('kick')}</Button>
-                    }
-                  </div>
-                ))
-              }
+                  ))
+                }
+              </InfiniteScroll>
             </div>
           </div>
         }

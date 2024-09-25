@@ -9,7 +9,7 @@ import Routes from './routes/index.routes';
 import { useDialog } from './shared/components/dialog';
 import ErrorDialog from './shared/components/dialog/templates/ErrorDialog';
 import { getToken } from './shared/utils/utils';
-import { getAllUsers, getUser } from './stores/user/action';
+import { getUser, getUserGMSH } from './stores/user/action';
 import { User } from './shared/models/User';
 
 function App() {
@@ -19,17 +19,9 @@ function App() {
   const { appendDialog } = useDialog();
   const { t } = useTranslation();
   const dispatch = useDispatch();
-
   useEffect(() => {
     i18next.changeLanguage('en');
   }, []);
-
-  useEffect(() => {
-    if (!user.id) {
-      return;
-    }
-    getAllUser();
-  }, [user.id]);
 
   useEffect(() => {
     if (getToken()) {
@@ -50,11 +42,31 @@ function App() {
     }))
   };
 
-  const getAllUser = () => {
-    dispatch(getAllUsers(() => {
+  // GMSH
+  const getUserProfileGMSH = (userId: string) => {
+    dispatch(getUserGMSH(userId, () => {
     }, () => {
-    }));
+    }))
   };
+
+  // useEffect(() => {
+  //   const handleMessage = (event: any) => {
+  //     try {
+  //       const data = JSON.parse(event.data);
+  //       if (data.userId) {
+  //         getUserProfileGMSH(data.userId);
+  //       }
+  //     } catch (error) {
+  //       console.error('Error parsing message data:', error);
+  //     }
+  //   };
+
+  //   window.addEventListener('message', handleMessage);
+
+  //   return () => {
+  //     window.removeEventListener('message', handleMessage);
+  //   };
+  // }, []);
 
   return (
     <>

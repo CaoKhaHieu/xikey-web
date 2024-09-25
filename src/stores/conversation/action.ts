@@ -10,8 +10,18 @@ export const updateConversation = generateAPIAction(types.UPDATE_CONVERSATION);
 export const leaveGroup = generateAPIAction(types.LEAVE_GROUP);
 export const kickUser = generateAPIAction(types.KICK_USER);
 export const addUser = generateAPIAction(types.ADD_USER);
+export const getMembers = generateAPIAction(types.GET_MEMBERS);
 export const removeGroup = generateAPIAction(types.REMOVE_GROUP);
 export const getAllGroupConversation = generateAPIAction(types.GET_GROUP_CONVERSATION);
+export const getConversationWithAdmin = generateAPIAction(types.GET_CONVERSATION_WITH_ADMIN);
+export const joinGroupConversation = generateAPIAction(types.JOIN_GROUP_CONVERSATION);
+
+// GMSH
+export const createLink = generateAPIAction(types.CREATE_LINK);
+export const updateLink = generateAPIAction(types.UPDATE_LINK);
+export const deleteLink = generateAPIAction(types.DELETE_LINK);
+export const banUser = generateAPIAction(types.BAN_USER);
+export const unbanUser = generateAPIAction(types.UNBAN_USER);
 
 export const saveAllConversations = (payload: Conversation[]) => ({
   type: types.SAVE_ALL_CONVERSATION,
@@ -41,4 +51,8 @@ export const removeConversation = (payload: Conversation) => ({
 export const selectConversation = (payload: Conversation) => ({
   type: types.SELECT_CONVERSATION,
   payload,
+});
+
+export const clearCurrentConversation = () => ({
+  type: types.CLEAR_CURRENT_CONVERSATION,
 });

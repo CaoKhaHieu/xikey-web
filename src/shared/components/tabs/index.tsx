@@ -58,7 +58,7 @@ const Tabs = (props: ITabs) => {
     }
   });
 
-  return <div className="tabs">{tabContent}</div>;
+  return <div className="tabs-sections">{tabContent}</div>;
 };
 
 const TabList = (props: ITabList) => {

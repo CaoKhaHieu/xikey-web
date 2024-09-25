@@ -27,6 +27,7 @@ const ForwardMessage = (props: ForwardMessageOptions) => {
   const [allGroups, setAllGroups] = useState<Conversation[]>([]);
   const { userManagement, user } = useSelector((state: any) => state.userReducer);
   const { conversation } = useSelector((state: any) => state.conversationReducer);
+  
   const listConversations: Conversation[] = Object.values(conversation?.allConversations);
   const groupConversations: Conversation[] = listConversations.filter((conversation: Conversation) => conversation.isGroup);
 
@@ -109,7 +110,11 @@ const ForwardMessage = (props: ForwardMessageOptions) => {
               allUsers.map((user: User) => (
                 <div className='flex items-center' key={user.id}>
                   <div className='flex items-center space-x-4 grow'>
-                    <Avatar className='' url={user.avatar} />
+                    <Avatar
+                      className=''
+                      url={user.avatar}
+                      online={user.online}
+                    />
                     <p className='line-clamp-1'>{user.name}</p>
                   </div>
                   <Button

@@ -8,13 +8,14 @@ interface TooltipProps {
   content: string;
   place?: PlacesType;
   children: ReactElement;
+  wrapperClassName?: string;
 };
 
 const Tooltip = (props: TooltipProps) => {
-  const { className, id, content, children, place } = props;
+  const { className, wrapperClassName, id, content, children, place } = props;
   return (
     <>
-      <div data-tooltip-id={id} data-tooltip-content={content}>
+      <div className={wrapperClassName} data-tooltip-id={id} data-tooltip-content={content}>
         {children}
       </div>
       <ReactTooltip id={id} place={place} className={className} />

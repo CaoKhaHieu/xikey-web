@@ -8,6 +8,10 @@ export const getUser = generateAPIAction(types.GET_USER);
 export const updateAvatar = generateAPIAction(types.UPDATE_AVATAR);
 export const updateInfoAccount = generateAPIAction(types.UPDATE_INFO_ACCOUNT);
 export const searchUser = generateAPIAction(types.SEARCH_USER);
+export const verifyUser = generateAPIAction(types.VERIFY_USER);
+
+// GMSH
+export const getUserGMSH = generateAPIAction(types.GET_USER_GMSH);
 
 export const setUser = (payload: User) => ({
   type: types.SET_USER,

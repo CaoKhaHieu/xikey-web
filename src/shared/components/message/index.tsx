@@ -1,4 +1,4 @@
-import { memo, useRef } from "react";
+import { memo, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import classNames from "classnames";
 import { useTranslation } from "react-i18next";
@@ -12,14 +12,19 @@ import { User } from "@/shared/models/User";
 
 import { useDialog } from "../dialog";
 import DynamicPopover from "../popover";
+import Button from "../button";
 import ImageDetail from "../image-detail";
 import ForwardMessage from "../dialog/templates/ForwardMessage";
-import { deleteMessage, reactMessage, saveReplyMessage } from "@/stores/message/action";
+import ReportMessageDialog from "../dialog/templates/ReportMessage";
+import ConfirmDialog from "../dialog/templates/ConfirmDialog";
+import { clearScrollMessage, deleteMessage, pinMessage, reactMessage, saveEditMessage, saveReplyMessage, saveScrollMessage } from "@/stores/message/action";
 
 import { TYPE_MESSAGE } from "@/shared/enums";
 import { REACTIONS } from "@/shared/constants";
 import { Message as MessageModel } from "@/shared/models/Message";
-import { formatDate, formatTimeToHHMM, isOnlyEmoji, showToast, urlify } from "@/shared/utils/utils";
+import { formatDate, formatTimeToHHMM, getImgsMessage, getTextMessage, isOnlyEmoji, renderHTMLMessage, showToast, urlify } from "@/shared/utils/utils";
+import { Conversation } from "@/shared/models/Conversation";
+import { banUser, kickUser, updateInfoConversation } from "@/stores/conversation/action";
 
 import ReplyIcon from "../../../assets/icons/reply.svg?react";
 import SmilePlusIcon from "../../../assets/icons/smile-plus.svg?react";
@@ -29,6 +34,8 @@ import PinIcon from "../../../assets/icons/pin.svg?react";
 import CopyIcon from "../../../assets/icons/copy.svg?react";
 import DeleteIcon from "../../../assets/icons/delete.svg?react";
 import CircleCheckIcon from "../../../assets/icons/circle-check.svg?react";
+import ReportIcon from "../../../assets/icons/report.svg?react";
+import EditIcon from "../../../assets/icons/edit2.svg?react";
 
 interface MessageOptions {
   message: MessageModel;
@@ -46,6 +53,8 @@ const heightOfPopover = 100;
 const Message = (props: MessageOptions) => {
   const { message, showAvatar, isShowName, isLastOfSection, isLast, isShowDayName, isShowStartTime } = props;
   const { user }: { user: User } = useSelector((state: any) => state.userReducer);
+
+  const [ isShowMenuAction, setIsShowMenuAction ] = useState<boolean>(false);
   
   const { t } = useTranslation();
   const { appendDialog } = useDialog();
@@ -68,13 +77,28 @@ const Message = (props: MessageOptions) => {
   }
 
   const handleRenderMessage = (message: MessageModel) => {
+    let textMessage: string = '';
+    let imgsMessage: string[] = [];
+
+    if (message.type === TYPE_MESSAGE.HTML) {
+      textMessage = getTextMessage(message.content);
+      imgsMessage = getImgsMessage(message.content);
+    }
+  
     if (isDeleted) {
       return (
-        <p className="text-gray3">
+        <p className="text-gray3 px-2.5 py-1">
           <i>{t('deleted_message')}</i>
         </p>
       );
     }
+    let isBanned = false;
+    let isKicked = false;
+    if (message.report) {
+      isBanned = message.report.conversation.bannedMembers.includes(message.report.sender.id);
+      isKicked = message.report.conversation.kickedMembers.includes(message.report.sender.id);
+    }
+    
     return (
       <Tooltip
         className="!bg-black2 z-10"
@@ -83,6 +107,18 @@ const Message = (props: MessageOptions) => {
         place={'top-start'}
       >
         <>
+          {
+            message.report &&
+            <div className="min-w-4 md:min-w-96">
+              <p className="font-semibold">Báo cáo tin nhắn xấu hoặc spam</p>
+              <p>Người báo cáo: <span className="font-semibold">{message.sender.name}</span></p>
+              <p>Lý do: <span className="font-semibold">{message.report.reason}</span> </p>
+              <p>Nhóm: <span className="font-semibold">{message.report.conversation.name}</span> </p>
+              <div className="mb-0">
+                Nội dung tin nhắn của <span className="font-semibold">{message.report.sender.name}:</span>
+              </div>
+            </div>
+          }
           {
             message.type === TYPE_MESSAGE.TEXT &&
             <span className={classNames({
@@ -93,7 +129,7 @@ const Message = (props: MessageOptions) => {
           {
             message.type === TYPE_MESSAGE.IMAGE &&
             <ImageDetail
-              className="rounded-2xl object-cover min-h-96 max-h-96 max-w-xl cursor-pointer"
+              className="min-h-64 max-h-64 rounded-2xl object-cover max-w-xl cursor-pointer md-min-h-96 md-max-h-96"
               src={message.content}
             ></ImageDetail>
           }
@@ -108,11 +144,67 @@ const Message = (props: MessageOptions) => {
                   })}
                 >
                   <ImageDetail
-                    className="rounded-lg min-h-96 object-cover max-h-96 max-w-xl"
+                    className="min-h-64 max-h-64 rounded-lg object-cover max-w-xl md-max-h-96 md-min-h-96"
                     src={image}
                   ></ImageDetail>
                 </div>
               ))}
+            </div>
+          }
+          {
+            message.type === TYPE_MESSAGE.HTML &&
+            <>
+              <div className='grid grid-cols-6 gap-2'>
+                {imgsMessage.map((image, index) => (
+                  <div
+                    key={index}
+                    className={classNames("cursor-pointer col-span-6", {
+                      '!col-span-3': imgsMessage.length > 1,
+                      '!col-span-6': index === 2 && imgsMessage.length === 3,
+                    })}
+                  >
+                    <ImageDetail
+                      className={classNames("min-h-64 max-h-64 rounded-t-lg object-cover md-max-h-96 md-min-h-96", {
+                        '!rounded-lg': !textMessage
+                      })}
+                      src={image}
+                    ></ImageDetail>
+                  </div>
+                ))}
+              </div>
+              {
+                textMessage &&
+                <div
+                  className={classNames('bg-gray8 text-black rounded-b-lg py-1 px-2', {
+                    '!bg-primaryHover !text-white ': isCurrentUser
+                  })}
+                  dangerouslySetInnerHTML={{ __html: urlify(textMessage, isCurrentUser) }}
+                >
+                </div>
+              }
+            </>
+          }
+          {
+            message.report &&
+            <div className="flex justify-end space-x-4 mt-2">
+              {
+                !isBanned && !isKicked &&
+                <Button
+                  className="border border-gray2 px-4 py-1.5 rounded-md font-medium cursor-pointer hover:border-red1 hover:bg-red1 hover:text-white"
+                  onClick={() => handleBanUser(message.report.sender, message.report.conversation.id)}
+                >
+                  Ban
+                </Button>
+              }
+              {
+                !isKicked &&
+                <Button
+                  className="border border-gray2 px-4 py-1.5 rounded-md font-medium cursor-pointer hover:border-red1 hover:bg-red1 hover:text-white"
+                  onClick={() => handleKickUser(message.report.sender, message.report.conversation.id)}
+                >
+                  Kick
+                </Button>
+              }
             </div>
           }
         </>
@@ -121,9 +213,15 @@ const Message = (props: MessageOptions) => {
   };
 
   const handleRenderReplyMessage = (message: MessageModel) => {
+    let imgsMessage: string[] = [];
+
+    if (message.replyMessage.type === TYPE_MESSAGE.HTML) {
+      imgsMessage = getImgsMessage(message.replyMessage.content);
+    }
+
     if (message.replyMessage.isDeleted) {
       return (
-        <p className="text-gray3">
+        <p className="text-gray3 py-1">
           <i>{t('deleted_message')}</i>
         </p>
       );
@@ -136,14 +234,27 @@ const Message = (props: MessageOptions) => {
             <img className="min-w-12 w-12 h-12 object-cover" src={message.replyMessage.content}></img>
           </div>
         }
+        {
+          message.replyMessage?.type === TYPE_MESSAGE.HTML &&
+          <div>
+            <img className="min-w-12 w-12 h-12 object-cover" src={imgsMessage[0]}></img>
+          </div>
+        }
         <div>
           <p className="text-sm font-semibold">{message.replyMessage.sender.name}</p>
-          <p className="line-clamp-1 text-ellipsis pr-2 text-sm text-gray3">
-            {message.replyMessage.type === TYPE_MESSAGE.IMAGE ? t('image') : message.replyMessage.content}
+          <p className="line-clamp-1 text-ellipsis pr-2 text-sm text-gray3 break-all">
+            {
+              renderHTMLMessage(message.replyMessage)
+            }
           </p>
         </div>
       </>
     );
+  };
+
+  const handleScrollToMessage = (message: MessageModel) => {
+    dispatch(clearScrollMessage());
+    dispatch(saveScrollMessage(message));
   };
 
   const handleSaveReplyMessage = () => {
@@ -182,11 +293,16 @@ const Message = (props: MessageOptions) => {
 
   const handleClosePopover = () => {
     popoverRef.current?.closePopover();
+    setIsShowMenuAction(false);
   };
 
   const handleDeleteMessage = () => {
     dispatch(deleteMessage({ id: message.id }, () => {
     }, () => {}));
+  };
+
+  const handleEditMessage = () => {
+    dispatch(saveEditMessage(message));
   };
 
   const handleCopyMessage = () => {
@@ -196,23 +312,91 @@ const Message = (props: MessageOptions) => {
     handleClosePopover();
   };
 
+  const handlePinMessage = () => {
+    const body = {
+      messageId: message.id,
+      conversationId: message.conversationId,
+    };
+    dispatch(pinMessage(body, (conversation: Conversation) => {
+      handleClosePopover();
+      showToast(t('pinned'));
+    }, () => {
+    }));
+  };
+
+  const handleReportMessage = () => {
+    appendDialog(
+      <ReportMessageDialog
+        conversationId={message.conversationId}
+        messageId={message.id}
+        onClick={() => console.log('first')}
+      />
+    )
+  };
+
+  const handleBanUser = (member: User, conversationId: string) => {
+    appendDialog(
+      <ConfirmDialog
+        title={t('are_you_sure')}
+        content={t('sure_ban_user')}
+        onClick={() => {
+          const data = {
+            conversationId,
+            userId: member.id,
+          };
+          dispatch(banUser(data, () => {
+            showToast(t('ban_success'));
+          }, () => {
+          }));
+        }}
+      />
+    );
+  };
+
+  const handleKickUser = (user: User, conversationId: string) => {
+    appendDialog(
+      <ConfirmDialog
+        title={t('are_you_sure')}
+        content={t('kick_content')}
+        onClick={() => {
+          const data = {
+            conversationId,
+            userId: user.id,
+          };
+          dispatch(kickUser(data, (conversation: Conversation) => {
+            showToast(t('deleted_user'));
+          }, () => {
+          }));
+        }}
+      />
+    );
+  };
+
   const menusAction = [
     {
       title: 'pin',
       isShow: true,
       icon: <PinIcon />,
-    },
-    {
-      title: 'copy_message',
-      isShow: !isDeleted && message.type !== TYPE_MESSAGE.IMAGE_LIST,
-      icon: <CopyIcon />,
-      onClick: handleCopyMessage,
+      onClick: handlePinMessage,
     },
     // {
-    //   title: 'edit',
-    //   isShow: true,
-    //   icon: <EditIcon />
+    //   title: 'copy_message',
+    //   isShow: !isDeleted && message.type !== TYPE_MESSAGE.IMAGE_LIST,
+    //   icon: <CopyIcon />,
+    //   onClick: handleCopyMessage,
     // },
+    {
+      title: 'edit',
+      isShow: !isDeleted && isCurrentUser,
+      icon: <EditIcon />,
+      onClick: handleEditMessage,
+    },
+    {
+      title: 'report',
+      icon: <ReportIcon />,
+      isShow: !isCurrentUser,
+      onClick: handleReportMessage,
+    },
     {
       title: 'delete',
       icon: <DeleteIcon />,
@@ -223,7 +407,11 @@ const Message = (props: MessageOptions) => {
 
   if (message.type === TYPE_MESSAGE.NOTIFY) {
     return (
-      <div className="flex justify-center items-center space-x-2">
+      <div className={classNames("flex justify-center items-center space-x-2 py-2", {
+        "me": isCurrentUser,
+        "him": !isCurrentUser,
+        'last': isLastOfSection,
+      })}>
         <Avatar className="w-6 h-6" url={message.sender.avatar} />
         <p className="flex items-center space-x-1 text-gray3">
           <span>{message.sender.name}</span>
@@ -235,12 +423,14 @@ const Message = (props: MessageOptions) => {
 
   return (
     <div
+      id={message.id}
       className={classNames("flex flex-col w-full relative", {
         "me": isCurrentUser,
         "him": !isCurrentUser,
         'last': isLastOfSection,
       })}
     >
+      <div id={`message-background-${message.id}`} className="absolute w-full h-full inset-0 rounded-lg overflow-hidden"></div>
       {
         isShowDayName &&
         <p className="text-center my-3 text-gray3 text-xs">
@@ -275,7 +465,15 @@ const Message = (props: MessageOptions) => {
           {/* Name  */}
           {
             isShowName && !isCurrentUser && !message.replyMessage?.id &&
-            <p className="text-gray5 text-xs mb-1 ml-2">{message.sender.name}</p>
+            <div className="text-gray5 text-xs mb-1 ml-2 flex items-center space-x-2">
+              <span>{message.sender.name}</span>
+              {
+                (message.sender.hasVerified || message.sender.isAdmin) &&
+                <div className="text-2xl text-primaryHover">
+                  <CircleCheckIcon />
+                </div>
+              }
+            </div>
           }
           {/* Reply */}
           {
@@ -288,9 +486,12 @@ const Message = (props: MessageOptions) => {
                 <span>{message.sender.id === user.id ? t('you') : message.sender.name} {t('replied')} </span>
               </div>
 
-              <div className="bg-gray9 p-2 mb-0.5 rounded-lg max-w-7/10 ml-2">
+              <div
+                className="bg-gray9 p-2 mb-0.5 rounded-lg max-w-7/10 ml-2 cursor-pointer"
+                onClick={() => handleScrollToMessage(message.replyMessage)}
+              >
                 <div className={classNames("border-l-4 border-primary pl-2", {
-                  "flex items-center space-x-2": message.replyMessage?.type === TYPE_MESSAGE.IMAGE
+                  "flex items-center space-x-2": message.replyMessage?.type === TYPE_MESSAGE.IMAGE || message.replyMessage?.type === TYPE_MESSAGE.HTML
                 })}>
                   {
                     handleRenderReplyMessage(message)
@@ -301,11 +502,14 @@ const Message = (props: MessageOptions) => {
           }
 
           <div
-            className={classNames("message-content min-w-9 min-h-9 max-w-7/10 relative px-3 py-1.5 flex items-center justify-center", {
+            className={classNames("message-content min-w-9 min-h-9 max-w-7/10 relative px-3 py-1.5 flex items-center justify-center break-all", {
               "bg-gray8 ml-2": !isCurrentUser,
               "bg-primaryHover text-white": isCurrentUser,
-              "!p-0 !bg-transparent": message.type === TYPE_MESSAGE.IMAGE || message.type === TYPE_MESSAGE.IMAGE_LIST,
-              'bg-transparent !p-0 !ml-0': isOnlyEmojiMessage,
+              "!p-0 !bg-transparent": message.type === TYPE_MESSAGE.IMAGE || message.type === TYPE_MESSAGE.IMAGE_LIST || message.type === TYPE_MESSAGE.HTML,
+              'bg-transparent !p-0': isOnlyEmojiMessage,
+              '!px-3 !py-1.5 !bg-white': message.report && !isCurrentUser,
+              '!px-3 !py-1.5 !bg-gray5': message.report && isCurrentUser,
+              '!bg-transparent !p-0 border border-gray3': message.isDeleted
             })}
           >
             {
@@ -318,7 +522,8 @@ const Message = (props: MessageOptions) => {
                 ref={actionRef}
                 className={classNames("absolute top-1/2 -translate-y-1/2 space-x-4 opacity-0 flex items-center justify-center group-hover:opacity-100 rounded-lg p-1.5 text-gray3 text-lg", {
                   "right-full -translate-x-4": isCurrentUser,
-                  "left-full translate-x-4": !isCurrentUser
+                  "left-full translate-x-4": !isCurrentUser,
+                  "opacity-100": isShowMenuAction
                 })}
               >
                 <div className="cursor-pointer relative group/react">
@@ -334,13 +539,26 @@ const Message = (props: MessageOptions) => {
                     <ReplyIcon />
                   </div>
                 }
-                <div className="cursor-pointer" onClick={handleFowardMessage}>
+                {/* {
+                  !message.sender.isAdmin && !isCurrentUser &&
+                  <div className="cursor-pointer" onClick={handleReportMessage}>
+                    <ReportIcon />
+                  </div>
+                } */}
+
+                {/* <div className="cursor-pointer" onClick={handleFowardMessage}>
                   <ShareIcon />
-                </div>
-                {/* <DynamicPopover
+                </div> */}
+
+                {/* {
+                  user.isAdmin &&
+                  <div className="cursor-pointer" onClick={handlePinMessage}>
+                    <PinIcon />
+                  </div>
+                } */}
+                <DynamicPopover
                   key={message.id}
                   ref={ popoverRef }
-                  padding={20}
                   positions={[`${getPositionPopover(actionRef.current)}`]}
                   align={isCurrentUser ? 'end' : 'start'}
                   parentElement={actionRef.current}
@@ -350,12 +568,12 @@ const Message = (props: MessageOptions) => {
                     </div>
                   }
                   content={
-                    <div className="py-1 bg-white rounded-lg shadow-2xl overflow-hidden">
+                    <div className="py-1 bg-white rounded-sm shadow-2xl overflow-hidden">
                       {
                         menusAction.map((menuItem) => menuItem.isShow && (
                           <p
                             key={menuItem.title}
-                            className="flex items-center space-x-3 text-gray3 text-base px-4 py-1 cursor-pointer hover:bg-gray2"
+                            className="flex items-center space-x-3 text-black1 text-base px-4 py-1 cursor-pointer hover:bg-gray2"
                             onClick={menuItem.onClick}
                           >
                             <span className="text-xl">
@@ -367,7 +585,8 @@ const Message = (props: MessageOptions) => {
                       }
                     </div>
                   }
-                /> */}
+                  onClickTrigger={() => setIsShowMenuAction(true)}
+                />
               </div>
             }
           </div>

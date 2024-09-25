@@ -26,9 +26,11 @@ const updateLastMessageConversation = (state: any, payload: Message) => {
   return {
     ...state,
     allConversations: { ...data },
+    currentConversation: { ...state.currentConversation, lastMessage: payload }
   };
 };
 
+// this function is used to update all conversation
 const updateInfoConversation = (state: any, payload: Conversation) => {
   const data: any = { ...state.allConversations };
   data[payload.id] = payload;
@@ -66,6 +68,15 @@ const selectConversation = (state: any, payload: Conversation) => {
   };
 };
 
+const clearCurrentConversation = (state: any) => {
+  const data: any = { ...state };
+  data.currentConversation = new Conversation({});
+
+  return {
+    ...data,
+  };
+};
+
 const conversationStrategies = {
   SAVE_ALL_CONVERSATION: saveAllConversations,
   UPDATE_LAST_MESSAGE_CONVERSATION: updateLastMessageConversation,
@@ -73,6 +84,7 @@ const conversationStrategies = {
   REMOVE_CONVERSATION: removeConversation,
   ADD_CONVERSATION: addConversation,
   SELECT_CONVERSATION: selectConversation,
+  CLEAR_CURRENT_CONVERSATION: clearCurrentConversation,
   __default__: (state: any) => state,
 };
 

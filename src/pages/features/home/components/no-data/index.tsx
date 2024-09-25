@@ -2,7 +2,7 @@ import WelcomeIcon from "@/assets/icons/welcome.svg?react";
 
 const NoData = () => {
   return (
-    <div className="flex items-center justify-center h-full">
+    <div className="hidden items-center justify-center h-full md-flex">
       <WelcomeIcon />
     </div>
   );

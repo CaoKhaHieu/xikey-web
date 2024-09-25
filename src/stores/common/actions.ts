@@ -15,4 +15,9 @@ export const clearApiResponseError = () => ({
   type: types.CLEAR_API_RESPONSE_ERROR,
 });
 
+export const toggleSidebarRight = (isOpen: boolean) => ({
+  type: types.TOGGLE_SIDEBAR_RIGHT,
+  payload: isOpen
+});
+
 export const upload = generateAPIAction(types.UPLOAD);

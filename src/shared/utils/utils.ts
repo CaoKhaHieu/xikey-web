@@ -3,6 +3,9 @@ import toast from 'react-hot-toast';
 import i18n from './i18n.ts';
 
 import { PASSWORD_PATTERN, VALIDATE_LENGTH } from '../constants';
+import { Message } from '../models/Message.ts';
+import { TYPE_MESSAGE } from '../enums.ts';
+import { Conversation } from '../models/Conversation.ts';
 
 export const urlify = (content: string, isCurrentUser: boolean) => {
   const textColor = isCurrentUser ? 'text-white' : 'text-black1';
@@ -26,6 +29,54 @@ export const urlify = (content: string, isCurrentUser: boolean) => {
   return replacedText;
 };
 
+export const htmlMessage = (imgs: string[], text: string) => {
+  const textHtml = `<p>${text.replace(/\n/g, '<br />')}</p>`;
+
+  const imagesHtml = imgs.map(img => `<img src="${img}" />`).join('');
+
+  return `${text && textHtml}${imgs.length && imagesHtml}`;
+};
+
+export const getTextMessage = (content: string) => {
+  const parser = new DOMParser();
+  const doc = parser.parseFromString(content, 'text/html');
+
+  const pText = doc.querySelector('p')?.textContent;
+  return pText || '';
+};
+
+export const getImgsMessage = (content: string) => {
+  const parser = new DOMParser();
+  const doc = parser.parseFromString(content, 'text/html');
+  
+  const imgTags = doc.querySelectorAll('img');
+  const imgUrls = Array.from(imgTags).map(img => img.getAttribute('src') || '');
+  
+  return imgUrls;
+};
+
+export const renderHTMLMessage = (message: Message) => {
+  const { t } = i18n;
+  let textMessage: string = '';
+
+  if (message && message.type === TYPE_MESSAGE.HTML) {
+    textMessage = getTextMessage(message.content);
+  }
+
+  if (message.type === TYPE_MESSAGE.IMAGE) {
+    return t('image');
+  }
+
+  if (message.type === TYPE_MESSAGE.HTML) {
+    if (!textMessage) {
+      return t('image');
+    }
+    return textMessage
+  }
+
+  return message.content;
+};
+
 export const formValidateResolver = (arrFields: string[]) => {
   const fieldsValidate: any = {
     name: yup.string().trim().required('error.name_required').min(VALIDATE_LENGTH.MIN_LENGTH, 'error.name_length').max(VALIDATE_LENGTH.MAX_NAME, 'error.name_length'),
@@ -41,6 +92,8 @@ export const formValidateResolver = (arrFields: string[]) => {
       .required('error.confirm_password_required')
       .oneOf([yup.ref('password'), null], 'error.confirm_password_match'),
     passwordLogin: yup.string().required('error.password_required'),
+    title: yup.string().required('error.title_required'),
+    link: yup.string().required('error.link_required'),
   };
 
   // Convert string array to key and get value from fieldsValidate
@@ -180,4 +233,15 @@ export const isTimeDifferenceGreaterThan5Minutes = (time1: string, time2: string
 
   // Check if the time difference is greater than or equal to 5 minutes (300 seconds)
   return timeDifference >= time5Minutes;
+};
+
+// To check if an element is visible within a scrollable container (with vertical scrolling)
+export const isElementInViewport = (element: any, container: any) => {
+  const containerRect = container.getBoundingClientRect();
+  const elementRect = element.getBoundingClientRect();
+
+  return (
+    elementRect.top >= containerRect.top &&
+    elementRect.bottom <= containerRect.bottom
+  );
 };

@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useTranslation } from "react-i18next";
 import { useHistory } from "react-router-dom";
+import InfiniteScroll from "react-infinite-scroll-component";
 
 import ListChat from "./components/list-chat";
 import Input from "@/shared/components/input";
@@ -17,18 +18,23 @@ import { Conversation } from "@/shared/models/Conversation";
 import { searchUser } from "@/stores/user/action";
 import Avatar from "@/shared/components/avatar";
 import { useDialog } from "@/shared/components/dialog";
-import { createConversation, getAllConversation, saveAllConversations } from "@/stores/conversation/action";
+import { createConversation, getAllConversation, getAllGroupConversation, getConversationWithAdmin, saveAllConversations, selectConversation } from "@/stores/conversation/action";
 
 import SearchIcon from "@/assets/icons/search.svg?react";
 import GroupIcon from "@/assets/icons/group.svg?react";
 import CloseIcon from "@/assets/icons/close.svg?react";
 import CreateGroup from "@/shared/components/dialog/templates/CreateGroup";
 import ChatSkeleton from "@/shared/components/skeleton/chat-skeleton";
+import Tooltip from "@/shared/components/tooltip";
 
 const SidebarMain = () => {
   const [valueInput, setValueInput] = useState<string>("");
   const [isFocused, setIsFocused] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState<boolean>(true);
+
+  const [page, setPage] = useState<number>(1);
+  const [hasMore, setHasMore] = useState<boolean>(true);
+  const pageRef = useRef<number>(page);
 
   const [users, setUsers] = useState<User[]>([]);
   const { user }: { user: User } = useSelector((state: any) => state.userReducer);
@@ -53,6 +59,7 @@ const SidebarMain = () => {
   const handleChangeInput = (event: React.FormEvent<HTMLInputElement>) => {
     const value = event.currentTarget.value;
     setValueInput(value);
+    pageRef.current = 1;
 
     if (typingTimeoutRef.current) {
       clearTimeout(typingTimeoutRef.current);
@@ -62,7 +69,7 @@ const SidebarMain = () => {
         setUsers([]);
         return;
       }
-      handleSearchUser(value);
+      handleSearchUser(value.trim(), true);
     }, 300);
   };
 
@@ -74,19 +81,39 @@ const SidebarMain = () => {
     }));
   };
 
-  const handleSearchUser = (name: string) => {
+  const handleGetAllGroupConversation = () => {
+    dispatch(getAllGroupConversation(null, () => {
+      dispatch(getConversationWithAdmin(null, () => {
+        setIsLoading(false);
+      }, () => {
+        setIsLoading(false);
+      }));
+    }, () => {
+    }));
+  };
+
+  const handleSearchUser = (name?: string, isReset: boolean = false) => {
     const body = {
-      name,
+      name: name || valueInput,
+      page: pageRef.current || page,
     };
-    dispatch(searchUser(body, (res: User[]) => {
-      setUsers(res);
+    dispatch(searchUser(body, (usersResponse: User[], page: number, hasMore: boolean) => {
+      if (isReset) {
+        setUsers(usersResponse);
+      } else {
+        setUsers([...users, ...usersResponse]);
+      }
+      setPage(page + 1);
+      setHasMore(hasMore);
+
+      pageRef.current = page + 1;
     }, () => {
     }));
   };
 
   const handleRedirectToConversation = (conversationId: string, userSearch: User) => {
     if (conversationId) {
-      history.push(`/chat/${conversationId}`);
+      dispatch(selectConversation(new Conversation({ id: conversationId })));
       setIsFocused(false);
       return;
     }
@@ -96,7 +123,7 @@ const SidebarMain = () => {
     };
     dispatch(createConversation(body, (newConversation: Conversation) => {
       dispatch(saveAllConversations([newConversation, ...listConversations]));
-      history.push(`/chat/${newConversation.id}`);
+      dispatch(selectConversation(newConversation));
     }, () => {
     }));
   };
@@ -108,29 +135,36 @@ const SidebarMain = () => {
   };
 
   return (
-    <div className="w-87.5 h-screen border-r border-gray2">
+    <div className="w-full border-r-none h-screen md:border-r md:border-gray2 md:w-87.5">
       <div className="flex flex-col">
         <div className="px-1 flex items-center space-x-1">
           <div className="flex justify-center items-center w-full border border-gray2 rounded-lg my-2 overflow-hidden">
-            <Input
-              ref={inputRef}
-              variant="search"
-              placeholder={t("search")}
-              onChange={handleChangeInput}
-              value={valueInput}
-              onFocus={() => setIsFocused(true)}
-            ></Input>
+            <Tooltip
+              className=''
+              wrapperClassName='w-full'
+              id='search_user'
+              content={t('')}
+            >
+              <Input
+                ref={inputRef}
+                variant='search'
+                placeholder={t("search")}
+                onChange={handleChangeInput}
+                value={valueInput}
+                onFocus={() => setIsFocused(true)}
+              ></Input>
+            </Tooltip>
             <div className="text-black1 text-2xl mr-2">
               <SearchIcon />
             </div>
           </div>
-          <div
+          <button
             className="cursor-pointer hover:bg-gray8 text-2xl p-2 rounded-full"
             hidden={isFocused}
             onClick={handleOpenDialogCreateGroup}
           >
             <GroupIcon />
-          </div>
+          </button>
           {
             isFocused &&
             <div
@@ -144,28 +178,38 @@ const SidebarMain = () => {
 
         {
           isFocused &&
-          <div className="flex flex-col overflow-y-scroll h-[calc(100vh-62px)] pl-1.5">
-            {
-              users.length > 0 ?
-              <>
-                {
-                  users.map((user: User) => (
-                    <div
-                      key={user.id}
-                      className="flex space-x-2 items-center p-2 cursor-pointer rounded-lg hover:bg-gray2 duration-300"
-                      onClick={() => handleRedirectToConversation(user?.conversationId, user)}
-                    >
-                      <Avatar className="" url={user.avatar} />
-                      <p className="line-clamp-1">{user.name}</p>
-                    </div>
-                  ))
-                }
-              </> :
-              <div className="flex flex-col items-center mt-8">
-                <p className="font-semibold text-base">{t('no_result')}</p>
-                <p className="text-base">{t('try_again')}</p>
-              </div>
-            }
+          <div className="flex flex-col overflow-y-scroll h-[calc(100vh-62px)] pl-1.5" id="scrollableDiv">
+            <InfiniteScroll
+              dataLength={users.length}
+              next={handleSearchUser}
+              hasMore={hasMore}
+              loader={<></>}
+              scrollableTarget="scrollableDiv"
+            >
+              {
+                !users.length &&
+                <div className="flex flex-col items-center mt-8">
+                  <p className="font-semibold text-base">{t('no_result')}</p>
+                  <p className="text-base">{t('try_again')}</p>
+                </div>
+              }
+              {
+                users.map((user: User) => (
+                  <div
+                    key={user.id}
+                    className="flex space-x-2 items-center p-2 cursor-pointer rounded-lg hover:bg-gray2 duration-300"
+                    onClick={() => handleRedirectToConversation(user?.conversationId, user)}
+                  >
+                    <Avatar
+                      className=""
+                      url={user.avatar}
+                      online={user.online}
+                    />
+                    <p className="line-clamp-1">{user.name}</p>
+                  </div>
+                ))
+              }
+            </InfiniteScroll>
           </div>
         }
 
@@ -175,9 +219,9 @@ const SidebarMain = () => {
               <Tab>
                 <p>{t("all")}</p>
               </Tab>
-              <Tab>
+              {/* <Tab>
                 <p>{t("unread")}</p>
-              </Tab>
+              </Tab> */}
             </TabList>
 
             <TabPanels>

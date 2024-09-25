@@ -24,9 +24,12 @@ export default {
         gray8: '#f0f0f0',
         gray9: '#f7f7f7',
         blue: '#005ae0',
+        blue1: '#0000FF',
         red: '#CC0000',
+        red1: '#f1251d',
         pink1: '#fde4e4',
         pink2: '#f2cccc',
+        green1: '#16a34a',
         overlay5: 'rgba(0, 0, 0, 0.5)',
       },
       width: {
@@ -37,16 +40,21 @@ export default {
         '7/10': '70%'
       },
       minWidth: {
+        '4': '1rem',
         '9': '2.25rem',
         '12': '3rem',
         '16': '4rem',
-        '20': '5rem'
+        '20': '5rem',
+        '64': '16rem',
+        '96': '24rem'
       },
       minHeight: {
+        '4': '1rem',
         '12': '3rem',
         '16': '4rem',
         '20': '5rem',
         '88': '22rem',
+        '64': '16rem',
         '96': '24rem'
       },
       maxHeight: {

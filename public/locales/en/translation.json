@@ -29,7 +29,9 @@
     "0": "No internet connection. \nPlease check the connection status and try again.",
     "400": "Something went wrong. \nPlease try again.",
     "500": "Server error.\nPlease try again.",
-    "401": "Session token has expired.\nPlease log in again."
+    "401": "Session token has expired.\nPlease log in again.",
+    "title_required": "Please enter your title",
+    "link_required": "Please enter your link"
   },
   "format_time": {
     "now": "Just now",
@@ -97,5 +99,30 @@
   "edit": "Edit",
   "copy_message": "Copy message",
   "delete": "Delete",
-  "deleted_message": "Message has been deleted"
+  "deleted_message": "Message has been deleted",
+  "message": "Message",
+  "pin_notify": "have pined a message",
+  "unpin_notify": "have unpined a message",
+  "pin_messages": "Pin messages",
+  "no_pined_message": "You don't have any pinned messages yet",
+  "pinned": "Pin message successfully",
+  "unpin": "Unpin",
+  "cannot_search_user": "You cannot use this feature",
+  "links": "Links",
+  "create_link": "created the textlink",
+  "update_link": "updated the textlink",
+  "delete_link": "deleted the textlink",
+  "sure_delete_link": "Do you really want to delete this link",
+  "edit_link": "Edit link",
+  "links_management": "Links Management",
+  "ban": "Ban",
+  "unban": "Unban",
+  "ownner": "Ownner",
+  "admin": "Admin",
+  "ban_success": "Ban user success",
+  "unban_success": "Unban user success",
+  "sure_ban_user": "Do you really want to ban this user?",
+  "sure_unban_user": "Do you really want to unban this user?",
+  "report": "Report",
+  "report_message_success": "Report message successfully"
 }
