@@ -42,13 +42,15 @@ const TypeMessage = () => {
   const [isOpenModalIcon, setIsOpenModalIcon] = useState<boolean>(false);
   const { user }: { user: User } = useSelector((state: any) => state.userReducer);
   const { messageManagement } = useSelector((state: any) => state.messageReducer);
+  const { conversation } = useSelector((state: any) => state.conversationReducer);
+  const { currentConversation } = conversation;
   
   const inputRef = useRef<HTMLInputElement>(null);
   const emojiRef = useRef<any>();
   const valueInputRef = useRef<string>('');
   const countUploadImagesRef = useRef<number>(listImg.length);
 
-  const { id }: { id: string } = useParams();
+  const { id }: { id: string } = currentConversation;
   const { t } = useTranslation();
   const dispatch = useDispatch();
 

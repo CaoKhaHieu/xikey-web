@@ -66,5 +66,6 @@ export function* watchUser() {
     takeLatest(types.UPDATE_AVATAR, updateAvatar),
     takeLatest(types.SEARCH_USER, searchUser),
     takeLatest(types.UPDATE_INFO_ACCOUNT, updateInfoAccount),
+    takeLatest(types.UPDATE_INFO_ACCOUNT, updateInfoAccount),
   ]);
 };

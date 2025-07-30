@@ -5,6 +5,7 @@ export interface User {
   avatar: string;
   online: boolean;
   conversationId: string;
+  isAdmin: boolean;
 }
 
 export class User {
@@ -15,5 +16,6 @@ export class User {
     this.name = user.name;
     this.online = user.online || false;
     this.conversationId = user.conversationId;
+    this.isAdmin = user.isAdmin || false;
   }
 }

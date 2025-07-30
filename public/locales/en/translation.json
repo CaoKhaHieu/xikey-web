@@ -97,5 +97,6 @@
   "edit": "Edit",
   "copy_message": "Copy message",
   "delete": "Delete",
-  "deleted_message": "Message has been deleted"
+  "deleted_message": "Message has been deleted",
+  "cannot_search_user": "You cannot use this feature"
 }

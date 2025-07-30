@@ -17,13 +17,14 @@ import { Conversation } from "@/shared/models/Conversation";
 import { searchUser } from "@/stores/user/action";
 import Avatar from "@/shared/components/avatar";
 import { useDialog } from "@/shared/components/dialog";
-import { createConversation, getAllConversation, saveAllConversations } from "@/stores/conversation/action";
+import { createConversation, getAllConversation, saveAllConversations, selectConversation } from "@/stores/conversation/action";
 
 import SearchIcon from "@/assets/icons/search.svg?react";
 import GroupIcon from "@/assets/icons/group.svg?react";
 import CloseIcon from "@/assets/icons/close.svg?react";
 import CreateGroup from "@/shared/components/dialog/templates/CreateGroup";
 import ChatSkeleton from "@/shared/components/skeleton/chat-skeleton";
+import Tooltip from "@/shared/components/tooltip";
 
 const SidebarMain = () => {
   const [valueInput, setValueInput] = useState<string>("");
@@ -86,7 +87,7 @@ const SidebarMain = () => {
 
   const handleRedirectToConversation = (conversationId: string, userSearch: User) => {
     if (conversationId) {
-      history.push(`/chat/${conversationId}`);
+      dispatch(selectConversation(new Conversation({ id: conversationId })));
       setIsFocused(false);
       return;
     }
@@ -96,7 +97,7 @@ const SidebarMain = () => {
     };
     dispatch(createConversation(body, (newConversation: Conversation) => {
       dispatch(saveAllConversations([newConversation, ...listConversations]));
-      history.push(`/chat/${newConversation.id}`);
+      dispatch(selectConversation(newConversation));
     }, () => {
     }));
   };
@@ -112,25 +113,34 @@ const SidebarMain = () => {
       <div className="flex flex-col">
         <div className="px-1 flex items-center space-x-1">
           <div className="flex justify-center items-center w-full border border-gray2 rounded-lg my-2 overflow-hidden">
-            <Input
-              ref={inputRef}
-              variant="search"
-              placeholder={t("search")}
-              onChange={handleChangeInput}
-              value={valueInput}
-              onFocus={() => setIsFocused(true)}
-            ></Input>
+            <Tooltip
+              className=''
+              wrapperClassName='w-full'
+              id='search_user'
+              content={t(!user.isAdmin ? 'cannot_search_user' : '')}
+            >
+              <Input
+                ref={inputRef}
+                variant='search'
+                placeholder={t("search")}
+                onChange={handleChangeInput}
+                value={valueInput}
+                onFocus={() => setIsFocused(true)}
+                disabled={!user.isAdmin}
+              ></Input>
+            </Tooltip>
             <div className="text-black1 text-2xl mr-2">
               <SearchIcon />
             </div>
           </div>
-          <div
+          <button
             className="cursor-pointer hover:bg-gray8 text-2xl p-2 rounded-full"
             hidden={isFocused}
             onClick={handleOpenDialogCreateGroup}
+            disabled={!user.isAdmin}
           >
             <GroupIcon />
-          </div>
+          </button>
           {
             isFocused &&
             <div
@@ -175,9 +185,9 @@ const SidebarMain = () => {
               <Tab>
                 <p>{t("all")}</p>
               </Tab>
-              <Tab>
+              {/* <Tab>
                 <p>{t("unread")}</p>
-              </Tab>
+              </Tab> */}
             </TabList>
 
             <TabPanels>

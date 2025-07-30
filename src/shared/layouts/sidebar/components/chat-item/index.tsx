@@ -70,7 +70,7 @@ const ChatItem = (props: IUserSidebar) => {
   };
   
   return (
-    <Link onClick={handleClick} to={`/chat/${conversation.id}`} className={classNames("w-full flex items-center p-2 cursor-pointer rounded-lg duration-300", {
+    <div onClick={handleClick} className={classNames("w-full flex items-center p-2 cursor-pointer rounded-lg duration-300", {
       "bg-gray2 hover:bg-gray2": currentConversation.id === conversation.id,
       "hover:bg-gray8": currentConversation.id !== conversation.id,
     })}>
@@ -98,7 +98,7 @@ const ChatItem = (props: IUserSidebar) => {
           </p>
         </div>
       </div>
-    </Link>
+    </div>
   );
 };
 
